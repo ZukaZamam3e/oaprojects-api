@@ -1,0 +1,5 @@
+[*.cs]
+csharp_style_namespace_declarations=file_scoped:suggestion
+
+# CS8618: Non nullable field _name is not initialized. Consider declare the field as nullable type
+dotnet_diagnostic.CS8618.severity = none
