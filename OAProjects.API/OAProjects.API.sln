@@ -3,13 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.1.32228.430
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OAProjects.API", "OAProjects.API\OAProjects.API.csproj", "{9CAAB6BE-6D7E-4385-AD3C-9FB07BB6A416}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OAProjects.API", "OAProjects.API\OAProjects.API.csproj", "{9CAAB6BE-6D7E-4385-AD3C-9FB07BB6A416}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OAProjects.Data", "OAProjects.Data\OAProjects.Data.csproj", "{7D797700-C7DC-454E-A6D9-08F159C6B91D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OAProjects.Data", "OAProjects.Data\OAProjects.Data.csproj", "{7D797700-C7DC-454E-A6D9-08F159C6B91D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OAProjects.Models", "OAProjects.Models\OAProjects.Models.csproj", "{87EB8399-6FA8-44A2-9859-D9778385F2A1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OAProjects.Models", "OAProjects.Models\OAProjects.Models.csproj", "{87EB8399-6FA8-44A2-9859-D9778385F2A1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OAProjects.Store", "OAProjects.Store\OAProjects.Store.csproj", "{91F41921-1BD2-4E17-A562-4E0AEE11B8EA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OAProjects.Store", "OAProjects.Store\OAProjects.Store.csproj", "{91F41921-1BD2-4E17-A562-4E0AEE11B8EA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

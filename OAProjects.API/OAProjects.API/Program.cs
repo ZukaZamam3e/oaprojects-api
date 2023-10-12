@@ -34,7 +34,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy(name: MyAllowSpecificOrigins,
         builder =>
         {
-            builder.WithOrigins("http://localhost:3000")
+            builder.WithOrigins("https://oaprojects.net", "http://localhost:3000")
                 .AllowAnyMethod()
                 .AllowAnyHeader();
         });
@@ -59,6 +59,8 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+string listeningPort = builder.Configuration.GetValue<string>("ListeningPort");
+
+app.Urls.Add(listeningPort);
+
 app.Run();
-
-

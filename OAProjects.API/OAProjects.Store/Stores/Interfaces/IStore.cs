@@ -6,6 +6,6 @@ using System.Threading.Tasks;
 
 namespace OAProjects.Store.Stores.Interfaces;
 
-internal interface IStore
+public interface IStore
 {
 }
