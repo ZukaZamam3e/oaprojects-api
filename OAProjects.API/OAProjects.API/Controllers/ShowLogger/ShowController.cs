@@ -3,6 +3,7 @@ using FluentValidation.Results;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web.Resource;
+using OAProjects.API.Requests.Show;
 using OAProjects.API.Responses;
 using OAProjects.API.Responses.Show;
 using OAProjects.Data.ShowLogger.Entities;
@@ -44,10 +45,13 @@ public class ShowController : BaseController
 
         try
         {
+            int take = 10;
             int userId = GetUserId();
             response.Model = new ShowLoadResponse();
             response.Model.ShowTypeIds = _showStore.GetCodeValues(m => m.CodeTableId == (int)CodeTableIds.SHOW_TYPE_ID).Select(m => new SLCodeValueSimpleModel { CodeValueId = m.CodeValueId, DecodeTxt = m.DecodeTxt });
-            response.Model.Shows = _showStore.GetShows(m => m.UserId == userId).OrderByDescending(m => m.DateWatched).Take(10);
+            response.Model.Shows = _showStore.GetShows(m => m.UserId == userId);
+            response.Model.Count = response.Model.Shows.Count();
+            response.Model.Shows = response.Model.Shows.OrderByDescending(m => m.DateWatched).ThenByDescending(m => m.ShowId).Take(take);
         }
         catch (Exception ex)
         {
@@ -62,7 +66,7 @@ public class ShowController : BaseController
         RequiredScopesConfigurationKey = "AzureAD:Scopes:User.ReadWrite",
         RequiredAppPermissionsConfigurationKey = "AzureAD:AppPermissions:User.ReadWrite"
     )]
-    public async Task<IActionResult> Get(int offset = 0, string? search = null, int take = 15)
+    public async Task<IActionResult> Get(int offset = 0, string? search = null, int take = 10)
     {
         GetResponse<ShowGetResponse> response = new GetResponse<ShowGetResponse>();
 
@@ -73,12 +77,15 @@ public class ShowController : BaseController
             response.Model = new ShowGetResponse();
             if(!string.IsNullOrEmpty(search))
             {
-                response.Model.Shows = _showStore.SearchShows(userId, search).OrderByDescending(m => m.DateWatched);
+                response.Model.Shows = _showStore.SearchShows(userId, search);
             }
             else
             {
-                response.Model.Shows = _showStore.GetShows(m => m.UserId == userId).OrderByDescending(m => m.DateWatched).Skip(offset).Take(take);
+                response.Model.Shows = _showStore.GetShows(m => m.UserId == userId);
             }
+
+            response.Model.Count = response.Model.Shows.Count();
+            response.Model.Shows = response.Model.Shows.OrderByDescending(m => m.DateWatched).ThenByDescending(m => m.ShowId).Skip(offset).Take(take);
         }
         catch (Exception ex)
         {
@@ -121,6 +128,57 @@ public class ShowController : BaseController
 
                 response.Model = _showStore.GetShows(m => m.UserId == userId && m.ShowId == showId).First();
             }
+        }
+        catch (Exception ex)
+        {
+            response.Errors = new List<string>() { ex.Message };
+        }
+
+        return Ok(response);
+    }
+
+    [HttpPost("AddNextEpisode")]
+    [RequiredScopeOrAppPermission(
+        RequiredScopesConfigurationKey = "AzureAD:Scopes:User.ReadWrite",
+        RequiredAppPermissionsConfigurationKey = "AzureAD:AppPermissions:User.ReadWrite"
+    )]
+    public async Task<IActionResult> AddNextEpisode(ShowIdRequest request)
+    {
+        PostResponse<ShowModel> response = new PostResponse<ShowModel>();
+
+        try
+        {
+            int userId = GetUserId();
+
+            int newShowId = _showStore.AddNextEpisode(userId, request.ShowId);
+
+            if(newShowId > -1)
+            {
+                response.Model = _showStore.GetShows(m => m.UserId == userId && m.ShowId == newShowId).First();
+            }
+        }
+        catch (Exception ex)
+        {
+            response.Errors = new List<string>() { ex.Message };
+        }
+
+        return Ok(response);
+    }
+
+    [HttpPost("Delete")]
+    [RequiredScopeOrAppPermission(
+        RequiredScopesConfigurationKey = "AzureAD:Scopes:User.ReadWrite",
+        RequiredAppPermissionsConfigurationKey = "AzureAD:AppPermissions:User.ReadWrite"
+    )]
+    public async Task<IActionResult> Delete(ShowIdRequest request)
+    {
+        PostResponse<bool> response = new PostResponse<bool>();
+
+        try
+        {
+            int userId = GetUserId();
+
+            response.Model = _showStore.DeleteShow(userId, request.ShowId);
         }
         catch (Exception ex)
         {

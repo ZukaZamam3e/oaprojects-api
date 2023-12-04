@@ -1,5 +1,6 @@
 ﻿using OAProjects.Data.ShowLogger.Context;
 using OAProjects.Data.ShowLogger.Entities;
+using OAProjects.Models;
 using OAProjects.Models.ShowLogger;
 using OAProjects.Models.ShowLogger.Models;
 using OAProjects.Store.ShowLogger.Stores.Interfaces;
@@ -127,5 +128,49 @@ public class ShowStore : IShowStore
         }
 
         return 0;
+    }
+
+    public int AddNextEpisode(int userId, int showId)
+    {
+        int newShowId = -1;
+        SL_SHOW? entity = _context.SL_SHOW.FirstOrDefault(m => m.SHOW_ID == showId && m.USER_ID == userId && m.SHOW_TYPE_ID == (int)CodeValueIds.TV);
+
+        if (entity != null)
+        {
+            SL_SHOW nextEpisode = new SL_SHOW
+            {
+                SHOW_NAME = entity.SHOW_NAME,
+                SHOW_TYPE_ID = entity.SHOW_TYPE_ID,
+                USER_ID = userId,
+                SEASON_NUMBER = entity.SEASON_NUMBER,
+                EPISODE_NUMBER = entity.EPISODE_NUMBER + 1,
+                DATE_WATCHED = DateTime.Now.GetEST().Date,
+            };
+
+            _context.SL_SHOW.Add(nextEpisode);
+
+            _context.SaveChanges();
+
+            newShowId = nextEpisode.SHOW_ID;
+        }
+
+        return newShowId;
+    }
+
+    public bool DeleteShow(int userId, int showId)
+    {
+        bool result = false;
+        SL_SHOW? entity = _context.SL_SHOW.FirstOrDefault(m => m.SHOW_ID == showId && m.USER_ID == userId);
+
+        if (entity != null)
+        {
+            _context.SL_SHOW.Remove(entity);
+
+            _context.SaveChanges();
+
+            result = true;
+        }
+
+        return result;
     }
 }

@@ -4,6 +4,7 @@ using OAProjects.API.Setup;
 
 var builder = WebApplication.CreateBuilder(args);
 var config = builder.Configuration;
+
 // Add services to the container.
 
 builder.Services.AddControllers();

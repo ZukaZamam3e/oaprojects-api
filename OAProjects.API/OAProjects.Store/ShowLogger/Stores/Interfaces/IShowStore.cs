@@ -21,4 +21,8 @@ public interface IShowStore : IStore
     int CreateShow(int userId, ShowModel model);
 
     int UpdateShow(int userId, ShowModel model);
+
+    int AddNextEpisode(int userId, int showId);
+
+    bool DeleteShow(int userId, int showId);
 }
