@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using FluentValidation.Results;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web.Resource;
@@ -17,6 +18,7 @@ namespace OAProjects.API.Controllers.ShowLogger;
 [ApiController]
 [Route("api/[controller]")]
 [EnableCors("_myAllowSpecificOrigins")]
+[Authorize("User.ReadWrite")]
 public class ShowController : BaseController
 {
     private readonly ILogger<ShowController> _logger;
@@ -35,10 +37,10 @@ public class ShowController : BaseController
     }
 
     [HttpGet("Load")]
-    [RequiredScopeOrAppPermission(
-        RequiredScopesConfigurationKey = "AzureAD:Scopes:User.ReadWrite",
-        RequiredAppPermissionsConfigurationKey = "AzureAD:AppPermissions:User.ReadWrite"
-    )]
+    //[RequiredScopeOrAppPermission(
+    //    RequiredScopesConfigurationKey = "AzureAD:Scopes:User.ReadWrite",
+    //    RequiredAppPermissionsConfigurationKey = "AzureAD:AppPermissions:User.ReadWrite"
+    //)]
     public async Task<IActionResult> Load()
     {
         GetResponse<ShowLoadResponse> response = new GetResponse<ShowLoadResponse>();
@@ -62,10 +64,10 @@ public class ShowController : BaseController
     }
 
     [HttpGet("Get")]
-    [RequiredScopeOrAppPermission(
-        RequiredScopesConfigurationKey = "AzureAD:Scopes:User.ReadWrite",
-        RequiredAppPermissionsConfigurationKey = "AzureAD:AppPermissions:User.ReadWrite"
-    )]
+    //[RequiredScopeOrAppPermission(
+    //    RequiredScopesConfigurationKey = "AzureAD:Scopes:User.ReadWrite",
+    //    RequiredAppPermissionsConfigurationKey = "AzureAD:AppPermissions:User.ReadWrite"
+    //)]
     public async Task<IActionResult> Get(int offset = 0, string? search = null, int take = 10)
     {
         GetResponse<ShowGetResponse> response = new GetResponse<ShowGetResponse>();
@@ -96,10 +98,10 @@ public class ShowController : BaseController
     }
 
     [HttpPost("Save")]
-    [RequiredScopeOrAppPermission(
-        RequiredScopesConfigurationKey = "AzureAD:Scopes:User.ReadWrite",
-        RequiredAppPermissionsConfigurationKey = "AzureAD:AppPermissions:User.ReadWrite"
-    )]
+    //[RequiredScopeOrAppPermission(
+    //    RequiredScopesConfigurationKey = "AzureAD:Scopes:User.ReadWrite",
+    //    RequiredAppPermissionsConfigurationKey = "AzureAD:AppPermissions:User.ReadWrite"
+    //)]
     public async Task<IActionResult> SaveShow(ShowModel model)
     {
         PostResponse<ShowModel> response = new PostResponse<ShowModel>();
@@ -138,10 +140,10 @@ public class ShowController : BaseController
     }
 
     [HttpPost("AddNextEpisode")]
-    [RequiredScopeOrAppPermission(
-        RequiredScopesConfigurationKey = "AzureAD:Scopes:User.ReadWrite",
-        RequiredAppPermissionsConfigurationKey = "AzureAD:AppPermissions:User.ReadWrite"
-    )]
+    //[RequiredScopeOrAppPermission(
+    //    RequiredScopesConfigurationKey = "AzureAD:Scopes:User.ReadWrite",
+    //    RequiredAppPermissionsConfigurationKey = "AzureAD:AppPermissions:User.ReadWrite"
+    //)]
     public async Task<IActionResult> AddNextEpisode(ShowIdRequest request)
     {
         PostResponse<ShowModel> response = new PostResponse<ShowModel>();
@@ -166,10 +168,10 @@ public class ShowController : BaseController
     }
 
     [HttpPost("Delete")]
-    [RequiredScopeOrAppPermission(
-        RequiredScopesConfigurationKey = "AzureAD:Scopes:User.ReadWrite",
-        RequiredAppPermissionsConfigurationKey = "AzureAD:AppPermissions:User.ReadWrite"
-    )]
+    //[RequiredScopeOrAppPermission(
+    //    RequiredScopesConfigurationKey = "AzureAD:Scopes:User.ReadWrite",
+    //    RequiredAppPermissionsConfigurationKey = "AzureAD:AppPermissions:User.ReadWrite"
+    //)]
     public async Task<IActionResult> Delete(ShowIdRequest request)
     {
         PostResponse<bool> response = new PostResponse<bool>();

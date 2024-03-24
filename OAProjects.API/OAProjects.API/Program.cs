@@ -1,6 +1,10 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.Identity.Web;
+using Microsoft.IdentityModel.Tokens;
+using OAProjects.API.Requirements;
 using OAProjects.API.Setup;
+using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
 var config = builder.Configuration;
@@ -16,19 +20,36 @@ builder.Services.AddOAIdentityDb(builder.Configuration);
 builder.Services.AddShowLoggerDb(builder.Configuration);
 
 string MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+string domain = $"https://{builder.Configuration["Auth0:Domain"]}/";
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddMicrosoftIdentityWebApi(options =>
+    .AddJwtBearer(options =>
     {
-        builder.Configuration.Bind("AzureAd", options);
-        options.TokenValidationParameters.NameClaimType = "name";
-    }, options => { builder.Configuration.Bind("AzureAd", options); });
+        options.Authority = domain;
+        options.Audience = builder.Configuration["Auth0:Audience"];
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            NameClaimType = ClaimTypes.NameIdentifier
+        };
+    });
+    //.AddMicrosoftIdentityWebApi(options =>
+    //{
+    //    builder.Configuration.Bind("AzureAd", options);
+    //    options.TokenValidationParameters.NameClaimType = "name";
+    //}, options => { builder.Configuration.Bind("AzureAd", options); });
 
-builder.Services.AddAuthorization(config =>
+//builder.Services.AddAuthorization(config =>
+//{
+//    config.AddPolicy("AuthZPolicy", policyBuilder =>
+//            policyBuilder.Requirements.Add(new ScopeAuthorizationRequirement() { RequiredScopesConfigurationKey = $"AzureAd:Scopes" }));
+//});
+
+builder.Services.AddAuthorization(options =>
 {
-    config.AddPolicy("AuthZPolicy", policyBuilder =>
-            policyBuilder.Requirements.Add(new ScopeAuthorizationRequirement() { RequiredScopesConfigurationKey = $"AzureAd:Scopes" }));
+    options.AddPolicy("User.ReadWrite", policy => policy.Requirements.Add(new HasScopeRequirement("User.ReadWrite", domain)));
 });
+
+builder.Services.AddSingleton<IAuthorizationHandler, HasScopeHandler>();
 
 builder.Services.AddCors(options =>
 {

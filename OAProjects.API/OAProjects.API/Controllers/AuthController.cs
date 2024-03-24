@@ -23,10 +23,11 @@ public class AuthController : BaseController
     }
 
     [HttpGet("Login")]
-    [RequiredScopeOrAppPermission(
-         RequiredScopesConfigurationKey = "AzureAD:Scopes:User.ReadWrite",
-         RequiredAppPermissionsConfigurationKey = "AzureAD:AppPermissions:User.ReadWrite"
-     )]
+    //[RequiredScopeOrAppPermission(
+    //     RequiredScopesConfigurationKey = "AzureAD:Scopes:User.ReadWrite",
+    //     RequiredAppPermissionsConfigurationKey = "AzureAD:AppPermissions:User.ReadWrite"
+    // )]
+    [Authorize]
     public async Task<IActionResult> Login()
     {
         GetResponse<bool> response = new GetResponse<bool>();
