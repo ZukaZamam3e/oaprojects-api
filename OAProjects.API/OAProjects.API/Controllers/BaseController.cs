@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Azure.Core;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
+using Microsoft.Net.Http.Headers;
 using OAProjects.Models.OAIdentity;
 using OAProjects.Store.OAIdentity.Stores.Interfaces;
 using System.Security.Claims;
@@ -49,6 +51,8 @@ public class BaseController : ControllerBase
     protected int GetUserId()
     {
         Guid userId;
+
+        string accessToken = Request.Headers[HeaderNames.Authorization];
 
         if (!Guid.TryParse(HttpContext.User.GetObjectId(), out userId))
         {
