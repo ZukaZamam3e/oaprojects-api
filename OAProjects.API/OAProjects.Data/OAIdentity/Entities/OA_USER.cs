@@ -6,11 +6,13 @@ public class OA_USER
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int USER_ID { get; set; }
 
-    public string USER_GUID { get; set; }
-
     public string USER_NAME { get; set; }
 
-    public string USER_LOGIN_TYPE { get; set; }
+    public string FIRST_NAME { get; set; }
+
+    public string LAST_NAME { get; set; }
+
+    public string EMAIL { get; set; }
 
     public DateTime DATE_ADDED { get; set; }
 }

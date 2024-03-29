@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using FluentValidation.Results;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web.Resource;
@@ -17,6 +18,7 @@ namespace OAProjects.API.Controllers.ShowLogger;
 [ApiController]
 [Route("api/[controller]")]
 [EnableCors("_myAllowSpecificOrigins")]
+[Authorize("User.ReadWrite")]
 public class ShowController : BaseController
 {
     private readonly ILogger<ShowController> _logger;
@@ -26,8 +28,9 @@ public class ShowController : BaseController
     public ShowController(ILogger<ShowController> logger,
         IUserStore userStore,
         IShowStore showStore,
+        IHttpClientFactory httpClientFactory,
         IValidator<ShowModel> validator)
-        : base(logger, userStore)
+        : base(logger, userStore, httpClientFactory)
     {
         _logger = logger;
         _showStore = showStore;
@@ -35,10 +38,10 @@ public class ShowController : BaseController
     }
 
     [HttpGet("Load")]
-    [RequiredScopeOrAppPermission(
-        RequiredScopesConfigurationKey = "AzureAD:Scopes:User.ReadWrite",
-        RequiredAppPermissionsConfigurationKey = "AzureAD:AppPermissions:User.ReadWrite"
-    )]
+    //[RequiredScopeOrAppPermission(
+    //    RequiredScopesConfigurationKey = "AzureAD:Scopes:User.ReadWrite",
+    //    RequiredAppPermissionsConfigurationKey = "AzureAD:AppPermissions:User.ReadWrite"
+    //)]
     public async Task<IActionResult> Load()
     {
         GetResponse<ShowLoadResponse> response = new GetResponse<ShowLoadResponse>();
@@ -46,7 +49,7 @@ public class ShowController : BaseController
         try
         {
             int take = 10;
-            int userId = GetUserId();
+            int userId = await GetUserId();
             response.Model = new ShowLoadResponse();
             response.Model.ShowTypeIds = _showStore.GetCodeValues(m => m.CodeTableId == (int)CodeTableIds.SHOW_TYPE_ID).Select(m => new SLCodeValueSimpleModel { CodeValueId = m.CodeValueId, DecodeTxt = m.DecodeTxt });
             response.Model.Shows = _showStore.GetShows(m => m.UserId == userId);
@@ -62,17 +65,17 @@ public class ShowController : BaseController
     }
 
     [HttpGet("Get")]
-    [RequiredScopeOrAppPermission(
-        RequiredScopesConfigurationKey = "AzureAD:Scopes:User.ReadWrite",
-        RequiredAppPermissionsConfigurationKey = "AzureAD:AppPermissions:User.ReadWrite"
-    )]
+    //[RequiredScopeOrAppPermission(
+    //    RequiredScopesConfigurationKey = "AzureAD:Scopes:User.ReadWrite",
+    //    RequiredAppPermissionsConfigurationKey = "AzureAD:AppPermissions:User.ReadWrite"
+    //)]
     public async Task<IActionResult> Get(int offset = 0, string? search = null, int take = 10)
     {
         GetResponse<ShowGetResponse> response = new GetResponse<ShowGetResponse>();
 
         try
         {
-            int userId = GetUserId();
+            int userId = await GetUserId();
 
             response.Model = new ShowGetResponse();
             if(!string.IsNullOrEmpty(search))
@@ -96,17 +99,17 @@ public class ShowController : BaseController
     }
 
     [HttpPost("Save")]
-    [RequiredScopeOrAppPermission(
-        RequiredScopesConfigurationKey = "AzureAD:Scopes:User.ReadWrite",
-        RequiredAppPermissionsConfigurationKey = "AzureAD:AppPermissions:User.ReadWrite"
-    )]
+    //[RequiredScopeOrAppPermission(
+    //    RequiredScopesConfigurationKey = "AzureAD:Scopes:User.ReadWrite",
+    //    RequiredAppPermissionsConfigurationKey = "AzureAD:AppPermissions:User.ReadWrite"
+    //)]
     public async Task<IActionResult> SaveShow(ShowModel model)
     {
         PostResponse<ShowModel> response = new PostResponse<ShowModel>();
         
         try
         {
-            int userId = GetUserId();
+            int userId = await GetUserId();
             ValidationResult result = await _validator.ValidateAsync(model);
 
             if (!result.IsValid)
@@ -138,17 +141,17 @@ public class ShowController : BaseController
     }
 
     [HttpPost("AddNextEpisode")]
-    [RequiredScopeOrAppPermission(
-        RequiredScopesConfigurationKey = "AzureAD:Scopes:User.ReadWrite",
-        RequiredAppPermissionsConfigurationKey = "AzureAD:AppPermissions:User.ReadWrite"
-    )]
+    //[RequiredScopeOrAppPermission(
+    //    RequiredScopesConfigurationKey = "AzureAD:Scopes:User.ReadWrite",
+    //    RequiredAppPermissionsConfigurationKey = "AzureAD:AppPermissions:User.ReadWrite"
+    //)]
     public async Task<IActionResult> AddNextEpisode(ShowIdRequest request)
     {
         PostResponse<ShowModel> response = new PostResponse<ShowModel>();
 
         try
         {
-            int userId = GetUserId();
+            int userId = await GetUserId();
 
             int newShowId = _showStore.AddNextEpisode(userId, request.ShowId);
 
@@ -166,17 +169,17 @@ public class ShowController : BaseController
     }
 
     [HttpPost("Delete")]
-    [RequiredScopeOrAppPermission(
-        RequiredScopesConfigurationKey = "AzureAD:Scopes:User.ReadWrite",
-        RequiredAppPermissionsConfigurationKey = "AzureAD:AppPermissions:User.ReadWrite"
-    )]
+    //[RequiredScopeOrAppPermission(
+    //    RequiredScopesConfigurationKey = "AzureAD:Scopes:User.ReadWrite",
+    //    RequiredAppPermissionsConfigurationKey = "AzureAD:AppPermissions:User.ReadWrite"
+    //)]
     public async Task<IActionResult> Delete(ShowIdRequest request)
     {
         PostResponse<bool> response = new PostResponse<bool>();
 
         try
         {
-            int userId = GetUserId();
+            int userId = await GetUserId();
 
             response.Model = _showStore.DeleteShow(userId, request.ShowId);
         }

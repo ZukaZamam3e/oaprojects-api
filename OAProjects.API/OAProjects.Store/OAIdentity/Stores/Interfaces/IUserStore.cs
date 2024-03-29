@@ -3,7 +3,13 @@
 namespace OAProjects.Store.OAIdentity.Stores.Interfaces;
 public interface IUserStore
 {
-    UserModel? GetUser(int? userId, string? userGuid);
+    UserModel? GetUser(int? userId);
 
-    UserModel AddUser(string userGuid, string userName, string loginType);
+    UserModel AddUser(UserModel model);
+
+    void AddToken(UserTokenModel model);
+
+    UserModel? GetUserByToken(string token);
+
+    UserModel? GetUserByEmail(string email);
 }

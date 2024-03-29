@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using OAProjects.Data.OAIdentity.Context;
 
@@ -11,9 +12,10 @@ using OAProjects.Data.OAIdentity.Context;
 namespace OAProjects.Data.OAIdentity.Migrations
 {
     [DbContext(typeof(OAIdentityDbContext))]
-    partial class OAIdentityDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240329021831_0.001")]
+    partial class _0001
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -62,8 +64,8 @@ namespace OAProjects.Data.OAIdentity.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("USER_TOKEN_ID"), 1L, 1);
 
-                    b.Property<int>("EXPIRY_TIME")
-                        .HasColumnType("int");
+                    b.Property<DateTime>("EXPIRATION_TIME")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("TOKEN")
                         .IsRequired()

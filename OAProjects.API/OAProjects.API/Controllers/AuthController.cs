@@ -16,24 +16,27 @@ public class AuthController : BaseController
     private readonly ILogger<AuthController> _logger;
 
     public AuthController(ILogger<AuthController> logger,
-        IUserStore userStore)
-        : base(logger, userStore)
+        IUserStore userStore,
+        IHttpClientFactory httpClientFactory)
+        : base(logger, userStore, httpClientFactory)
     {
         _logger = logger;
+
     }
 
     [HttpGet("Login")]
-    [RequiredScopeOrAppPermission(
-         RequiredScopesConfigurationKey = "AzureAD:Scopes:User.ReadWrite",
-         RequiredAppPermissionsConfigurationKey = "AzureAD:AppPermissions:User.ReadWrite"
-     )]
+    //[RequiredScopeOrAppPermission(
+    //     RequiredScopesConfigurationKey = "AzureAD:Scopes:User.ReadWrite",
+    //     RequiredAppPermissionsConfigurationKey = "AzureAD:AppPermissions:User.ReadWrite"
+    // )]
+    [Authorize]
     public async Task<IActionResult> Login()
     {
         GetResponse<bool> response = new GetResponse<bool>();
 
         try
         {
-            int userId = GetUserId();
+            int userId = await GetUserId();
             response.Model = userId > 0;
         }
         catch (Exception ex)
