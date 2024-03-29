@@ -12,8 +12,8 @@ using OAProjects.Data.OAIdentity.Context;
 namespace OAProjects.Data.OAIdentity.Migrations
 {
     [DbContext(typeof(OAIdentityDbContext))]
-    [Migration("20231004021921_0.001")]
-    partial class _0001
+    [Migration("20240329032632_0.002")]
+    partial class _0002
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -35,11 +35,15 @@ namespace OAProjects.Data.OAIdentity.Migrations
                     b.Property<DateTime>("DATE_ADDED")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("USER_GUID")
+                    b.Property<string>("EMAIL")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("USER_LOGIN_TYPE")
+                    b.Property<string>("FIRST_NAME")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("LAST_NAME")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -50,6 +54,29 @@ namespace OAProjects.Data.OAIdentity.Migrations
                     b.HasKey("USER_ID");
 
                     b.ToTable("OA_USER");
+                });
+
+            modelBuilder.Entity("OAProjects.Data.OAIdentity.Entities.OA_USER_TOKEN", b =>
+                {
+                    b.Property<int>("USER_TOKEN_ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("USER_TOKEN_ID"), 1L, 1);
+
+                    b.Property<int>("EXPIRY_TIME")
+                        .HasColumnType("int");
+
+                    b.Property<string>("TOKEN")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("USER_ID")
+                        .HasColumnType("int");
+
+                    b.HasKey("USER_TOKEN_ID");
+
+                    b.ToTable("OA_USER_TOKEN");
                 });
 #pragma warning restore 612, 618
         }

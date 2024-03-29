@@ -28,8 +28,9 @@ public class ShowController : BaseController
     public ShowController(ILogger<ShowController> logger,
         IUserStore userStore,
         IShowStore showStore,
+        IHttpClientFactory httpClientFactory,
         IValidator<ShowModel> validator)
-        : base(logger, userStore)
+        : base(logger, userStore, httpClientFactory)
     {
         _logger = logger;
         _showStore = showStore;
@@ -48,7 +49,7 @@ public class ShowController : BaseController
         try
         {
             int take = 10;
-            int userId = GetUserId();
+            int userId = await GetUserId();
             response.Model = new ShowLoadResponse();
             response.Model.ShowTypeIds = _showStore.GetCodeValues(m => m.CodeTableId == (int)CodeTableIds.SHOW_TYPE_ID).Select(m => new SLCodeValueSimpleModel { CodeValueId = m.CodeValueId, DecodeTxt = m.DecodeTxt });
             response.Model.Shows = _showStore.GetShows(m => m.UserId == userId);
@@ -74,7 +75,7 @@ public class ShowController : BaseController
 
         try
         {
-            int userId = GetUserId();
+            int userId = await GetUserId();
 
             response.Model = new ShowGetResponse();
             if(!string.IsNullOrEmpty(search))
@@ -108,7 +109,7 @@ public class ShowController : BaseController
         
         try
         {
-            int userId = GetUserId();
+            int userId = await GetUserId();
             ValidationResult result = await _validator.ValidateAsync(model);
 
             if (!result.IsValid)
@@ -150,7 +151,7 @@ public class ShowController : BaseController
 
         try
         {
-            int userId = GetUserId();
+            int userId = await GetUserId();
 
             int newShowId = _showStore.AddNextEpisode(userId, request.ShowId);
 
@@ -178,7 +179,7 @@ public class ShowController : BaseController
 
         try
         {
-            int userId = GetUserId();
+            int userId = await GetUserId();
 
             response.Model = _showStore.DeleteShow(userId, request.ShowId);
         }

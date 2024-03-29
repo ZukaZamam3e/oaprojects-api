@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Identity.Web;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.Net.Http.Headers;
 using OAProjects.API.Requirements;
 using OAProjects.API.Setup;
 using System.Security.Claims;
@@ -70,6 +71,11 @@ builder.Services.AddCors(options =>
                 .AllowAnyMethod()
                 .AllowAnyHeader();
         });
+});
+
+builder.Services.AddHttpClient("Auth0", httpClient =>
+{
+    httpClient.BaseAddress = new Uri("https://dev-3126h7e6syg2548p.us.auth0.com/userinfo");
 });
 
 var app = builder.Build();
