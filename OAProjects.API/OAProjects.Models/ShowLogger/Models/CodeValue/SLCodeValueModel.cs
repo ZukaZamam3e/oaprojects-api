@@ -1,4 +1,4 @@
-﻿namespace OAProjects.Models.ShowLogger;
+﻿namespace OAProjects.Models.ShowLogger.Models.CodeValue;
 public class SLCodeValueModel
 {
     public int CodeValueId { get; set; }

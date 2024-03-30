@@ -1,4 +1,4 @@
-﻿using OAProjects.Models.ShowLogger;
+﻿using OAProjects.Models.ShowLogger.Models.CodeValue;
 using OAProjects.Models.ShowLogger.Models.Show;
 using OAProjects.Store.Stores.Interfaces;
 using System;

@@ -15,6 +15,7 @@ public class ShowLoggerDbContext : DbContext
     public DbSet<SL_USER_PREF> SL_USER_PREF { get; set; }
     public DbSet<SL_FRIEND> SL_FRIEND { get; set; }
     public DbSet<SL_FRIEND_REQUEST> SL_FRIEND_REQUEST { get; set; }
+    public DbSet<SL_WATCHLIST> SL_WATCHLIST { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -26,6 +27,7 @@ public class ShowLoggerDbContext : DbContext
         modelBuilder.Entity<SL_USER_PREF>().HasKey(m => m.USER_PREF_ID);
         modelBuilder.Entity<SL_FRIEND_REQUEST>().HasKey(m => m.FRIEND_REQUEST_ID);
         modelBuilder.Entity<SL_FRIEND>().HasKey(m => m.FRIEND_ID);
+        modelBuilder.Entity<SL_WATCHLIST>().HasKey(m => m.WATCHLIST_ID);
 
         modelBuilder.Entity<SL_CODE_VALUE>(entity =>
         {
@@ -107,6 +109,19 @@ public class ShowLoggerDbContext : DbContext
 
             entity.Property(e => e.CREATED_DATE)
                 .IsRequired();
+        });
+
+        modelBuilder.Entity<SL_WATCHLIST>(entity =>
+        {
+            entity.Property(e => e.WATCHLIST_ID)
+                .ValueGeneratedOnAdd();
+
+            entity.Property(e => e.SHOW_NAME)
+                .IsRequired()
+                .HasMaxLength(100);
+
+            entity.Property(e => e.SHOW_NOTES)
+                .HasMaxLength(250);
         });
     }
 }

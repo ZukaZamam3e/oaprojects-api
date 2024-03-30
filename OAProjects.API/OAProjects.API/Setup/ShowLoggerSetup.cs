@@ -19,6 +19,8 @@ public static class ShowLoggerSetup
         services.AddDbContext<ShowLoggerDbContext>(m => m.UseSqlServer(showLoggerConnectionString, m => m.MigrationsHistoryTable("__SL_EFMigrationsHistory")), ServiceLifetime.Transient);
         services.AddTransient<IShowStore, ShowStore>();
         services.AddTransient<IFriendStore, FriendStore>();
+        services.AddTransient<IWatchListStore, WatchListStore>();
+        services.AddTransient<ICodeValueStore, CodeValueStore>();
 
         services.AddScoped<IValidator<ShowModel>, ShowValidator>();
         services.AddScoped<IValidator<FriendIdRequest>, FriendIdValidator>();

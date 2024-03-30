@@ -9,6 +9,7 @@ using OAProjects.API.Responses;
 using OAProjects.API.Responses.Show;
 using OAProjects.Data.ShowLogger.Entities;
 using OAProjects.Models.ShowLogger;
+using OAProjects.Models.ShowLogger.Models.CodeValue;
 using OAProjects.Models.ShowLogger.Models.Show;
 using OAProjects.Store.OAIdentity.Stores.Interfaces;
 using OAProjects.Store.ShowLogger.Stores.Interfaces;

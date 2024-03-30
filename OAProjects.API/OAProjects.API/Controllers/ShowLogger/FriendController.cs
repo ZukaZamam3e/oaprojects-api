@@ -207,7 +207,7 @@ public class FriendController : BaseController
         return Ok(response);
     }
 
-    [HttpPost("DeleteFriend")]
+    [HttpPost("Delete")]
     public async Task<IActionResult> DeleteFriend(FriendIdRequest request,
         [FromServices] IValidator<FriendIdRequest> validator)
     {
