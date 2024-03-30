@@ -2,14 +2,9 @@
 using OAProjects.Data.ShowLogger.Entities;
 using OAProjects.Models;
 using OAProjects.Models.ShowLogger;
-using OAProjects.Models.ShowLogger.Models;
+using OAProjects.Models.ShowLogger.Models.Show;
 using OAProjects.Store.ShowLogger.Stores.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace OAProjects.Store.ShowLogger.Stores;
 public class ShowStore : IShowStore

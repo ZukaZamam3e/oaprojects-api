@@ -29,7 +29,7 @@ public class UserStore : IUserStore
 
     public UserModel? GetUserByEmail(string email)
     {
-        UserModel? user = _context.OA_USER.Where(m => m.EMAIL == email)
+        UserModel? user = _context.OA_USER.Where(m => m.EMAIL.ToLower() == email.ToLower())
             .Select(m => new UserModel
             {
                 UserId = m.USER_ID,
@@ -59,7 +59,10 @@ public class UserStore : IUserStore
         {
             USER_ID = model.UserId,
             TOKEN = model.Token,
-            EXPIRY_TIME = model.ExpiryTime
+            EXPIRY_TIME = model.ExpiryTime,
+            ISSUED_AT = model.IssuedAt,
+            EXPIRY_DATE_UTC = model.ExpiryDateUtc,
+            ISSUED_AT_DATE_UTC = model.IssuedAtDateUtc
         };
 
         _context.OA_USER_TOKEN.Add(entity);

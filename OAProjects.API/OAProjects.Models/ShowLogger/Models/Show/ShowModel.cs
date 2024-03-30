@@ -1,4 +1,4 @@
-﻿namespace OAProjects.Models.ShowLogger.Models;
+﻿namespace OAProjects.Models.ShowLogger.Models.Show;
 
 public class ShowModel
 {

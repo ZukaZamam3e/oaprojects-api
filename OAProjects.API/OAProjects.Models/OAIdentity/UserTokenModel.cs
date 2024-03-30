@@ -14,4 +14,10 @@ public class UserTokenModel
     public string Token { get; set; }
 
     public int ExpiryTime { get; set; }
+
+    public int IssuedAt { get; set; }
+
+    public DateTime ExpiryDateUtc { get; set; }
+
+    public DateTime IssuedAtDateUtc { get; set; }
 }

@@ -1,5 +1,5 @@
 ﻿using OAProjects.Models.ShowLogger;
-using OAProjects.Models.ShowLogger.Models;
+using OAProjects.Models.ShowLogger.Models.Show;
 
 namespace OAProjects.API.Responses.Show;
 

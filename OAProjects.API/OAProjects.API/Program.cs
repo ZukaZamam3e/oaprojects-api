@@ -23,44 +23,23 @@ builder.Services.AddShowLoggerDb(builder.Configuration);
 string MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 string domain = $"https://{builder.Configuration["Auth0:Domain"]}/";
 
-builder.Services.AddAuthentication(options =>
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
 {
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-}).AddJwtBearer(options =>
-{
-    options.Authority = "https://dev-3126h7e6syg2548p.us.auth0.com/";
-    options.Audience = "https://oaprojects-api.oaprojects.net";
+    options.Authority = domain;
+    options.Audience = builder.Configuration["Auth0:Audience"];
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        NameClaimType = ClaimTypes.NameIdentifier,
+    };
 });
 
-//builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-//    .AddJwtBearer(options =>
-//    {
-//        options.Authority = domain;
-//        options.Audience = builder.Configuration["Auth0:Audience"];
-//        options.TokenValidationParameters = new TokenValidationParameters
-//        {
-//            NameClaimType = ClaimTypes.NameIdentifier
-//        };
-//    });
-//.AddMicrosoftIdentityWebApi(options =>
-//{
-//    builder.Configuration.Bind("AzureAd", options);
-//    options.TokenValidationParameters.NameClaimType = "name";
-//}, options => { builder.Configuration.Bind("AzureAd", options); });
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("User.ReadWrite", policy => policy.Requirements.Add(new HasScopeRequirement("User.ReadWrite", domain)));
+});
 
-//builder.Services.AddAuthorization(config =>
-//{
-//    config.AddPolicy("AuthZPolicy", policyBuilder =>
-//            policyBuilder.Requirements.Add(new ScopeAuthorizationRequirement() { RequiredScopesConfigurationKey = $"AzureAd:Scopes" }));
-//});
-
-//builder.Services.AddAuthorization(options =>
-//{
-//    options.AddPolicy("User.ReadWrite", policy => policy.Requirements.Add(new HasScopeRequirement("User.ReadWrite", domain)));
-//});
-
-//builder.Services.AddSingleton<IAuthorizationHandler, HasScopeHandler>();
+builder.Services.AddSingleton<IAuthorizationHandler, HasScopeHandler>();
 
 builder.Services.AddCors(options =>
 {

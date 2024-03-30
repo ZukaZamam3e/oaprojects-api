@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using OAProjects.Data.OAIdentity.Context;
 
@@ -11,9 +12,10 @@ using OAProjects.Data.OAIdentity.Context;
 namespace OAProjects.Data.OAIdentity.Migrations
 {
     [DbContext(typeof(OAIdentityDbContext))]
-    partial class OAIdentityDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240329173100_0.003")]
+    partial class _0003
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

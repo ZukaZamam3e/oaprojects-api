@@ -41,6 +41,15 @@ public class OAIdentityDbContext : DbContext
 
             entity.Property(e => e.EXPIRY_TIME)
                 .IsRequired();
+
+            entity.Property(e => e.ISSUED_AT)
+                .IsRequired();
+
+            entity.Property(e => e.EXPIRY_DATE_UTC)
+                .IsRequired();
+
+            entity.Property(e => e.ISSUED_AT_DATE_UTC)
+                .IsRequired();
         });
     }
 }
