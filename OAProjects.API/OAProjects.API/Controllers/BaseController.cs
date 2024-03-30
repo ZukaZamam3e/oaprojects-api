@@ -6,6 +6,7 @@ using Microsoft.Net.Http.Headers;
 using Newtonsoft.Json;
 using OAProjects.Models.OAIdentity;
 using OAProjects.Store.OAIdentity.Stores.Interfaces;
+using System;
 using System.Net.Http;
 using System.Security.Claims;
 using System.Text.Json.Serialization;
@@ -61,9 +62,17 @@ public class BaseController : ControllerBase
 
         string accessToken = Request.Headers[HeaderNames.Authorization];
         string exp = HttpContext.User.FindFirst("exp").Value;
+        string iat = HttpContext.User.FindFirst("iat").Value;
 
-        DateTime origin = new DateTime(1970, 1, 1, 0, 0, 0, 0);
+
+
+        //DateTime origin = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.);
         int expiryTime = int.Parse(exp);
+        int issuedAtTime = int.Parse(iat);
+
+        DateTime expiryDate = DateTimeOffset.FromUnixTimeSeconds(expiryTime).UtcDateTime;
+        DateTime issuedAtDate = DateTimeOffset.FromUnixTimeSeconds(issuedAtTime).UtcDateTime;
+
 
         // Try to load user's token from the database.
         UserModel? user = _userStore.GetUserByToken(accessToken);
@@ -106,7 +115,10 @@ public class BaseController : ControllerBase
                     {
                         UserId = user.UserId,
                         Token = accessToken,
-                        ExpiryTime = expiryTime
+                        ExpiryTime = expiryTime,
+                        IssuedAt = issuedAtTime,
+                        ExpiryDateUtc = expiryDate,
+                        IssuedAtDateUtc = issuedAtDate
                     });
                 }
 

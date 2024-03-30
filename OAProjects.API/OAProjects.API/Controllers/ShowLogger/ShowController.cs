@@ -9,7 +9,7 @@ using OAProjects.API.Responses;
 using OAProjects.API.Responses.Show;
 using OAProjects.Data.ShowLogger.Entities;
 using OAProjects.Models.ShowLogger;
-using OAProjects.Models.ShowLogger.Models;
+using OAProjects.Models.ShowLogger.Models.Show;
 using OAProjects.Store.OAIdentity.Stores.Interfaces;
 using OAProjects.Store.ShowLogger.Stores.Interfaces;
 
@@ -51,6 +51,7 @@ public class ShowController : BaseController
             int take = 10;
             int userId = await GetUserId();
             response.Model = new ShowLoadResponse();
+
             response.Model.ShowTypeIds = _showStore.GetCodeValues(m => m.CodeTableId == (int)CodeTableIds.SHOW_TYPE_ID).Select(m => new SLCodeValueSimpleModel { CodeValueId = m.CodeValueId, DecodeTxt = m.DecodeTxt });
             response.Model.Shows = _showStore.GetShows(m => m.UserId == userId);
             response.Model.Count = response.Model.Shows.Count();

@@ -13,6 +13,8 @@ public class ShowLoggerDbContext : DbContext
     public DbSet<SL_SHOW> SL_SHOW { get; set; }
     public DbSet<SL_CODE_VALUE> SL_CODE_VALUE { get; set; }
     public DbSet<SL_USER_PREF> SL_USER_PREF { get; set; }
+    public DbSet<SL_FRIEND> SL_FRIEND { get; set; }
+    public DbSet<SL_FRIEND_REQUEST> SL_FRIEND_REQUEST { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -22,6 +24,8 @@ public class ShowLoggerDbContext : DbContext
         modelBuilder.Entity<SL_SHOW>().HasKey(m => m.SHOW_ID);
         modelBuilder.Entity<SL_CODE_VALUE>().HasKey(m => m.CODE_VALUE_ID);
         modelBuilder.Entity<SL_USER_PREF>().HasKey(m => m.USER_PREF_ID);
+        modelBuilder.Entity<SL_FRIEND_REQUEST>().HasKey(m => m.FRIEND_REQUEST_ID);
+        modelBuilder.Entity<SL_FRIEND>().HasKey(m => m.FRIEND_ID);
 
         modelBuilder.Entity<SL_CODE_VALUE>(entity =>
         {
@@ -72,6 +76,36 @@ public class ShowLoggerDbContext : DbContext
 
             entity.Property(e => e.DEFAULT_AREA)
                 .HasMaxLength(20)
+                .IsRequired();
+        });
+
+        modelBuilder.Entity<SL_FRIEND_REQUEST>(entity =>
+        {
+            entity.Property(e => e.FRIEND_REQUEST_ID)
+                .ValueGeneratedOnAdd();
+
+            entity.Property(e => e.SENT_USER_ID)
+                .IsRequired();
+
+            entity.Property(e => e.RECEIVED_USER_ID)
+                .IsRequired();
+
+            entity.Property(e => e.DATE_SENT)
+                .IsRequired();
+        });
+
+        modelBuilder.Entity<SL_FRIEND>(entity =>
+        {
+            entity.Property(e => e.FRIEND_ID)
+                .ValueGeneratedOnAdd();
+
+            entity.Property(e => e.USER_ID)
+                .IsRequired();
+
+            entity.Property(e => e.FRIEND_USER_ID)
+                .IsRequired();
+
+            entity.Property(e => e.CREATED_DATE)
                 .IsRequired();
         });
     }
