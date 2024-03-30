@@ -1,7 +1,7 @@
 ﻿using OAProjects.Data.ShowLogger.Context;
 using OAProjects.Data.ShowLogger.Entities;
 using OAProjects.Models;
-using OAProjects.Models.ShowLogger;
+using OAProjects.Models.ShowLogger.Models.CodeValue;
 using OAProjects.Models.ShowLogger.Models.Show;
 using OAProjects.Store.ShowLogger.Stores.Interfaces;
 using System.Linq.Expressions;
