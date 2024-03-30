@@ -78,7 +78,7 @@ public class WatchListStore : IWatchListStore
         SL_WATCHLIST entity = new SL_WATCHLIST
         {
             SHOW_TYPE_ID = model.ShowTypeId,
-            DATE_ADDED = model.DateAdded,
+            DATE_ADDED = DateTime.Now.Date,
             EPISODE_NUMBER = model.ShowTypeId == (int)CodeValueIds.TV ? model.EpisodeNumber : null,
             SEASON_NUMBER = model.ShowTypeId == (int)CodeValueIds.TV ? model.SeasonNumber : null,
             SHOW_NAME = model.ShowName,
@@ -100,7 +100,6 @@ public class WatchListStore : IWatchListStore
         if (entity != null)
         {
             entity.SHOW_TYPE_ID = model.ShowTypeId;
-            entity.DATE_ADDED = model.DateAdded;
             entity.EPISODE_NUMBER = model.EpisodeNumber;
             entity.SEASON_NUMBER = model.SeasonNumber;
             entity.SHOW_NAME = model.ShowName;

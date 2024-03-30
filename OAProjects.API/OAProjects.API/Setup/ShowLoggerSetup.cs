@@ -8,6 +8,9 @@ using OAProjects.API.Validators.ShowLogger.Show;
 using OAProjects.API.Requests.Friend;
 using OAProjects.API.Validators.ShowLogger.Friend;
 using OAProjects.Models.ShowLogger.Models.Friend;
+using OAProjects.API.Validators.ShowLogger.WatchList;
+using OAProjects.API.Requests.WatchList;
+using OAProjects.Models.ShowLogger.Models.WatchList;
 
 namespace OAProjects.API.Setup;
 
@@ -26,6 +29,9 @@ public static class ShowLoggerSetup
         services.AddScoped<IValidator<FriendIdRequest>, FriendIdValidator>();
         services.AddScoped<IValidator<FriendRequestIdRequest>, FriendRequestIdValidator>();
         services.AddScoped<IValidator<AddFriendModel>, AddFriendValidator>();
+
+        services.AddScoped<IValidator<WatchListIdRequest>, WatchListIdValidator>();
+        services.AddScoped<IValidator<WatchListModel>, WatchListValidator>();
 
         return services;
     }

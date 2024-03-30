@@ -2,19 +2,14 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
-using OAProjects.API.Responses.Show;
 using OAProjects.API.Responses;
 using OAProjects.Models.ShowLogger.Models.CodeValue;
-using OAProjects.Models.ShowLogger.Models.Show;
 using OAProjects.Store.OAIdentity.Stores.Interfaces;
-using OAProjects.Store.ShowLogger.Stores;
 using OAProjects.Store.ShowLogger.Stores.Interfaces;
 using OAProjects.API.Responses.WatchList;
 using OAProjects.Data.ShowLogger.Entities;
-using OAProjects.Models.ShowLogger.Models.Friend;
 using OAProjects.Models.ShowLogger.Models.WatchList;
 using FluentValidation.Results;
-using OAProjects.API.Requests.Friend;
 using OAProjects.API.Requests.WatchList;
 
 namespace OAProjects.API.Controllers.ShowLogger;
