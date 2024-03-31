@@ -6,11 +6,11 @@ using OAProjects.API.Responses;
 using OAProjects.Models.ShowLogger.Models.CodeValue;
 using OAProjects.Store.OAIdentity.Stores.Interfaces;
 using OAProjects.Store.ShowLogger.Stores.Interfaces;
-using OAProjects.API.Responses.WatchList;
 using OAProjects.Data.ShowLogger.Entities;
 using OAProjects.Models.ShowLogger.Models.WatchList;
 using FluentValidation.Results;
 using OAProjects.API.Requests.WatchList;
+using OAProjects.API.Responses.ShowLogger.WatchList;
 
 namespace OAProjects.API.Controllers.ShowLogger;
 
