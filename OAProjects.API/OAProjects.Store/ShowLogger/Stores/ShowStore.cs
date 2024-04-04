@@ -60,33 +60,7 @@ public class ShowStore : IShowStore
         return query;
     }
 
-    public IEnumerable<ShowModel> SearchShows(int userId, string text)
-    {
-        DateTime dateSearch;
-        IEnumerable<ShowModel> query;
-        Dictionary<string, int> showTypeIds = _context.SL_CODE_VALUE
-            .Where(m => m.CODE_TABLE_ID == (int)CodeTableIds.SHOW_TYPE_ID)
-            .ToDictionary(m => m.DECODE_TXT.ToLower(), m => m.CODE_VALUE_ID);
-
-        string[] showTypes = _context.SL_CODE_VALUE.Where(m => m.CODE_TABLE_ID == (int)CodeTableIds.SHOW_TYPE_ID).Select(m => m.DECODE_TXT.ToLower()).ToArray();
-
-        if (DateTime.TryParse(text, out dateSearch))
-        {
-            query = GetShows(m => m.DateWatched.Date == dateSearch.Date);
-        }
-        else if (showTypeIds.ContainsKey(text.ToLower()))
-        {
-            query = GetShows(m => m.ShowTypeId == showTypeIds[text.ToLower()]);
-        }
-        else
-        {
-            query = GetShows(m => m.ShowName.ToLower().Contains(text.ToLower()));
-        }
-
-        return query;
-    }
-
-    public int CreateShow(int userId, ShowModel model)
+    public int CreateShow(int userId, ShowModel model, int? infoId = null)
     {
         SL_SHOW entity = new SL_SHOW
         {
@@ -96,7 +70,9 @@ public class ShowStore : IShowStore
             SEASON_NUMBER = model.ShowTypeId == (int)CodeValueIds.TV ? model.SeasonNumber : null,
             SHOW_NAME = model.ShowName,
             SHOW_NOTES = model.ShowNotes,
-            USER_ID = userId
+            USER_ID = userId,
+            RESTART_BINGE = model.RestartBinge,
+            INFO_ID = infoId
         };
 
         _context.SL_SHOW.Add(entity);
@@ -125,7 +101,7 @@ public class ShowStore : IShowStore
         return 0;
     }
 
-    public int AddNextEpisode(int userId, int showId)
+    public int AddNextEpisode(int userId, int showId, DateTime dateWatched)
     {
         int newShowId = -1;
         SL_SHOW? entity = _context.SL_SHOW.FirstOrDefault(m => m.SHOW_ID == showId && m.USER_ID == userId && m.SHOW_TYPE_ID == (int)CodeValueIds.TV);
@@ -139,7 +115,7 @@ public class ShowStore : IShowStore
                 USER_ID = userId,
                 SEASON_NUMBER = entity.SEASON_NUMBER,
                 EPISODE_NUMBER = entity.EPISODE_NUMBER + 1,
-                DATE_WATCHED = DateTime.UtcNow,
+                DATE_WATCHED = dateWatched.Date,
             };
 
             _context.SL_SHOW.Add(nextEpisode);
@@ -167,5 +143,65 @@ public class ShowStore : IShowStore
         }
 
         return result;
+    }
+
+    public bool AddOneDay(int userId, int showId)
+    {
+        bool result = false;
+        SL_SHOW? entity = _context.SL_SHOW.FirstOrDefault(m => m.SHOW_ID == showId && m.USER_ID == userId);
+
+        if (entity != null)
+        {
+            entity.DATE_WATCHED = entity.DATE_WATCHED.AddDays(1);
+
+            _context.SaveChanges();
+
+            result = true;
+        }
+
+        return result;
+    }
+
+    public bool SubtractOneDay(int userId, int showId)
+    {
+        bool result = false;
+        SL_SHOW? entity = _context.SL_SHOW.FirstOrDefault(m => m.SHOW_ID == showId && m.USER_ID == userId);
+
+        if (entity != null)
+        {
+            entity.DATE_WATCHED = entity.DATE_WATCHED.AddDays(-1);
+
+            _context.SaveChanges();
+
+            result = true;
+        }
+
+        return result;
+    }
+
+    public bool AddRange(int userId, AddRangeModel model)
+    {
+        for (int i = model.StartEpisode; i <= model.EndEpisode; i++)
+        {
+            //int? nextInfoId = GetTvEpisodeInfoId(model.ShowName, model.SeasonNumber, i);
+
+            SL_SHOW nextEpisode = new SL_SHOW
+            {
+                SHOW_NAME = model.ShowName,
+                SHOW_TYPE_ID = (int)CodeValueIds.TV,
+                USER_ID = userId,
+                SEASON_NUMBER = model.SeasonNumber,
+                EPISODE_NUMBER = i,
+                //INFO_ID = nextInfoId,
+                DATE_WATCHED = model.DateWatched.Date,
+            };
+
+            _context.SL_SHOW.Add(nextEpisode);
+        }
+
+        _context.SaveChanges();
+
+        bool successful = true;
+        return successful;
     }
 }

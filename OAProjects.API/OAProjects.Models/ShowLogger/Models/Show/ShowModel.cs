@@ -19,4 +19,6 @@ public class ShowModel
     public DateTime DateWatched { get; set; }
 
     public string? ShowNotes { get; set; }
+
+    public bool RestartBinge { get; set; }
 }
