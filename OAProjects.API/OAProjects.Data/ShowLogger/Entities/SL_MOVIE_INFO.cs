@@ -14,8 +14,6 @@ public class SL_MOVIE_INFO
 
     public string? API_ID { get; set; }
 
-    public string? OTHER_NAMES { get; set; }
-
     public int? RUNTIME { get; set; }
 
     public DateTime? AIR_DATE { get; set; }

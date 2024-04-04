@@ -14,8 +14,6 @@ public class SL_TV_INFO
 
     public string? API_ID { get; set; }
 
-    public string? OTHER_NAMES { get; set; }
-
     public DateTime LAST_DATA_REFRESH { get; set; }
 
     public DateTime LAST_UPDATED { get; set; }

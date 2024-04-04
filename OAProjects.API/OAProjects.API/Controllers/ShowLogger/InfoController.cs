@@ -22,11 +22,10 @@ namespace OAProjects.API.Controllers.ShowLogger;
 [Authorize("User.ReadWrite")]
 public class InfoController : BaseController
 {
-    private readonly ILogger<ShowController> _logger;
+    private readonly ILogger<InfoController> _logger;
     private readonly IInfoStore _infoStore;
-    private readonly IValidator<ShowModel> _validator;
 
-    public InfoController(ILogger<ShowController> logger,
+    public InfoController(ILogger<InfoController> logger,
         IUserStore userStore,
         IInfoStore infoStore,
         IHttpClientFactory httpClientFactory)
@@ -100,6 +99,42 @@ public class InfoController : BaseController
                 response.Model.SearchResults = query.ApiResultContents.OrderByDescending(m => m.AirDate);
                 response.Model.Count = query.ApiResultContents.Count();
                 response.Model.ResultMessage = query.Result;
+            }
+
+        }
+        catch (Exception ex)
+        {
+            response.Errors = new List<string>() { ex.Message };
+        }
+
+        return Ok(response);
+    }
+
+    [HttpPost("DownloadInfo")]
+    public async Task<IActionResult> DownloadInfo(InfoApiDownloadModel model, [FromServices] IValidator<InfoApiDownloadModel> validator)
+    {
+        PostResponse<DownloadInfoResponse> response = new PostResponse<DownloadInfoResponse>();
+
+        try
+        {
+            ValidationResult result = await validator.ValidateAsync(model);
+
+            if (!result.IsValid)
+            {
+                response.Errors = result.Errors.Select(m => m.ErrorMessage);
+            }
+            else
+            {
+                int userId = await GetUserId();
+
+                DownloadResultModel downloadResult = await _infoStore.Download(userId, model);
+
+                response.Model = new DownloadInfoResponse
+                {
+                    Result = downloadResult.Result,
+                    IsSuccessful = downloadResult.IsSuccessful,
+                    Id = downloadResult.Id
+                };
             }
 
         }

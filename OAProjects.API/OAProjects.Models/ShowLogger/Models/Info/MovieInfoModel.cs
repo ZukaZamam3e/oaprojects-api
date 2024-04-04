@@ -15,8 +15,6 @@ public class MovieInfoModel
 
     public DateTime? AirDate { get; set; }
 
-    public string? OtherNames { get; set; }
-
     public DateTime LastDataRefresh { get; set; }
 
     public DateTime LastUpdated { get; set; }

@@ -2,12 +2,14 @@
 using OAProjects.Data.ShowLogger.Entities;
 using OAProjects.Models.ShowLogger.Models.Config;
 using OAProjects.Models.ShowLogger.Models.Info;
+using OAProjects.Models.ShowLogger.Models.UnlinkedShow;
 using OAProjects.Store.ShowLogger.Stores.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using TMDbLib.Client;
@@ -233,7 +235,6 @@ public class InfoStore : IInfoStore
             ShowOverview = m.SHOW_OVERVIEW,
             ApiType = (int)INFO_API.TMDB_API,
             ApiId = m.API_ID,
-            OtherNames = m.OTHER_NAMES,
             LastDataRefresh = m.LAST_DATA_REFRESH,
             LastUpdated = m.LAST_UPDATED,
             ImageUrl = !string.IsNullOrEmpty(m.IMAGE_URL) ? $"{_apisConfig.TMDbURL}{TMDBApiPaths.Image}{m.IMAGE_URL}" : ""
@@ -292,7 +293,6 @@ public class InfoStore : IInfoStore
 
     public long RefreshTvInfo(TvInfoModel model)
     {
-        //SL_TV_INFO? entity = _context.SL_TV_INFO.FirstOrDefault(m => m.TMDB_ID == model.TMDbId && m.OMDB_ID == model.OMDbId);
         SL_TV_INFO? entity = _context.SL_TV_INFO.FirstOrDefault(m => m.API_TYPE == model.ApiType && m.API_ID == model.ApiId);
 
         if (entity == null)
@@ -318,7 +318,6 @@ public class InfoStore : IInfoStore
 
         foreach (TvEpisodeInfoModel episode in model.Episodes)
         {
-            //SL_TV_EPISODE_INFO? episodeEntity = _context.SL_TV_EPISODE_INFO.FirstOrDefault(m => m.TMDB_ID == episode.TMDbId && m.OMDB_ID == episode.OMDbId);
             SL_TV_EPISODE_INFO? episodeEntity = _context.SL_TV_EPISODE_INFO.FirstOrDefault(m => m.API_TYPE == model.ApiType && m.API_ID == episode.ApiId);
 
             if (episodeEntity == null)
@@ -369,12 +368,6 @@ public class InfoStore : IInfoStore
         return -1;
     }
 
-
-    public long UpdateTvInfoOtherNames(int userId, int tvInfoId, string otherNames)
-    {
-        throw new NotImplementedException();
-    }
-
     public bool DeleteTvInfo(int userId, int tvInfoId)
     {
         SL_TV_INFO entity = _context.SL_TV_INFO.FirstOrDefault(m => m.TV_INFO_ID == tvInfoId);
@@ -413,7 +406,6 @@ public class InfoStore : IInfoStore
             ApiId = m.API_ID,
             Runtime = m.RUNTIME,
             AirDate = m.AIR_DATE,
-            OtherNames = m.OTHER_NAMES,
             ImageURL = m.IMAGE_URL,
             LastDataRefresh = m.LAST_DATA_REFRESH,
             LastUpdated = m.LAST_UPDATED,
@@ -429,7 +421,6 @@ public class InfoStore : IInfoStore
 
     public long RefreshMovieInfo(MovieInfoModel model)
     {
-        //SL_MOVIE_INFO? entity = _context.SL_MOVIE_INFO.FirstOrDefault(m => m.TMDB_ID == model.TMDbId && m.OMDB_ID == model.OMDbId);
         SL_MOVIE_INFO? entity = _context.SL_MOVIE_INFO.FirstOrDefault(m => m.API_TYPE == model.ApiType && m.API_ID == model.ApiId);
 
         if (entity == null)
@@ -447,18 +438,16 @@ public class InfoStore : IInfoStore
         entity.RUNTIME = model.Runtime;
         entity.AIR_DATE = model.AirDate;
 
+        entity.IMAGE_URL = model.ImageURL;
+
         entity.LAST_DATA_REFRESH = DateTime.Now;
         entity.LAST_UPDATED = DateTime.Now;
+
 
         _context.SaveChanges();
         long id = entity.MOVIE_INFO_ID;
 
         return id;
-    }
-
-    public long UpdateMovieInfoOtherNames(int userId, int movieInfoId, string otherNames)
-    {
-        throw new NotImplementedException();
     }
 
     public bool DeleteMovieInfo(int userId, int movieInfoId)
@@ -489,121 +478,44 @@ public class InfoStore : IInfoStore
         return false;
     }
 
-    public void RefreshInfo(int infoId, INFO_TYPE type)
+    public async Task<DownloadResultModel> RefreshInfo(int userId, int infoId, INFO_TYPE type)
     {
+        InfoApiDownloadModel apiDownloadModel = new InfoApiDownloadModel();
+
         switch (type)
         {
             case INFO_TYPE.TV:
                 {
                     TvEpisodeInfoModel episode = GetTvEpisodeInfos(m => m.TvEpisodeInfoId == infoId).First();
                     TvInfoModel model = GetTvInfos(m => m.TvInfoId == episode.TvInfoId).First();
+
                     RefreshTvInfo(model);
+
+                    apiDownloadModel = new InfoApiDownloadModel
+                    {
+                        API = (INFO_API)model.ApiType,
+                        Type = INFO_TYPE.MOVIE,
+                        Id = model.ApiId
+                    };
+
                     break;
                 }
 
             case INFO_TYPE.MOVIE:
                 {
                     MovieInfoModel model = GetMovieInfos(m => m.MovieInfoId == infoId).First();
-                    RefreshMovieInfo(model);
+                    
+                    apiDownloadModel = new InfoApiDownloadModel
+                    {
+                        API = (INFO_API)model.ApiType,
+                        Type = INFO_TYPE.MOVIE,
+                        Id = model.ApiId
+                    };
+
                     break;
                 }
         }
-    }
-    public IEnumerable<UnlinkedShowsModel> GetUnlinkedShows(Expression<Func<UnlinkedShowsModel, bool>>? predicate = null)
-    {
-        Dictionary<int, string> showTypeIds = _context.SL_CODE_VALUE.Where(m => m.CODE_TABLE_ID == (int)CodeTableIds.SHOW_TYPE_ID).ToDictionary(m => m.CODE_VALUE_ID, m => m.DECODE_TXT);
-        SL_SHOW[] data = _context.SL_SHOW.Where(m => m.INFO_ID == null).ToArray();
-        SL_TV_INFO[] tvData = _context.SL_TV_INFO.ToArray();
-        SL_MOVIE_INFO[] movieData = _context.SL_MOVIE_INFO.ToArray();
 
-        List<UnlinkedShowsModel> query = new List<UnlinkedShowsModel>();
-
-        IEnumerable<UnlinkedShowsModel> groupData = (from d in data
-                                                     group d by new { d.SHOW_NAME, d.SHOW_TYPE_ID } into grp
-                                                     select new UnlinkedShowsModel
-                                                     {
-                                                         ShowName = grp.Key.SHOW_NAME,
-                                                         ShowTypeId = grp.Key.SHOW_TYPE_ID,
-                                                         ShowTypeIdZ = showTypeIds[grp.Key.SHOW_TYPE_ID],
-                                                         WatchCount = grp.Count(),
-                                                         LastWatched = grp.Max(m => m.DATE_WATCHED),
-                                                         //InfoId = grp.Key.SHOW_TYPE_ID == (int)CodeValueIds.TV ? tvData.ContainsKey(grp.Key.SHOW_NAME) ? tvData[grp.Key.SHOW_NAME] : -1 : movieData.ContainsKey(grp.Key.SHOW_NAME) ? movieData[grp.Key.SHOW_NAME] : -1,
-                                                         //InShowLoggerIndc = grp.Key.SHOW_TYPE_ID == (int)CodeValueIds.TV ? tvData.ContainsKey(grp.Key.SHOW_NAME) : movieData.ContainsKey(grp.Key.SHOW_NAME)
-                                                     });
-
-
-        foreach (UnlinkedShowsModel group in groupData)
-        {
-            if (group.ShowTypeId == (int)CodeValueIds.TV)
-            {
-                IEnumerable<UnlinkedShowsModel> unlinked = tvData.Where(m => m.SHOW_NAME == group.ShowName).Select(m => new UnlinkedShowsModel
-                {
-                    ShowName = group.ShowName,
-                    ShowTypeId = group.ShowTypeId,
-                    ShowTypeIdZ = group.ShowTypeIdZ,
-                    WatchCount = group.WatchCount,
-                    LastWatched = group.LastWatched,
-                    LastDataRefresh = m.LAST_DATA_REFRESH,
-                    InfoId = m.TV_INFO_ID,
-                    InShowLoggerIndc = true
-                });
-
-                if (unlinked.Any())
-                {
-                    query.AddRange(unlinked);
-                }
-                else
-                {
-                    query.Add(new UnlinkedShowsModel
-                    {
-                        ShowName = group.ShowName,
-                        ShowTypeId = group.ShowTypeId,
-                        ShowTypeIdZ = group.ShowTypeIdZ,
-                        WatchCount = group.WatchCount,
-                        LastWatched = group.LastWatched,
-                        InShowLoggerIndc = false
-                    });
-                }
-            }
-            else
-            {
-                IEnumerable<UnlinkedShowsModel> unlinked = movieData.Where(m => m.MOVIE_NAME == group.ShowName).Select(m => new UnlinkedShowsModel
-                {
-                    ShowName = group.ShowName,
-                    ShowTypeId = group.ShowTypeId,
-                    ShowTypeIdZ = group.ShowTypeIdZ,
-                    WatchCount = group.WatchCount,
-                    LastWatched = group.LastWatched,
-                    AirDate = m.AIR_DATE,
-                    LastDataRefresh = m.LAST_DATA_REFRESH,
-                    InfoId = m.MOVIE_INFO_ID,
-                    InShowLoggerIndc = true
-                });
-
-                if (unlinked.Any())
-                {
-                    query.AddRange(unlinked);
-                }
-                else
-                {
-                    query.Add(new UnlinkedShowsModel
-                    {
-                        ShowName = group.ShowName,
-                        ShowTypeId = group.ShowTypeId,
-                        ShowTypeIdZ = group.ShowTypeIdZ,
-                        WatchCount = group.WatchCount,
-                        LastWatched = group.LastWatched,
-                        InShowLoggerIndc = false
-                    });
-                }
-            }
-        }
-
-        if (predicate != null)
-        {
-            query = query.AsQueryable().Where(predicate).ToList();
-        }
-
-        return query;
+        return await Download(userId, apiDownloadModel);
     }
 }

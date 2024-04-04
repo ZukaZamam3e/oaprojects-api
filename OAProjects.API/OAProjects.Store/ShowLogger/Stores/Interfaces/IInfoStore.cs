@@ -1,4 +1,5 @@
 ﻿using OAProjects.Models.ShowLogger.Models.Info;
+using OAProjects.Models.ShowLogger.Models.UnlinkedShow;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,7 +24,7 @@ public interface IInfoStore
 
     long RefreshTvInfo(int infoId);
 
-    long UpdateTvInfoOtherNames(int userId, int tvInfoId, string otherNames);
+    Task<DownloadResultModel> RefreshInfo(int userId, int infoId, INFO_TYPE type);
 
     bool DeleteTvInfo(int userId, int tvInfoId);
 
@@ -31,11 +32,5 @@ public interface IInfoStore
 
     long RefreshMovieInfo(MovieInfoModel model);
 
-    long UpdateMovieInfoOtherNames(int userId, int movieInfoId, string otherNames);
-
     bool DeleteMovieInfo(int userId, int tvInfoId);
-
-    void RefreshInfo(int infoId, INFO_TYPE type);
-
-    IEnumerable<UnlinkedShowsModel> GetUnlinkedShows(Expression<Func<UnlinkedShowsModel, bool>>? predicate = null);
 }

@@ -148,9 +148,6 @@ public class ShowLoggerDbContext : DbContext
                 .HasMaxLength(4000)
                 .IsRequired();
 
-            entity.Property(e => e.OTHER_NAMES)
-                .HasMaxLength(150);
-
             entity.Property(e => e.LAST_DATA_REFRESH)
                 .IsRequired();
 

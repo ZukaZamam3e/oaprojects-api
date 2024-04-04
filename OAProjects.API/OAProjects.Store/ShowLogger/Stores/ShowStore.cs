@@ -91,7 +91,7 @@ public class ShowStore : IShowStore
         SL_SHOW entity = new SL_SHOW
         {
             SHOW_TYPE_ID = model.ShowTypeId,
-            DATE_WATCHED = model.DateWatched,
+            DATE_WATCHED = model.DateWatched.Date,
             EPISODE_NUMBER = model.ShowTypeId == (int)CodeValueIds.TV ? model.EpisodeNumber : null,
             SEASON_NUMBER = model.ShowTypeId == (int)CodeValueIds.TV ? model.SeasonNumber : null,
             SHOW_NAME = model.ShowName,
@@ -113,7 +113,7 @@ public class ShowStore : IShowStore
         if (entity != null)
         {
             entity.SHOW_TYPE_ID = model.ShowTypeId;
-            entity.DATE_WATCHED = model.DateWatched;
+            entity.DATE_WATCHED = model.DateWatched.Date;
             entity.EPISODE_NUMBER = model.EpisodeNumber;
             entity.SEASON_NUMBER = model.SeasonNumber;
             entity.SHOW_NAME = model.ShowName;
@@ -139,7 +139,7 @@ public class ShowStore : IShowStore
                 USER_ID = userId,
                 SEASON_NUMBER = entity.SEASON_NUMBER,
                 EPISODE_NUMBER = entity.EPISODE_NUMBER + 1,
-                DATE_WATCHED = DateTime.Now.GetEST().Date,
+                DATE_WATCHED = DateTime.UtcNow,
             };
 
             _context.SL_SHOW.Add(nextEpisode);

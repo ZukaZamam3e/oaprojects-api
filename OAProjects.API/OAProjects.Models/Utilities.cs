@@ -11,9 +11,9 @@ public class Utilities
 
 public static class DateTimeExtensions
 {
-    public static DateTime GetEST(this DateTime date)
+    public static DateTime GetEST(DateTime date)
     {
-        var timeUtc = DateTime.UtcNow;
+        DateTime timeUtc = DateTime.UtcNow;
         TimeZoneInfo easternZone = TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time");
         DateTime easternTime = TimeZoneInfo.ConvertTimeFromUtc(timeUtc, easternZone);
 

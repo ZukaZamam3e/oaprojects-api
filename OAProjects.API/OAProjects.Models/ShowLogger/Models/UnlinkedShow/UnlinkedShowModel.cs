@@ -1,5 +1,5 @@
-﻿namespace OAProjects.Models.ShowLogger.Models.Info;
-public class UnlinkedShowsModel
+﻿namespace OAProjects.Models.ShowLogger.Models.UnlinkedShow;
+public class UnlinkedShowModel
 {
     public string ShowName { get; set; }
 

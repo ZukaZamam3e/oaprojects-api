@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace OAProjects.Models.ShowLogger.Models.Info;
 public class TvInfoModel
@@ -13,8 +14,6 @@ public class TvInfoModel
 
     public string? ApiId { get; set; }
 
-    public string? OtherNames { get; set; }
-
     public DateTime LastDataRefresh { get; set; }
 
     public DateTime LastUpdated { get; set; }
@@ -24,5 +23,6 @@ public class TvInfoModel
     public IEnumerable<TvInfoSeasonModel> Seasons { get; set; }
 
     [Display(Name = "Episodes")]
+    [JsonIgnore]
     public IEnumerable<TvEpisodeInfoModel> Episodes { get; set; }
 }

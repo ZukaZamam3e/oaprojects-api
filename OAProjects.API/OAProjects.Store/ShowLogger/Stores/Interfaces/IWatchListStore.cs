@@ -15,4 +15,6 @@ public interface IWatchListStore
     int UpdateWatchList(int userId, WatchListModel model);
 
     bool DeleteWatchList(int userId, int watchListId);
+
+    bool MoveToShows(int userId, int watchListId, DateTime dateWatched);
 }

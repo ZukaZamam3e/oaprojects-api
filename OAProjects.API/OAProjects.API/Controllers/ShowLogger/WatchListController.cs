@@ -162,4 +162,40 @@ public class WatchListController : BaseController
 
         return Ok(response);
     }
+
+    [HttpPost("MoveToShows")]
+    public async Task<IActionResult> MoveToShows(WatchListMoveToShowsRequest request,
+        [FromServices] IValidator<WatchListMoveToShowsRequest> validator)
+    {
+        PostResponse<bool> response = new PostResponse<bool>();
+
+        try
+        {
+            ValidationResult result = await validator.ValidateAsync(request);
+
+            if (!result.IsValid)
+            {
+                response.Errors = result.Errors.Select(m => m.ErrorMessage);
+            }
+            else
+            {
+                int userId = await GetUserId();
+
+                bool successful = _watchListStore.MoveToShows(userId, request.WatchListId, request.DateWatched);
+
+                if (successful == false)
+                {
+                    throw new Exception("Unable to move to shows.");
+                }
+
+                response.Model = successful;
+            }
+        }
+        catch (Exception ex)
+        {
+            response.Errors = new List<string>() { ex.Message };
+        }
+
+        return Ok(response);
+    }
 }
