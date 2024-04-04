@@ -18,6 +18,7 @@ public class BaseController : ControllerBase
     private readonly ILogger<BaseController> _logger;
     protected readonly IUserStore _userStore;
     private readonly IHttpClientFactory _httpClientFactory;
+    private readonly int UserId;
 
     //protected int _userId;
     public BaseController(ILogger<BaseController> logger,

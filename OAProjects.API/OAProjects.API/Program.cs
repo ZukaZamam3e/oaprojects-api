@@ -5,10 +5,17 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.Net.Http.Headers;
 using OAProjects.API.Requirements;
 using OAProjects.API.Setup;
+using OAProjects.Models.ShowLogger.Models.Config;
 using System.Diagnostics;
 using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
+
+if (Debugger.IsAttached)
+{
+    builder.Configuration.AddJsonFile("appsettings.local.json", optional: true, reloadOnChange: true);
+}
+
 var config = builder.Configuration;
 
 // Add services to the container.
@@ -20,6 +27,10 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddOAIdentityDb(builder.Configuration);
 builder.Services.AddShowLoggerDb(builder.Configuration);
+
+ApisConfig apisConfig = new ApisConfig();
+builder.Configuration.GetSection("Apis").Bind(apisConfig);
+builder.Services.AddSingleton(apisConfig);
 
 string MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 string domain = $"https://{builder.Configuration["Auth0:Domain"]}/";

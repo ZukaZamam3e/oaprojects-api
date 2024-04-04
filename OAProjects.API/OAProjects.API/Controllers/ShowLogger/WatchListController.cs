@@ -6,11 +6,11 @@ using OAProjects.API.Responses;
 using OAProjects.Models.ShowLogger.Models.CodeValue;
 using OAProjects.Store.OAIdentity.Stores.Interfaces;
 using OAProjects.Store.ShowLogger.Stores.Interfaces;
-using OAProjects.API.Responses.WatchList;
 using OAProjects.Data.ShowLogger.Entities;
 using OAProjects.Models.ShowLogger.Models.WatchList;
 using FluentValidation.Results;
 using OAProjects.API.Requests.WatchList;
+using OAProjects.API.Responses.ShowLogger.WatchList;
 
 namespace OAProjects.API.Controllers.ShowLogger;
 
@@ -150,6 +150,42 @@ public class WatchListController : BaseController
                 if (successful == false)
                 {
                     throw new Exception("Unable to delete watchlist.");
+                }
+
+                response.Model = successful;
+            }
+        }
+        catch (Exception ex)
+        {
+            response.Errors = new List<string>() { ex.Message };
+        }
+
+        return Ok(response);
+    }
+
+    [HttpPost("MoveToShows")]
+    public async Task<IActionResult> MoveToShows(WatchListMoveToShowsRequest request,
+        [FromServices] IValidator<WatchListMoveToShowsRequest> validator)
+    {
+        PostResponse<bool> response = new PostResponse<bool>();
+
+        try
+        {
+            ValidationResult result = await validator.ValidateAsync(request);
+
+            if (!result.IsValid)
+            {
+                response.Errors = result.Errors.Select(m => m.ErrorMessage);
+            }
+            else
+            {
+                int userId = await GetUserId();
+
+                bool successful = _watchListStore.MoveToShows(userId, request.WatchListId, request.DateWatched);
+
+                if (successful == false)
+                {
+                    throw new Exception("Unable to move to shows.");
                 }
 
                 response.Model = successful;

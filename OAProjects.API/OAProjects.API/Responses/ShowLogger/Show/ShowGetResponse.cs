@@ -1,6 +1,6 @@
 ﻿using OAProjects.Models.ShowLogger.Models.Show;
 
-namespace OAProjects.API.Responses.Show;
+namespace OAProjects.API.Responses.ShowLogger.Show;
 
 public class ShowGetResponse
 {

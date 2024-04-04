@@ -11,6 +11,12 @@ using OAProjects.Models.ShowLogger.Models.Friend;
 using OAProjects.API.Validators.ShowLogger.WatchList;
 using OAProjects.API.Requests.WatchList;
 using OAProjects.Models.ShowLogger.Models.WatchList;
+using OAProjects.Models.ShowLogger.Models.Config;
+using OAProjects.Models.ShowLogger.Models.Info;
+using OAProjects.API.Validators.ShowLogger.Info;
+using OAProjects.API.Responses.ShowLogger.Info;
+using OAProjects.API.Validators.ShowLogger.UnlinkedShows;
+using OAProjects.Models.ShowLogger.Models.UnlinkedShow;
 
 namespace OAProjects.API.Setup;
 
@@ -24,14 +30,26 @@ public static class ShowLoggerSetup
         services.AddTransient<IFriendStore, FriendStore>();
         services.AddTransient<IWatchListStore, WatchListStore>();
         services.AddTransient<ICodeValueStore, CodeValueStore>();
+        services.AddTransient<IInfoStore, InfoStore>();
+        services.AddTransient<IUnlinkedShowStore, UnlinkedShowStore>();
 
         services.AddScoped<IValidator<ShowModel>, ShowValidator>();
+
         services.AddScoped<IValidator<FriendIdRequest>, FriendIdValidator>();
         services.AddScoped<IValidator<FriendRequestIdRequest>, FriendRequestIdValidator>();
         services.AddScoped<IValidator<AddFriendModel>, AddFriendValidator>();
 
         services.AddScoped<IValidator<WatchListIdRequest>, WatchListIdValidator>();
+        services.AddScoped<IValidator<WatchListMoveToShowsRequest>, WatchListMoveToShowsValidator>();
         services.AddScoped<IValidator<WatchListModel>, WatchListValidator>();
+
+        services.AddScoped<IValidator<InfoApiSearchModel>, InfoApiSearchValidator>();
+        services.AddScoped<IValidator<InfoApiDownloadModel>, InfoApiDownloadValidator>();
+        services.AddScoped<IValidator<TvInfoIdRequest>, TvInfoIdValidator>();
+        services.AddScoped<IValidator<MovieInfoIdRequest>, MovieInfoIdValidator>();
+
+        services.AddScoped<IValidator<UpdateUnlinkedNameModel>, UpdateUnlinkedNameValidator>();
+        services.AddScoped<IValidator<LinkShowModel>, LinkShowValidator>();
 
         return services;
     }

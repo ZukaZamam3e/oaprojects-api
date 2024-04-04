@@ -59,7 +59,7 @@ public class FriendStore : IFriendStore
                 {
                     SENT_USER_ID = userId,
                     RECEIVED_USER_ID = friendId,
-                    DATE_SENT = DateTime.Now.GetEST(),
+                    DATE_SENT = DateTime.Now,
                 };
 
                 _context.SL_FRIEND_REQUEST.Add(entity);
@@ -86,7 +86,7 @@ public class FriendStore : IFriendStore
             {
                 USER_ID = entity.SENT_USER_ID,
                 FRIEND_USER_ID = entity.RECEIVED_USER_ID,
-                CREATED_DATE = DateTime.Now.GetEST(),
+                CREATED_DATE = DateTime.Now,
             });
 
             _context.SaveChanges();

@@ -10,6 +10,7 @@ public class WatchListValidator : AbstractValidator<WatchListModel>
     {
         RuleFor(x => x.ShowName).NotNull();
         RuleFor(x => x.ShowTypeId).GreaterThan(0);
+        RuleFor(x => x.DateAdded).NotEmpty();
 
         // TV Show
         RuleFor(x => x.SeasonNumber).NotNull().When(m => m.ShowTypeId == (int)CodeValueIds.TV);

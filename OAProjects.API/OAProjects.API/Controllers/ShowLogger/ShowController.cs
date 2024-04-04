@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web.Resource;
 using OAProjects.API.Requests.Show;
 using OAProjects.API.Responses;
-using OAProjects.API.Responses.Show;
+using OAProjects.API.Responses.ShowLogger.Show;
 using OAProjects.Data.ShowLogger.Entities;
 using OAProjects.Models.ShowLogger;
 using OAProjects.Models.ShowLogger.Models.CodeValue;

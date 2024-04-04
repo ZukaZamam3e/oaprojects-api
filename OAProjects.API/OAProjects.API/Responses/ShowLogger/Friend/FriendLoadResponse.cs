@@ -1,6 +1,6 @@
 ﻿using OAProjects.Models.ShowLogger.Models.Friend;
 
-namespace OAProjects.API.Responses.Friend;
+namespace OAProjects.API.Responses.ShowLogger.Friend;
 
 public class FriendLoadResponse
 {
