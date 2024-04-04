@@ -16,13 +16,17 @@ public interface IShowStore : IStore
 
     IEnumerable<ShowModel> GetShows(Expression<Func<ShowModel, bool>>? predicate = null);
 
-    IEnumerable<ShowModel> SearchShows(int userId, string text);
-
-    int CreateShow(int userId, ShowModel model);
+    int CreateShow(int userId, ShowModel model, int? infoId = null);
 
     int UpdateShow(int userId, ShowModel model);
 
-    int AddNextEpisode(int userId, int showId);
+    int AddNextEpisode(int userId, int showId, DateTime dateWatched);
 
     bool DeleteShow(int userId, int showId);
+
+    bool AddOneDay(int userId, int showId);
+
+    bool SubtractOneDay(int userId, int showId);
+
+    bool AddRange(int userId, AddRangeModel model);
 }

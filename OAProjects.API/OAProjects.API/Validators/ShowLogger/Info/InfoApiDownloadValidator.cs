@@ -7,7 +7,6 @@ public class InfoApiDownloadValidator : AbstractValidator<InfoApiDownloadModel>
 {
     public InfoApiDownloadValidator()
     {
-
         RuleFor(m => (int)m.API).LessThanOrEqualTo((int)INFO_API.TMDB_API).WithMessage("API value not accepted.");
 
         RuleFor(m => (int)m.Type).LessThanOrEqualTo((int)INFO_TYPE.MOVIE).WithMessage("Type value not accepted.");

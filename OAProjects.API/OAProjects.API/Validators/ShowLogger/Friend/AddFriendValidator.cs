@@ -9,5 +9,6 @@ public class AddFriendValidator : AbstractValidator<AddFriendModel>
     public AddFriendValidator()
     {
         RuleFor(m => m.Email).NotEmpty().EmailAddress();
+        RuleFor(m => m.DateAdded).NotEmpty();
     }
 }

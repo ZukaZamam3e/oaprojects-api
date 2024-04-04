@@ -1,18 +1,21 @@
-﻿using FluentValidation;
+﻿using Azure.Core;
+using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Identity.Web.Resource;
+using Microsoft.EntityFrameworkCore;
 using OAProjects.API.Requests.Show;
 using OAProjects.API.Responses;
 using OAProjects.API.Responses.ShowLogger.Show;
 using OAProjects.Data.ShowLogger.Entities;
-using OAProjects.Models.ShowLogger;
 using OAProjects.Models.ShowLogger.Models.CodeValue;
+using OAProjects.Models.ShowLogger.Models.Info;
 using OAProjects.Models.ShowLogger.Models.Show;
 using OAProjects.Store.OAIdentity.Stores.Interfaces;
 using OAProjects.Store.ShowLogger.Stores.Interfaces;
+using System.Linq.Expressions;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace OAProjects.API.Controllers.ShowLogger;
 
@@ -24,25 +27,22 @@ public class ShowController : BaseController
 {
     private readonly ILogger<ShowController> _logger;
     private readonly IShowStore _showStore;
-    private readonly IValidator<ShowModel> _validator;
+    private readonly IInfoStore _infoStore;
 
     public ShowController(ILogger<ShowController> logger,
         IUserStore userStore,
         IShowStore showStore,
+        IInfoStore infoStore,
         IHttpClientFactory httpClientFactory,
         IValidator<ShowModel> validator)
         : base(logger, userStore, httpClientFactory)
     {
         _logger = logger;
         _showStore = showStore;
-        _validator = validator;
+        _infoStore = infoStore;
     }
 
     [HttpGet("Load")]
-    //[RequiredScopeOrAppPermission(
-    //    RequiredScopesConfigurationKey = "AzureAD:Scopes:User.ReadWrite",
-    //    RequiredAppPermissionsConfigurationKey = "AzureAD:AppPermissions:User.ReadWrite"
-    //)]
     public async Task<IActionResult> Load()
     {
         GetResponse<ShowLoadResponse> response = new GetResponse<ShowLoadResponse>();
@@ -67,10 +67,6 @@ public class ShowController : BaseController
     }
 
     [HttpGet("Get")]
-    //[RequiredScopeOrAppPermission(
-    //    RequiredScopesConfigurationKey = "AzureAD:Scopes:User.ReadWrite",
-    //    RequiredAppPermissionsConfigurationKey = "AzureAD:AppPermissions:User.ReadWrite"
-    //)]
     public async Task<IActionResult> Get(int offset = 0, string? search = null, int take = 10)
     {
         GetResponse<ShowGetResponse> response = new GetResponse<ShowGetResponse>();
@@ -80,15 +76,8 @@ public class ShowController : BaseController
             int userId = await GetUserId();
 
             response.Model = new ShowGetResponse();
-            if(!string.IsNullOrEmpty(search))
-            {
-                response.Model.Shows = _showStore.SearchShows(userId, search);
-            }
-            else
-            {
-                response.Model.Shows = _showStore.GetShows(m => m.UserId == userId);
-            }
-
+            
+            response.Model.Shows = GetShows(userId, search);
             response.Model.Count = response.Model.Shows.Count();
             response.Model.Shows = response.Model.Shows.OrderByDescending(m => m.DateWatched).ThenByDescending(m => m.ShowId).Skip(offset).Take(take);
         }
@@ -100,19 +89,53 @@ public class ShowController : BaseController
         return Ok(response);
     }
 
+    private IEnumerable<ShowModel> GetShows(int userId, string? search = null)
+    {
+        Expression<Func<ShowModel, bool>>? predicate = null;
+
+        DateTime dateSearch;
+
+        Dictionary<string, int> showTypeIds = _showStore.GetCodeValues(m => m.CodeTableId == (int)CodeTableIds.SHOW_TYPE_ID)
+            .ToDictionary(m => m.DecodeTxt.ToLower(), m => m.CodeValueId);
+
+        if (!string.IsNullOrEmpty(search))
+        {
+            if (DateTime.TryParse(search, out dateSearch))
+            {
+                predicate = m => m.DateWatched.Date == dateSearch.Date
+                    && m.UserId == userId;
+            }
+            else if (showTypeIds.ContainsKey(search.ToLower()))
+            {
+                predicate = m => m.ShowTypeId == showTypeIds[search.ToLower()]
+                    && m.UserId == userId;
+            }
+            else
+            {
+                predicate = m => m.ShowName.ToLower().Contains(search.ToLower())
+                    && m.UserId == userId;
+            }
+        }
+        else
+        {
+            predicate = m => m.UserId == userId;
+        }
+
+        IEnumerable<ShowModel> query = _showStore.GetShows(predicate);
+
+        return query;
+    }
+
     [HttpPost("Save")]
-    //[RequiredScopeOrAppPermission(
-    //    RequiredScopesConfigurationKey = "AzureAD:Scopes:User.ReadWrite",
-    //    RequiredAppPermissionsConfigurationKey = "AzureAD:AppPermissions:User.ReadWrite"
-    //)]
-    public async Task<IActionResult> SaveShow(ShowModel model)
+    public async Task<IActionResult> SaveShow(ShowModel model,
+        [FromServices] IValidator<ShowModel> validator)
     {
         PostResponse<ShowModel> response = new PostResponse<ShowModel>();
         
         try
         {
             int userId = await GetUserId();
-            ValidationResult result = await _validator.ValidateAsync(model);
+            ValidationResult result = await validator.ValidateAsync(model);
 
             if (!result.IsValid)
             {
@@ -142,24 +165,24 @@ public class ShowController : BaseController
         return Ok(response);
     }
 
-    [HttpPost("AddNextEpisode")]
-    //[RequiredScopeOrAppPermission(
-    //    RequiredScopesConfigurationKey = "AzureAD:Scopes:User.ReadWrite",
-    //    RequiredAppPermissionsConfigurationKey = "AzureAD:AppPermissions:User.ReadWrite"
-    //)]
-    public async Task<IActionResult> AddNextEpisode(ShowIdRequest request)
+    [HttpPost("Delete")]
+    public async Task<IActionResult> Delete(ShowIdRequest request,
+        [FromServices] IValidator<ShowIdRequest> validator)
     {
-        PostResponse<ShowModel> response = new PostResponse<ShowModel>();
+        PostResponse<bool> response = new PostResponse<bool>();
 
         try
         {
             int userId = await GetUserId();
+            ValidationResult result = await validator.ValidateAsync(request);
 
-            int newShowId = _showStore.AddNextEpisode(userId, request.ShowId);
-
-            if(newShowId > -1)
+            if (!result.IsValid)
             {
-                response.Model = _showStore.GetShows(m => m.UserId == userId && m.ShowId == newShowId).First();
+                response.Errors = result.Errors.Select(m => m.ErrorMessage);
+            }
+            else
+            {
+                response.Model = _showStore.DeleteShow(userId, request.ShowId);
             }
         }
         catch (Exception ex)
@@ -170,20 +193,190 @@ public class ShowController : BaseController
         return Ok(response);
     }
 
-    [HttpPost("Delete")]
-    //[RequiredScopeOrAppPermission(
-    //    RequiredScopesConfigurationKey = "AzureAD:Scopes:User.ReadWrite",
-    //    RequiredAppPermissionsConfigurationKey = "AzureAD:AppPermissions:User.ReadWrite"
-    //)]
-    public async Task<IActionResult> Delete(ShowIdRequest request)
+    [HttpPost("AddNextEpisode")]
+    public async Task<IActionResult> AddNextEpisode(ShowAddNextEpisodeRequest request,
+        [FromServices] IValidator<ShowAddNextEpisodeRequest> validator)
+    {
+        PostResponse<ShowModel> response = new PostResponse<ShowModel>();
+
+        try
+        {
+            int userId = await GetUserId();
+
+            ValidationResult result = await validator.ValidateAsync(request);
+
+            if (!result.IsValid)
+            {
+                response.Errors = result.Errors.Select(m => m.ErrorMessage);
+            }
+            else
+            {
+                int newShowId = _showStore.AddNextEpisode(userId, request.ShowId, request.DateWatched);
+
+                if (newShowId > -1)
+                {
+                    response.Model = _showStore.GetShows(m => m.UserId == userId && m.ShowId == newShowId).First();
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            response.Errors = new List<string>() { ex.Message };
+        }
+
+        return Ok(response);
+    }
+
+    [HttpPost("AddOneDay")]
+    public async Task<IActionResult> AddOneDay(ShowIdRequest request,
+        [FromServices] IValidator<ShowIdRequest> validator)
+    {
+        PostResponse<ShowModel> response = new PostResponse<ShowModel>();
+
+        try
+        {
+            int userId = await GetUserId();
+            ValidationResult result = await validator.ValidateAsync(request);
+
+            if (!result.IsValid)
+            {
+                response.Errors = result.Errors.Select(m => m.ErrorMessage);
+            }
+            else
+            {
+                bool successful = _showStore.AddOneDay(userId, request.ShowId);
+
+                if(successful)
+                {
+                    response.Model = _showStore.GetShows(m => m.UserId == userId && m.ShowId == request.ShowId).First();
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            response.Errors = new List<string>() { ex.Message };
+        }
+
+        return Ok(response);
+    }
+
+    [HttpPost("SubtractOneDay")]
+    public async Task<IActionResult> SubtractOneDay(ShowIdRequest request,
+        [FromServices] IValidator<ShowIdRequest> validator)
+    {
+        PostResponse<ShowModel> response = new PostResponse<ShowModel>();
+
+        try
+        {
+            int userId = await GetUserId();
+            ValidationResult result = await validator.ValidateAsync(request);
+
+            if (!result.IsValid)
+            {
+                response.Errors = result.Errors.Select(m => m.ErrorMessage);
+            }
+            else
+            {
+                bool successful = _showStore.SubtractOneDay(userId, request.ShowId);
+
+                if (successful)
+                {
+                    response.Model = _showStore.GetShows(m => m.UserId == userId && m.ShowId == request.ShowId).First();
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            response.Errors = new List<string>() { ex.Message };
+        }
+
+        return Ok(response);
+    }
+
+    [HttpPost("AddRange")]
+    public async Task<IActionResult> AddRange(AddRangeModel model,
+        [FromServices] IValidator<AddRangeModel> validator)
     {
         PostResponse<bool> response = new PostResponse<bool>();
 
         try
         {
             int userId = await GetUserId();
+            ValidationResult result = await validator.ValidateAsync(model);
 
-            response.Model = _showStore.DeleteShow(userId, request.ShowId);
+            if (!result.IsValid)
+            {
+                response.Errors = result.Errors.Select(m => m.ErrorMessage);
+            }
+            else
+            {
+                response.Model = _showStore.AddRange(userId, model);
+            }
+        }
+        catch (Exception ex)
+        {
+            response.Errors = new List<string>() { ex.Message };
+        }
+
+        return Ok(response);
+    }
+
+    [HttpPost("AddWatchFromSearch")]
+    public async Task<IActionResult> AddWatchFromSearch(AddWatchFromSearchModel model,
+        [FromServices] IValidator<AddWatchFromSearchModel> validator)
+    {
+        PostResponse<ShowModel> response = new PostResponse<ShowModel>();
+
+        try
+        {
+            int userId = await GetUserId();
+            int? infoId = null;
+            ValidationResult result = await validator.ValidateAsync(model);
+
+            if (!result.IsValid)
+            {
+                response.Errors = result.Errors.Select(m => m.ErrorMessage);
+            }
+            else
+            {
+                DownloadResultModel info = await _infoStore.Download(userId, new InfoApiDownloadModel
+                {
+                    API = model.API,
+                    Type = model.Type,
+                    Id = model.Id
+                });
+
+                if(info.Type == INFO_TYPE.TV)
+                {
+                    TvEpisodeInfoModel? episode = _infoStore.GetTvEpisodeInfos(m => m.TvInfoId == info.Id)
+                        .FirstOrDefault(m => m.SeasonNumber == model.SeasonNumber && m.EpisodeNumber == model.EpisodeNumber);
+
+                    if(episode != null)
+                    {
+                        infoId = episode.TvEpisodeInfoId;
+                    }
+                }
+                else
+                {
+                    infoId = (int)info.Id;
+                }
+
+                int showId = _showStore.CreateShow(userId, new ShowModel
+                {
+                    ShowName = model.ShowName,
+                    ShowTypeId = model.ShowTypeId,
+                    DateWatched = model.DateWatched,
+                    SeasonNumber = model.SeasonNumber,
+                    EpisodeNumber = model.EpisodeNumber,
+                    ShowNotes = model.ShowNotes,
+                    RestartBinge = model.RestartBinge
+                }, infoId);
+
+                if (showId > 0)
+                {
+                    response.Model = _showStore.GetShows(m => m.UserId == userId && m.ShowId == showId).First();
+                }
+            }
         }
         catch (Exception ex)
         {
