@@ -20,6 +20,7 @@ public class TransactionStore : ITransactionStore
         Dictionary<int, string> showIds = _context.SL_SHOW.Where(m => m.USER_ID == userId).ToDictionary(m => m.SHOW_ID, m => m.SHOW_NAME);
 
         IEnumerable<TransactionModel> query = _context.SL_TRANSACTION
+            .Where(m => m.USER_ID == userId)
             .Select(m => new TransactionModel
             {
                 TransactionId = m.TRANSACTION_ID,

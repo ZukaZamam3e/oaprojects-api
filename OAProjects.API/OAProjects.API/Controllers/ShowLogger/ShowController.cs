@@ -33,8 +33,7 @@ public class ShowController : BaseController
         IUserStore userStore,
         IShowStore showStore,
         IInfoStore infoStore,
-        IHttpClientFactory httpClientFactory,
-        IValidator<ShowModel> validator)
+        IHttpClientFactory httpClientFactory)
         : base(logger, userStore, httpClientFactory)
     {
         _logger = logger;
