@@ -3,7 +3,7 @@ using OAProjects.Data.ShowLogger.Entities;
 using OAProjects.Models.ShowLogger.Models.Show;
 using OAProjects.Models.ShowLogger.Models.Transaction;
 
-namespace OAProjects.API.Validators.ShowLogger.Show;
+namespace OAProjects.API.Validators.ShowLogger.Transaction;
 
 public class TransactionValidator : AbstractValidator<TransactionModel>
 {

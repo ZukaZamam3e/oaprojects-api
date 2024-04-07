@@ -7,6 +7,8 @@ public class ShowLoadResponse
 {
     public IEnumerable<SLCodeValueSimpleModel> ShowTypeIds { get; set; }
 
+    public IEnumerable<SLCodeValueSimpleModel> TransactionTypeIds { get; set; }
+
     public IEnumerable<ShowModel> Shows { get; set; }
 
     public int Count { get; set; }

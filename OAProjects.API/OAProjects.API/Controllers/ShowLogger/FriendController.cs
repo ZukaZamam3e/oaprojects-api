@@ -32,13 +32,12 @@ public class FriendController : BaseController
     }
 
     [HttpGet("Load")]
-    public async Task<IActionResult> Load()
+    public async Task<IActionResult> Load(int take = 10)
     {
         GetResponse<FriendLoadResponse> response = new GetResponse<FriendLoadResponse>();
 
         try
         {
-            int take = 10;
             int userId = await GetUserId();
             response.Model = new FriendLoadResponse();
 

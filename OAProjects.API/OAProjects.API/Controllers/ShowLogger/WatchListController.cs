@@ -36,12 +36,11 @@ public class WatchListController : BaseController
     }
 
     [HttpGet("Load")]
-    public async Task<IActionResult> Load()
+    public async Task<IActionResult> Load(int take = 10)
     {
         GetResponse<WatchListLoadResponse> response = new GetResponse<WatchListLoadResponse>();
         try
         {
-            int take = 10;
             int userId = await GetUserId();
             response.Model = new WatchListLoadResponse();
 

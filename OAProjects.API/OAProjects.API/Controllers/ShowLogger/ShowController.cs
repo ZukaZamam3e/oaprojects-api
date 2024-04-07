@@ -13,6 +13,7 @@ using OAProjects.Models.ShowLogger.Models.CodeValue;
 using OAProjects.Models.ShowLogger.Models.Info;
 using OAProjects.Models.ShowLogger.Models.Show;
 using OAProjects.Store.OAIdentity.Stores.Interfaces;
+using OAProjects.Store.ShowLogger.Stores;
 using OAProjects.Store.ShowLogger.Stores.Interfaces;
 using System.Linq.Expressions;
 using static System.Net.Mime.MediaTypeNames;
@@ -28,17 +29,20 @@ public class ShowController : BaseController
     private readonly ILogger<ShowController> _logger;
     private readonly IShowStore _showStore;
     private readonly IInfoStore _infoStore;
+    private readonly ICodeValueStore _codeValueStore;
 
     public ShowController(ILogger<ShowController> logger,
         IUserStore userStore,
         IShowStore showStore,
         IInfoStore infoStore,
+        ICodeValueStore codeValueStore,
         IHttpClientFactory httpClientFactory)
         : base(logger, userStore, httpClientFactory)
     {
         _logger = logger;
         _showStore = showStore;
         _infoStore = infoStore;
+        _codeValueStore = codeValueStore;
     }
 
     [HttpGet("Load")]
@@ -52,7 +56,8 @@ public class ShowController : BaseController
             int userId = await GetUserId();
             response.Model = new ShowLoadResponse();
 
-            response.Model.ShowTypeIds = _showStore.GetCodeValues(m => m.CodeTableId == (int)CodeTableIds.SHOW_TYPE_ID).Select(m => new SLCodeValueSimpleModel { CodeValueId = m.CodeValueId, DecodeTxt = m.DecodeTxt });
+            response.Model.ShowTypeIds = _codeValueStore.GetCodeValues(m => m.CodeTableId == (int)CodeTableIds.SHOW_TYPE_ID).Select(m => new SLCodeValueSimpleModel { CodeValueId = m.CodeValueId, DecodeTxt = m.DecodeTxt });
+            response.Model.TransactionTypeIds = _codeValueStore.GetCodeValues(m => m.CodeTableId == (int)CodeTableIds.TRANSACTION_TYPE_ID).Select(m => new SLCodeValueSimpleModel { CodeValueId = m.CodeValueId, DecodeTxt = m.DecodeTxt });
             response.Model.Shows = _showStore.GetShows(m => m.UserId == userId);
             response.Model.Count = response.Model.Shows.Count();
             response.Model.Shows = response.Model.Shows.OrderByDescending(m => m.DateWatched).ThenByDescending(m => m.ShowId).Take(take).ToArray();

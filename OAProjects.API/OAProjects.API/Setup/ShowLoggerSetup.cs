@@ -19,6 +19,8 @@ using OAProjects.API.Validators.ShowLogger.UnlinkedShows;
 using OAProjects.Models.ShowLogger.Models.UnlinkedShow;
 using OAProjects.API.Requests.Show;
 using OAProjects.Models.ShowLogger.Models.Transaction;
+using OAProjects.API.Requests.Transaction;
+using OAProjects.API.Validators.ShowLogger.Transaction;
 
 namespace OAProjects.API.Setup;
 
@@ -34,6 +36,7 @@ public static class ShowLoggerSetup
         services.AddTransient<ICodeValueStore, CodeValueStore>();
         services.AddTransient<IInfoStore, InfoStore>();
         services.AddTransient<IUnlinkedShowStore, UnlinkedShowStore>();
+        services.AddTransient<ITransactionStore, TransactionStore>();
 
         services.AddScoped<IValidator<ShowModel>, ShowValidator>();
         services.AddScoped<IValidator<ShowTransactionModel>, ShowTransactionValidator>();
@@ -43,6 +46,7 @@ public static class ShowLoggerSetup
         services.AddScoped<IValidator<AddWatchFromSearchModel>, AddWatchFromSearchValidator>();
 
         services.AddScoped<IValidator<TransactionModel>, TransactionValidator>();
+        services.AddScoped<IValidator<TransactionIdRequest>, TransactionIdValidator>();
 
         services.AddScoped<IValidator<FriendIdRequest>, FriendIdValidator>();
         services.AddScoped<IValidator<FriendRequestIdRequest>, FriendRequestIdValidator>();

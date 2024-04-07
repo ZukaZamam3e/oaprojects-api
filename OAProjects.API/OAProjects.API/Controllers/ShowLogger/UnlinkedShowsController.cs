@@ -35,13 +35,11 @@ public class UnlinkedShowsController : BaseController
     }
 
     [HttpGet("Load")]
-    public async Task<IActionResult> Load()
+    public IActionResult Load(int take = 10)
     {
         GetResponse<UnlinkedShowsLoadResponse> response = new GetResponse<UnlinkedShowsLoadResponse>();
         try
         {
-            int take = 10;
-
             response.Model = new UnlinkedShowsLoadResponse();
 
             IEnumerable<UnlinkedShowModel> data = GetUnlinkedShows();
