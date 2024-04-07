@@ -20,6 +20,7 @@ public class ShowLoggerDbContext : DbContext
     public DbSet<SL_TV_INFO> SL_TV_INFO { get; set; }
     public DbSet<SL_TV_EPISODE_INFO> SL_TV_EPISODE_INFO { get; set; }
     public DbSet<SL_MOVIE_INFO> SL_MOVIE_INFO { get; set; }
+    public DbSet<SL_TRANSACTION> SL_TRANSACTION { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -35,6 +36,7 @@ public class ShowLoggerDbContext : DbContext
         modelBuilder.Entity<SL_TV_INFO>().HasKey(m => m.TV_INFO_ID);
         modelBuilder.Entity<SL_TV_EPISODE_INFO>().HasKey(m => m.TV_EPISODE_INFO_ID);
         modelBuilder.Entity<SL_MOVIE_INFO>().HasKey(m => m.MOVIE_INFO_ID);
+        modelBuilder.Entity<SL_TRANSACTION>().HasKey(m => m.TRANSACTION_ID);
 
         modelBuilder.Entity<SL_TV_INFO>().HasMany(m => m.EPISODE_INFOS)
             .WithOne(m => m.TV_INFO)
@@ -63,7 +65,10 @@ public class ShowLoggerDbContext : DbContext
             new SL_CODE_VALUE { CODE_TABLE_ID = (int)CodeTableIds.TRANSACTION_TYPE_ID, CODE_VALUE_ID = (int)CodeValueIds.ALIST_TICKET, DECODE_TXT = "A-list Ticket" },
             new SL_CODE_VALUE { CODE_TABLE_ID = (int)CodeTableIds.TRANSACTION_TYPE_ID, CODE_VALUE_ID = (int)CodeValueIds.TICKET, DECODE_TXT = "Ticket" },
             new SL_CODE_VALUE { CODE_TABLE_ID = (int)CodeTableIds.TRANSACTION_TYPE_ID, CODE_VALUE_ID = (int)CodeValueIds.PURCHASE, DECODE_TXT = "Purchase" },
-            new SL_CODE_VALUE { CODE_TABLE_ID = (int)CodeTableIds.TRANSACTION_TYPE_ID, CODE_VALUE_ID = (int)CodeValueIds.ALIST, DECODE_TXT = "AMC A-list" }
+            new SL_CODE_VALUE { CODE_TABLE_ID = (int)CodeTableIds.TRANSACTION_TYPE_ID, CODE_VALUE_ID = (int)CodeValueIds.ALIST, DECODE_TXT = "AMC A-list" },
+            new SL_CODE_VALUE { CODE_TABLE_ID = (int)CodeTableIds.TRANSACTION_TYPE_ID, CODE_VALUE_ID = (int)CodeValueIds.BENEFITS, DECODE_TXT = "Benefits" },
+            new SL_CODE_VALUE { CODE_TABLE_ID = (int)CodeTableIds.TRANSACTION_TYPE_ID, CODE_VALUE_ID = (int)CodeValueIds.DISCOUNT, DECODE_TXT = "Discount" },
+            new SL_CODE_VALUE { CODE_TABLE_ID = (int)CodeTableIds.TRANSACTION_TYPE_ID, CODE_VALUE_ID = (int)CodeValueIds.TAX, DECODE_TXT = "Tax" }
         );
 
         modelBuilder.Entity<SL_SHOW>(entity =>
@@ -196,6 +201,28 @@ public class ShowLoggerDbContext : DbContext
                 .IsRequired();
 
             entity.Property(e => e.LAST_UPDATED)
+                .IsRequired();
+        });
+
+        modelBuilder.Entity<SL_TRANSACTION>(entity =>
+        {
+            entity.Property(e => e.TRANSACTION_ID)
+                .ValueGeneratedOnAdd();
+
+            entity.Property(e => e.TRANSACTION_TYPE_ID)
+                .IsRequired();
+
+            entity.Property(e => e.ITEM)
+                .HasMaxLength(100)
+                .IsRequired();
+
+            entity.Property(e => e.COST_AMT)
+                .IsRequired();
+
+            entity.Property(e => e.TRANSACTION_NOTES)
+                .HasMaxLength(250);
+
+            entity.Property(e => e.TRANSACTION_DATE)
                 .IsRequired();
         });
     }

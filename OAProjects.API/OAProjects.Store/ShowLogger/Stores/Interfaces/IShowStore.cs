@@ -29,4 +29,10 @@ public interface IShowStore : IStore
     bool SubtractOneDay(int userId, int showId);
 
     bool AddRange(int userId, AddRangeModel model);
+
+    IEnumerable<ShowTransactionModel> GetShowTransactions(int userId, int showId);
+
+    int DeleteAllShowTransactions(int userId, int showId);
+    
+    int SaveShowTransactions(int userId, int showId, DateTime dateWatched, IEnumerable<ShowTransactionModel>? transactions);
 }

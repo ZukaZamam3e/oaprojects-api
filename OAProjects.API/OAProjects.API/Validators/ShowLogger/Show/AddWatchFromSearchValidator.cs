@@ -26,5 +26,8 @@ public class AddWatchFromSearchValidator : AbstractValidator<AddWatchFromSearchM
         RuleFor(x => x.EpisodeNumber).Null().When(m => m.ShowTypeId != (int)CodeValueIds.TV);
 
         RuleFor(x => x.RestartBinge).NotNull();
+
+        RuleFor(m => m.Transactions).Null().When(m => m.ShowTypeId == (int)CodeValueIds.TV || m.ShowTypeId == (int)CodeValueIds.MOVIE);
+
     }
 }

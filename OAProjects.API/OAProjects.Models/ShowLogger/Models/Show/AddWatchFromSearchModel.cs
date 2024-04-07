@@ -27,4 +27,7 @@ public class AddWatchFromSearchModel
     public string? ShowNotes { get; set; }
 
     public bool RestartBinge { get; set; }
+
+    public IEnumerable<ShowTransactionModel>? Transactions { get; set; }
+
 }
