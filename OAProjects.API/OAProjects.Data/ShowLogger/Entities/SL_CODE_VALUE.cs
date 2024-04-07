@@ -27,5 +27,7 @@ public enum CodeValueIds
     TICKET = 2001,
     PURCHASE = 2002,
     ALIST = 2003,
-
+    BENEFITS = 2004,
+    DISCOUNT = 2005,
+    TAX = 2006
 }

@@ -1,4 +1,5 @@
-﻿using OAProjects.Data.ShowLogger.Context;
+﻿using Microsoft.EntityFrameworkCore.Query.Internal;
+using OAProjects.Data.ShowLogger.Context;
 using OAProjects.Data.ShowLogger.Entities;
 using OAProjects.Models;
 using OAProjects.Models.ShowLogger.Models.CodeValue;
@@ -79,6 +80,11 @@ public class ShowStore : IShowStore
         _context.SaveChanges();
         int id = entity.SHOW_ID;
 
+        if(model.Transactions != null)
+        {
+            SaveShowTransactions(userId, id, model.DateWatched.Date, model.Transactions);
+        }
+
         return id;
     }
 
@@ -88,6 +94,15 @@ public class ShowStore : IShowStore
 
         if (entity != null)
         {
+            bool deleteTransactions = false;
+
+            // Delete all transactions if AMC -> TV or Movie
+            if (entity.SHOW_TYPE_ID == (int)CodeValueIds.AMC
+                && (model.ShowTypeId == (int)CodeValueIds.TV || model.ShowTypeId == (int)CodeValueIds.MOVIE))
+            {
+                deleteTransactions = true;
+            }
+
             entity.SHOW_TYPE_ID = model.ShowTypeId;
             entity.DATE_WATCHED = model.DateWatched.Date;
             entity.EPISODE_NUMBER = model.EpisodeNumber;
@@ -95,7 +110,19 @@ public class ShowStore : IShowStore
             entity.SHOW_NAME = model.ShowName;
             entity.SHOW_NOTES = model.ShowNotes;
 
-            return _context.SaveChanges();
+            int result = _context.SaveChanges();
+
+            if (deleteTransactions)
+            {
+                result += DeleteAllShowTransactions(userId, entity.SHOW_ID);
+            }
+            else
+            {
+                if (model.Transactions != null)
+                {
+                    result += SaveShowTransactions(userId, entity.SHOW_ID, model.DateWatched.Date, model.Transactions);
+                }
+            }
         }
 
         return 0;
@@ -203,5 +230,82 @@ public class ShowStore : IShowStore
 
         bool successful = true;
         return successful;
+    }
+
+    public IEnumerable<ShowTransactionModel> GetShowTransactions(int userId, int showId)
+    {
+        Dictionary<int, string> transactionTypeIds = _context.SL_CODE_VALUE.Where(m => m.CODE_TABLE_ID == (int)CodeTableIds.TRANSACTION_TYPE_ID).ToDictionary(m => m.CODE_VALUE_ID, m => m.DECODE_TXT);
+
+        IEnumerable<ShowTransactionModel> query = _context.SL_TRANSACTION
+            .Where(m => m.USER_ID == userId && m.SHOW_ID == showId)
+            .Select(m => new ShowTransactionModel
+        {
+            TransactionId = m.TRANSACTION_ID,
+            TransactionTypeId = m.TRANSACTION_TYPE_ID,
+            TransactionTypeIdZ = transactionTypeIds[m.TRANSACTION_TYPE_ID],
+            Item = m.ITEM,
+            CostAmt = m.COST_AMT,
+            Quantity = m.QUANTITY,
+            TransactionNotes = m.TRANSACTION_NOTES,
+        });
+
+        return query;
+    }
+
+    public int DeleteAllShowTransactions(int userId, int showId)
+    {
+        int result = 0;
+        IEnumerable<SL_TRANSACTION> entity = _context.SL_TRANSACTION.Where(m => m.SHOW_ID == showId && m.USER_ID == userId);
+
+        if (entity != null)
+        {
+            _context.SL_TRANSACTION.RemoveRange(entity);
+
+            _context.SaveChanges();
+
+            result = _context.SaveChanges();
+        }
+
+        return result;
+    }
+
+    public int SaveShowTransactions(int userId, int showId, DateTime dateWatched, IEnumerable<ShowTransactionModel>? transactions)
+    {
+        int result = 0;
+
+        foreach (ShowTransactionModel transaction in transactions)
+        {
+            SL_TRANSACTION? entity;
+
+            if(transaction.TransactionId == 0)
+            {
+                entity = new SL_TRANSACTION();
+                _context.SL_TRANSACTION.Add(entity);
+            }
+            else
+            {
+                entity = _context.SL_TRANSACTION.First(m => m.TRANSACTION_ID == transaction.TransactionId && m.USER_ID == userId);
+            }
+
+            if(transaction.DeleteTransaction)
+            {
+                _context.SL_TRANSACTION.Remove(entity);
+            }
+            else
+            {
+                entity.USER_ID = userId;
+                entity.TRANSACTION_TYPE_ID = transaction.TransactionTypeId;
+                entity.SHOW_ID = showId;
+                entity.ITEM = transaction.Item;
+                entity.COST_AMT = transaction.CostAmt;
+                entity.QUANTITY = transaction.Quantity;
+                entity.TRANSACTION_NOTES = transaction.TransactionNotes;
+                entity.TRANSACTION_DATE = dateWatched;
+            }
+        }
+
+        result = _context.SaveChanges();
+
+        return result;
     }
 }

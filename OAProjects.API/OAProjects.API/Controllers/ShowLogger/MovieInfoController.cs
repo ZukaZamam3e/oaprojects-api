@@ -35,13 +35,11 @@ public class MovieInfoController : BaseController
     }
 
     [HttpGet("Load")]
-    public async Task<IActionResult> Load()
+    public async Task<IActionResult> Load(int take = 10)
     {
         GetResponse<MovieInfoLoadResponse> response = new GetResponse<MovieInfoLoadResponse>();
         try
         {
-            int take = 10;
-
             int userId = await GetUserId();
 
             response.Model = new MovieInfoLoadResponse();
