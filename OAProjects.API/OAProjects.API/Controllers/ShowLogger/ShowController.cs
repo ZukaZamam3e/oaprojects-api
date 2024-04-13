@@ -109,9 +109,9 @@ public class ShowController : BaseController
         return Ok(response);
     }
 
-    private IEnumerable<ShowModel> GetShows(int userId, string? search = null)
+    private IEnumerable<DetailedShowModel> GetShows(int userId, string? search = null)
     {
-        Expression<Func<ShowModel, bool>>? predicate = null;
+        Expression<Func<ShowInfoModel, bool>>? predicate = null;
 
         DateTime dateSearch;
 
@@ -141,7 +141,7 @@ public class ShowController : BaseController
             predicate = m => m.UserId == userId;
         }
 
-        IEnumerable<ShowModel> query = _showStore.GetShows(predicate);
+        IEnumerable<DetailedShowModel> query = _showStore.GetShows(predicate);
 
         return query;
     }
@@ -151,7 +151,7 @@ public class ShowController : BaseController
         [FromServices] IValidator<ShowModel> showValidator,
         [FromServices] IValidator<ShowTransactionModel> transactionValidator)
     {
-        PostResponse<ShowModel> response = new PostResponse<ShowModel>();
+        PostResponse<DetailedShowModel> response = new PostResponse<DetailedShowModel>();
         
         try
         {
@@ -251,7 +251,7 @@ public class ShowController : BaseController
     public async Task<IActionResult> AddNextEpisode(ShowAddNextEpisodeRequest request,
         [FromServices] IValidator<ShowAddNextEpisodeRequest> validator)
     {
-        PostResponse<ShowModel> response = new PostResponse<ShowModel>();
+        PostResponse<DetailedShowModel> response = new PostResponse<DetailedShowModel>();
 
         try
         {
@@ -285,7 +285,7 @@ public class ShowController : BaseController
     public async Task<IActionResult> AddOneDay(ShowIdRequest request,
         [FromServices] IValidator<ShowIdRequest> validator)
     {
-        PostResponse<ShowModel> response = new PostResponse<ShowModel>();
+        PostResponse<DetailedShowModel> response = new PostResponse<DetailedShowModel>();
 
         try
         {
@@ -318,7 +318,7 @@ public class ShowController : BaseController
     public async Task<IActionResult> SubtractOneDay(ShowIdRequest request,
         [FromServices] IValidator<ShowIdRequest> validator)
     {
-        PostResponse<ShowModel> response = new PostResponse<ShowModel>();
+        PostResponse<DetailedShowModel> response = new PostResponse<DetailedShowModel>();
 
         try
         {
@@ -380,7 +380,7 @@ public class ShowController : BaseController
         [FromServices] IValidator<AddWatchFromSearchModel> showValidator,
         [FromServices] IValidator<ShowTransactionModel> transacationValidator)
     {
-        PostResponse<ShowModel> response = new PostResponse<ShowModel>();
+        PostResponse<DetailedShowModel> response = new PostResponse<DetailedShowModel>();
 
         try
         {

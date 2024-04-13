@@ -12,4 +12,6 @@ public interface IUserStore
     UserModel? GetUserByToken(string token);
 
     UserModel? GetUserByEmail(string email);
+
+    Dictionary<int, string> GetUserLookUps();
 }

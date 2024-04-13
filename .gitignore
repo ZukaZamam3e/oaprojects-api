@@ -397,3 +397,4 @@ FodyWeavers.xsd
 # JetBrains Rider
 *.sln.iml
 /OAProjects.API/OAProjects.API/appsettings.Local.json
+/old_data
