@@ -37,7 +37,7 @@ namespace OAProjects.Data.ShowLogger.Migrations
             migrationBuilder.InsertData(
                 table: "SL_CODE_VALUE",
                 columns: new[] { "CODE_VALUE_ID", "CODE_TABLE_ID", "DECODE_TXT", "EXTRA_INFO" },
-                values: new object[] { 2005, 2, "Discount", null });
+                values: new object[] { 2005, 2, "Rewards", null });
 
             migrationBuilder.InsertData(
                 table: "SL_CODE_VALUE",

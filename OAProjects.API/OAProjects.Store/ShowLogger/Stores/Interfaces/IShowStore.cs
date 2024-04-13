@@ -14,7 +14,7 @@ public interface IShowStore : IStore
 {
     IEnumerable<SLCodeValueModel> GetCodeValues(Expression<Func<SLCodeValueModel, bool>>? predicate = null);
 
-    IEnumerable<ShowModel> GetShows(Expression<Func<ShowModel, bool>>? predicate = null);
+    IEnumerable<DetailedShowModel> GetShows(Expression<Func<ShowInfoModel, bool>>? predicate = null);
 
     int CreateShow(int userId, ShowModel model, int? infoId = null);
 
@@ -35,4 +35,6 @@ public interface IShowStore : IStore
     int DeleteAllShowTransactions(int userId, int showId);
     
     int SaveShowTransactions(int userId, int showId, DateTime dateWatched, IEnumerable<ShowTransactionModel>? transactions);
+
+    IEnumerable<FriendWatchHistoryModel> GetFriendWatchHistory(int userId, Dictionary<int, string> users);
 }
