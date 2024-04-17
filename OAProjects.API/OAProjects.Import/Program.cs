@@ -32,6 +32,12 @@ builder.Services.AddSingleton(dataConfig);
 builder.Services.AddTransient<IRestartImport, RestartImport>();
 builder.Services.AddTransient<IUserImport, UserImport>();
 builder.Services.AddTransient<IInfoImport, InfoImport>();
+builder.Services.AddTransient<IShowImport, ShowImport>();
+builder.Services.AddTransient<ITransactionImport, TransactionImport>();
+builder.Services.AddTransient<IFriendImport, FriendImport>();
+builder.Services.AddTransient<IUserPrefImport, UserPrefImport>();
+builder.Services.AddTransient<IWatchListImport, WatchListImport>();
+builder.Services.AddTransient<IBookImport, BookImport>();
 builder.Services.AddTransient<App>();
 
 using IHost host = builder.Build();

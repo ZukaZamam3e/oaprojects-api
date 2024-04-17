@@ -19,6 +19,7 @@ public class ShowStore : IShowStore
         ApisConfig apisConfig)
     {
         _context = context;
+        _apisConfig = apisConfig;
     }
 
     public IEnumerable<SLCodeValueModel> GetCodeValues(Expression<Func<SLCodeValueModel, bool>>? predicate = null)
