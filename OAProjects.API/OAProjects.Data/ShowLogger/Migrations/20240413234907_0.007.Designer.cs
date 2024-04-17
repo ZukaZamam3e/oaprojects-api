@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using OAProjects.Data.ShowLogger.Context;
 
@@ -11,9 +12,10 @@ using OAProjects.Data.ShowLogger.Context;
 namespace OAProjects.Data.ShowLogger.Migrations
 {
     [DbContext(typeof(ShowLoggerDbContext))]
-    partial class ShowLoggerDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240413234907_0.007")]
+    partial class _0007
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,43 +23,6 @@ namespace OAProjects.Data.ShowLogger.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
-
-            modelBuilder.Entity("OAProjects.Data.ShowLogger.Entities.SL_BOOK", b =>
-                {
-                    b.Property<int>("BOOK_ID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("BOOK_ID"), 1L, 1);
-
-                    b.Property<string>("BOOK_NAME")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("BOOK_NOTES")
-                        .HasMaxLength(250)
-                        .HasColumnType("nvarchar(250)");
-
-                    b.Property<int?>("CHAPTERS")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("END_DATE")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("PAGES")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("START_DATE")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("USER_ID")
-                        .HasColumnType("int");
-
-                    b.HasKey("BOOK_ID");
-
-                    b.ToTable("SL_BOOK");
-                });
 
             modelBuilder.Entity("OAProjects.Data.ShowLogger.Entities.SL_CODE_VALUE", b =>
                 {

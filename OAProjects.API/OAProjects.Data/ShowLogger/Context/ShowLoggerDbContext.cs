@@ -21,6 +21,8 @@ public class ShowLoggerDbContext : DbContext
     public DbSet<SL_TV_EPISODE_INFO> SL_TV_EPISODE_INFO { get; set; }
     public DbSet<SL_MOVIE_INFO> SL_MOVIE_INFO { get; set; }
     public DbSet<SL_TRANSACTION> SL_TRANSACTION { get; set; }
+    public DbSet<SL_ID_XREF> SL_ID_XREF { get; set; }
+    public DbSet<SL_BOOK> SL_BOOK { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -37,6 +39,8 @@ public class ShowLoggerDbContext : DbContext
         modelBuilder.Entity<SL_TV_EPISODE_INFO>().HasKey(m => m.TV_EPISODE_INFO_ID);
         modelBuilder.Entity<SL_MOVIE_INFO>().HasKey(m => m.MOVIE_INFO_ID);
         modelBuilder.Entity<SL_TRANSACTION>().HasKey(m => m.TRANSACTION_ID);
+        modelBuilder.Entity<SL_ID_XREF>().HasKey(m => m.ID_XREF_ID);
+        modelBuilder.Entity<SL_BOOK>().HasKey(m => m.BOOK_ID);
 
         modelBuilder.Entity<SL_TV_INFO>().HasMany(m => m.EPISODE_INFOS)
             .WithOne(m => m.TV_INFO)
@@ -224,6 +228,37 @@ public class ShowLoggerDbContext : DbContext
 
             entity.Property(e => e.TRANSACTION_DATE)
                 .IsRequired();
+        });
+
+        modelBuilder.Entity<SL_ID_XREF>(entity =>
+        {
+            entity.Property(e => e.ID_XREF_ID)
+                .ValueGeneratedOnAdd();
+
+            entity.Property(e => e.OLD_ID)
+                .IsRequired();
+
+            entity.Property(e => e.TABLE_ID)
+                .IsRequired();
+
+            entity.Property(e => e.NEW_ID)
+                .IsRequired();
+        });
+
+        modelBuilder.Entity<SL_BOOK>(entity =>
+        {
+            entity.Property(e => e.BOOK_ID)
+                .ValueGeneratedOnAdd();
+
+            entity.Property(e => e.USER_ID)
+                .IsRequired();
+
+            entity.Property(e => e.BOOK_NAME)
+                .HasMaxLength(100)
+                .IsRequired();
+
+            entity.Property(e => e.BOOK_NOTES)
+                .HasMaxLength(250);
         });
     }
 }
