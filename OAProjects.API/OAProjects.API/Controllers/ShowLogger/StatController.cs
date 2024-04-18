@@ -164,4 +164,49 @@ public class StatController : BaseController
 
         return query;
     }
+
+    [HttpGet("GetBookYearStats")]
+    public async Task<IActionResult> GetBookYearStats(int offset = 0, string? search = null, int take = 10)
+    {
+        GetResponse<StatBookYearStatResponse> response = new GetResponse<StatBookYearStatResponse>();
+
+        try
+        {
+            int userId = await GetUserId();
+
+            response.Model = new StatBookYearStatResponse();
+
+            response.Model.BookYearStats = GetBookYearStatsData(userId, search);
+            response.Model.Count = response.Model.BookYearStats.Count();
+            response.Model.BookYearStats = response.Model.BookYearStats.OrderByDescending(m => m.Year).ThenByDescending(m => m.Name).Skip(offset).Take(take).ToArray();
+        }
+        catch (Exception ex)
+        {
+            response.Errors = new List<string>() { ex.Message };
+        }
+
+        return Ok(response);
+    }
+
+    private IEnumerable<BookYearStatModel> GetBookYearStatsData(int userId, string? search = null)
+    {
+        Dictionary<int, string> userLookUps = _userStore.GetUserLookUps();
+        IEnumerable<BookYearStatModel> query = _statStore.GetBookYearStats(userId, userLookUps);
+
+        Expression<Func<BookYearStatModel, bool>>? predicate = null;
+        DateTime dateSearch;
+
+        if (!string.IsNullOrEmpty(search))
+        {
+            predicate = m => m.Name.ToLower().Contains(search.ToLower());
+        }
+
+        if (predicate != null)
+        {
+            query = query.AsQueryable().Where(predicate).AsEnumerable();
+        }
+
+
+        return query;
+    }
 }

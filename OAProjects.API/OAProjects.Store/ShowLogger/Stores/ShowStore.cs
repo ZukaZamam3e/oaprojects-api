@@ -119,6 +119,7 @@ public class ShowStore : IShowStore
 
     public int UpdateShow(int userId, ShowModel model)
     {
+        int result = 0;
         SL_SHOW? entity = _context.SL_SHOW.FirstOrDefault(m => m.SHOW_ID == model.ShowId && m.USER_ID == userId);
 
         if (entity != null)
@@ -139,7 +140,7 @@ public class ShowStore : IShowStore
             entity.SHOW_NAME = model.ShowName;
             entity.SHOW_NOTES = model.ShowNotes;
 
-            int result = _context.SaveChanges();
+            result = _context.SaveChanges();
 
             if (deleteTransactions)
             {
@@ -154,7 +155,7 @@ public class ShowStore : IShowStore
             }
         }
 
-        return 0;
+        return result;
     }
 
     public int AddNextEpisode(int userId, int showId, DateTime dateWatched)
