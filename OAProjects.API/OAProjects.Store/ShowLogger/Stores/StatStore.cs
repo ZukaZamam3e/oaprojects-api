@@ -234,4 +234,28 @@ public class StatStore : IStatStore
 
         return model;
     }
+
+    public IEnumerable<BookYearStatModel> GetBookYearStats(int userId, Dictionary<int, string> users)
+    {
+        int[] friends = _context.SL_FRIEND.Where(m => m.USER_ID == userId).Select(m => m.FRIEND_USER_ID)
+            .Union(_context.SL_FRIEND.Where(m => m.FRIEND_USER_ID == userId).Select(m => m.USER_ID)).ToArray();
+
+        SL_BOOK[] books = _context.SL_BOOK.ToArray();
+
+        IEnumerable<BookYearStatModel> model = from x in books
+                                                where x.END_DATE != null && x.START_DATE != null
+                                                group new { x } by new { x.USER_ID, x.END_DATE.Value.Year } into g
+                                                select new BookYearStatModel
+                                                {
+                                                    UserId = g.Key.USER_ID,
+                                                    Name = users[g.Key.USER_ID],
+                                                    Year = g.Key.Year,
+                                                    BookCnt = g.Count(),
+                                                    ChapterCnt = g.Sum(m => m.x.CHAPTERS) ?? 0,
+                                                    PageCnt = g.Sum(m => m.x.PAGES) ?? 0,
+                                                    TotalDays = (decimal)g.Sum(m => (m.x.END_DATE.Value - m.x.START_DATE.Value).TotalDays)
+                                                };
+
+        return model;
+    }
 }

@@ -21,6 +21,9 @@ using OAProjects.API.Requests.Show;
 using OAProjects.Models.ShowLogger.Models.Transaction;
 using OAProjects.API.Requests.Transaction;
 using OAProjects.API.Validators.ShowLogger.Transaction;
+using OAProjects.API.Validators.ShowLogger.Book;
+using OAProjects.API.Requests.Book;
+using OAProjects.Models.ShowLogger.Models.Book;
 
 namespace OAProjects.API.Setup;
 
@@ -30,6 +33,7 @@ public static class ShowLoggerSetup
     {
         string? showLoggerConnectionString = configuration.GetConnectionString("ShowLoggerConnection");
         services.AddDbContext<ShowLoggerDbContext>(m => m.UseSqlServer(showLoggerConnectionString, m => m.MigrationsHistoryTable("__SL_EFMigrationsHistory")), ServiceLifetime.Transient);
+
         services.AddTransient<IShowStore, ShowStore>();
         services.AddTransient<IFriendStore, FriendStore>();
         services.AddTransient<IWatchListStore, WatchListStore>();
@@ -38,6 +42,7 @@ public static class ShowLoggerSetup
         services.AddTransient<IUnlinkedShowStore, UnlinkedShowStore>();
         services.AddTransient<ITransactionStore, TransactionStore>();
         services.AddTransient<IStatStore, StatStore>();
+        services.AddTransient<IBookStore, BookStore>();
 
         services.AddScoped<IValidator<ShowModel>, ShowValidator>();
         services.AddScoped<IValidator<ShowTransactionModel>, ShowTransactionValidator>();
@@ -64,6 +69,9 @@ public static class ShowLoggerSetup
 
         services.AddScoped<IValidator<UpdateUnlinkedNameModel>, UpdateUnlinkedNameValidator>();
         services.AddScoped<IValidator<LinkShowModel>, LinkShowValidator>();
+
+        services.AddScoped<IValidator<BookModel>, BookValidator>();
+        services.AddScoped<IValidator<BookIdRequest>, BookIdValidator>();
 
         return services;
     }

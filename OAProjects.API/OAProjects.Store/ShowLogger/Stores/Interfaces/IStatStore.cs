@@ -9,5 +9,5 @@ public interface IStatStore
 
     IEnumerable<YearStatModel> GetYearStats(int userId, Dictionary<int, string> users);
 
-    
+    IEnumerable<BookYearStatModel> GetBookYearStats(int userId, Dictionary<int, string> users);
 }
