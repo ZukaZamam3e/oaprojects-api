@@ -46,18 +46,18 @@ public class ShowController : BaseController
     }
 
     [HttpGet("Load")]
-    public async Task<IActionResult> Load()
+    public async Task<IActionResult> Load(int take = 10)
     {
         GetResponse<ShowLoadResponse> response = new GetResponse<ShowLoadResponse>();
 
         try
         {
-            int take = 10;
             int userId = await GetUserId();
             response.Model = new ShowLoadResponse();
 
             response.Model.ShowTypeIds = _codeValueStore.GetCodeValues(m => m.CodeTableId == (int)CodeTableIds.SHOW_TYPE_ID).Select(m => new SLCodeValueSimpleModel { CodeValueId = m.CodeValueId, DecodeTxt = m.DecodeTxt });
             response.Model.TransactionTypeIds = _codeValueStore.GetCodeValues(m => m.CodeTableId == (int)CodeTableIds.TRANSACTION_TYPE_ID).Select(m => new SLCodeValueSimpleModel { CodeValueId = m.CodeValueId, DecodeTxt = m.DecodeTxt });
+            response.Model.TransactionItems = _showStore.GetTransactionItems(userId);
             response.Model.Shows = _showStore.GetShows(m => m.UserId == userId);
             response.Model.Count = response.Model.Shows.Count();
             response.Model.Shows = response.Model.Shows.OrderByDescending(m => m.DateWatched).ThenByDescending(m => m.ShowId).Take(take).ToArray();

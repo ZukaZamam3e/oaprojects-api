@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using OAProjects.Data.ShowLogger.Context;
 
@@ -11,9 +12,10 @@ using OAProjects.Data.ShowLogger.Context;
 namespace OAProjects.Data.ShowLogger.Migrations
 {
     [DbContext(typeof(ShowLoggerDbContext))]
-    partial class ShowLoggerDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240421184146_0.009")]
+    partial class _0009
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -425,10 +427,6 @@ namespace OAProjects.Data.ShowLogger.Migrations
                         .IsRequired()
                         .HasMaxLength(4000)
                         .HasColumnType("nvarchar(4000)");
-
-                    b.Property<string>("STATUS")
-                        .HasMaxLength(25)
-                        .HasColumnType("nvarchar(25)");
 
                     b.HasKey("TV_INFO_ID");
 

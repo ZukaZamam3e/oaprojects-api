@@ -18,7 +18,9 @@ public class TvInfoModel
 
     public DateTime LastUpdated { get; set; }
 
-    public string ImageUrl { get; set; }
+    public string? ImageUrl { get; set; }
+
+    public string? Status { get; set; }
 
     public IEnumerable<TvInfoSeasonModel> Seasons { get; set; }
 

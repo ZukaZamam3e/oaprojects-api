@@ -145,4 +145,25 @@ public class InfoController : BaseController
 
         return Ok(response);
     }
+
+    [HttpPost("RefreshRecurringTvShows")]
+    public async Task<IActionResult> RefreshRecurringTvShows()
+    {
+        PostResponse<RefreshRecurringTvShowsResponse> response = new PostResponse<RefreshRecurringTvShowsResponse>();
+
+        try
+        {
+            int userId = await GetUserId();
+
+            response.Model = new RefreshRecurringTvShowsResponse();
+
+            response.Model.UpdatedShows = await _infoStore.RefreshRecurringTvShows();
+        }
+        catch (Exception ex)
+        {
+            response.Errors = new List<string>() { ex.Message };
+        }
+
+        return Ok(response);
+    }
 }

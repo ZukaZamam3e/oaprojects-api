@@ -72,7 +72,7 @@ public class ShowStore : IShowStore
                                                    InfoApiId = s.SHOW_TYPE_ID == (int)CodeValueIds.TV ? (t != null ? ti.API_ID : null) : (m != null ? m.API_ID : null),
                                                    InfoSeasonNumber = s.SHOW_TYPE_ID == (int)CodeValueIds.TV ? (t != null ? t.SEASON_NUMBER : null) : null,
                                                    InfoEpisodeNumber = s.SHOW_TYPE_ID == (int)CodeValueIds.TV ? (t != null ? t.EPISODE_NUMBER : null) : null,
-                                                   InfoImageUrl = s.SHOW_TYPE_ID == (int)CodeValueIds.TV ? (t != null ? t.IMAGE_URL : null) : (m != null ? m.IMAGE_URL : null),
+                                                   InfoImageUrl = s.SHOW_TYPE_ID == (int)CodeValueIds.TV ? (t != null ? t.IMAGE_URL : null) : (m != null ? m.BACKDROP_URL : null),
                                                };
 
         if (predicate != null)
@@ -133,12 +133,21 @@ public class ShowStore : IShowStore
                 deleteTransactions = true;
             }
 
+            if (entity.INFO_ID != null 
+                && (entity.EPISODE_NUMBER != model.EpisodeNumber
+                || entity.SEASON_NUMBER != model.SeasonNumber))
+            {
+                entity.INFO_ID = GetTvEpisodeInfoId(entity.INFO_ID, entity.SEASON_NUMBER, entity.EPISODE_NUMBER);
+            }
+
             entity.SHOW_TYPE_ID = model.ShowTypeId;
             entity.DATE_WATCHED = model.DateWatched.Date;
             entity.EPISODE_NUMBER = model.EpisodeNumber;
             entity.SEASON_NUMBER = model.SeasonNumber;
             entity.SHOW_NAME = model.ShowName;
             entity.SHOW_NOTES = model.ShowNotes;
+
+            
 
             result = _context.SaveChanges();
 
@@ -174,6 +183,33 @@ public class ShowStore : IShowStore
                 EPISODE_NUMBER = entity.EPISODE_NUMBER + 1,
                 DATE_WATCHED = dateWatched.Date,
             };
+
+            if (entity.INFO_ID != null)
+            {
+                SL_TV_EPISODE_INFO nextEpisodeInfo = null;
+
+                List<SL_TV_EPISODE_INFO> episodes = GetEpisodes(entity.INFO_ID);
+
+                if (episodes != null)
+                {
+                    int index = episodes.FindIndex(m => m.TV_EPISODE_INFO_ID == entity.INFO_ID);
+                    if (index != -1 && index + 1 < episodes.Count - 1)
+                    {
+                        nextEpisodeInfo = episodes[index + 1];
+                    }
+                }
+
+                if (nextEpisodeInfo != null)
+                {
+                    nextEpisode.SEASON_NUMBER = nextEpisodeInfo.SEASON_NUMBER;
+                    nextEpisode.EPISODE_NUMBER = nextEpisodeInfo.EPISODE_NUMBER;
+                    nextEpisode.INFO_ID = nextEpisodeInfo.TV_EPISODE_INFO_ID;
+                }
+                else
+                {
+                    nextEpisode.INFO_ID = GetTvEpisodeInfoId(entity.INFO_ID, entity.SEASON_NUMBER, entity.EPISODE_NUMBER);
+                }
+            }
 
             _context.SL_SHOW.Add(nextEpisode);
 
@@ -374,7 +410,7 @@ public class ShowStore : IShowStore
                                                    InfoApiId = s.SHOW_TYPE_ID == (int)CodeValueIds.TV ? (t != null ? ti.API_ID : null) : (m != null ? m.API_ID : null),
                                                    InfoSeasonNumber = s.SHOW_TYPE_ID == (int)CodeValueIds.TV ? (t != null ? t.SEASON_NUMBER : null) : null,
                                                    InfoEpisodeNumber = s.SHOW_TYPE_ID == (int)CodeValueIds.TV ? (t != null ? t.EPISODE_NUMBER : null) : null,
-                                                   InfoImageUrl = s.SHOW_TYPE_ID == (int)CodeValueIds.TV ? (t != null ? t.IMAGE_URL : null) : (m != null ? m.IMAGE_URL : null),
+                                                   InfoImageUrl = s.SHOW_TYPE_ID == (int)CodeValueIds.TV ? (t != null ? t.IMAGE_URL : null) : (m != null ? m.BACKDROP_URL : null),
                                                };
 
         IEnumerable<FriendWatchHistoryModel> query = infoQuery.ToList().Select(m => new FriendWatchHistoryModel
@@ -428,7 +464,7 @@ public class ShowStore : IShowStore
 
         return (INFO_API)apiType switch
         {
-            INFO_API.TMDB_API => $"{_apisConfig.TMDbURL}{TMDBApiPaths.TV}{$"/{apiId}/season/{seasonNumber}/episode/{episodeNumber}"}",
+            INFO_API.TMDB_API => $"{_apisConfig.TMDbURL}{TMDBApiPaths.TV}{$"{apiId}/season/{seasonNumber}/episode/{episodeNumber}"}",
             INFO_API.OMDB_API => "",
             _ => throw new NotImplementedException(),
         };
@@ -448,5 +484,93 @@ public class ShowStore : IShowStore
             INFO_API.OMDB_API => "",
             _ => throw new NotImplementedException(),
         };
+    }
+
+    private List<SL_TV_EPISODE_INFO> GetEpisodes(int? tvEpisodeInfoId)
+    {
+        SL_TV_EPISODE_INFO? currentInfo = _context.SL_TV_EPISODE_INFO.FirstOrDefault(m => m.TV_EPISODE_INFO_ID == tvEpisodeInfoId);
+
+        if (currentInfo == null)
+            return null;
+
+        return _context.SL_TV_EPISODE_INFO.Where(m => m.TV_INFO_ID == currentInfo.TV_INFO_ID)
+                .OrderByDescending(m => m.SEASON_NUMBER > 0)
+                .ThenBy(m => m.SEASON_NUMBER)
+                .ThenBy(m => m.EPISODE_NUMBER)
+                .ToList();
+    }
+
+    private int? GetTvEpisodeInfoId(int? infoId, int? seasonNumber, int? episodeNumber)
+    {
+        SL_TV_EPISODE_INFO? currentInfo = _context.SL_TV_EPISODE_INFO.FirstOrDefault(m => m.TV_EPISODE_INFO_ID == infoId);
+        SL_TV_EPISODE_INFO? nextInfo = null;
+        if (currentInfo != null)
+        {
+            nextInfo = _context.SL_TV_EPISODE_INFO.FirstOrDefault(m => m.SEASON_NUMBER == seasonNumber && m.EPISODE_NUMBER == episodeNumber + 1 && m.TV_INFO_ID == currentInfo.TV_INFO_ID);
+
+            if (nextInfo == null && episodeNumber != null)
+            {
+                // Somes shows I track are by episode and ignoring season. 
+                // So get all episodes and then find the row that matches the episode
+                nextInfo = _context.SL_TV_EPISODE_INFO.Where(m => m.TV_INFO_ID == currentInfo.TV_INFO_ID && m.SEASON_NUMBER > 0)
+                .OrderBy(m => m.SEASON_NUMBER).ThenBy(m => m.EPISODE_NUMBER)
+                    .Skip(episodeNumber.Value - 1).FirstOrDefault();
+            }
+        }
+
+        return nextInfo?.TV_EPISODE_INFO_ID;
+    }
+
+    private int? GetTvEpisodeInfoId(string name, int? seasonNumber, int? episodeNumber)
+    {
+        int? infoId = null;
+        Dictionary<string, SL_TV_INFO> lookUp = new();
+
+        SL_TV_INFO[] shows = _context.SL_TV_INFO.ToArray();
+
+        foreach (SL_TV_INFO info in shows)
+        {
+            lookUp.Add(info.SHOW_NAME.ToLower(), info);
+        }
+
+        //SL_TV_INFO? show = _context.SL_TV_INFO.FirstOrDefault(m => m.SHOW_NAME.ToLower() == name.ToLower() || m.)
+
+        SL_TV_INFO found;
+
+        if (lookUp.TryGetValue(name.ToLower(), out found))
+        {
+            SL_TV_EPISODE_INFO? episodeInfo = _context.SL_TV_EPISODE_INFO.FirstOrDefault(m => m.TV_INFO_ID == found.TV_INFO_ID && m.SEASON_NUMBER == seasonNumber && m.EPISODE_NUMBER == episodeNumber);
+
+            if (episodeInfo == null && episodeNumber != null)
+            {
+                // Somes shows I track are by episode and ignoring season. 
+                // So get all episodes and then find the row that matches the episode
+                episodeInfo = _context.SL_TV_EPISODE_INFO.Where(m => m.TV_INFO_ID == found.TV_INFO_ID && m.SEASON_NUMBER > 0)
+                    .OrderBy(m => m.SEASON_NUMBER).ThenBy(m => m.EPISODE_NUMBER)
+                    .Skip(episodeNumber.Value - 1).FirstOrDefault();
+            }
+
+            if (episodeInfo != null)
+            {
+                infoId = episodeInfo.TV_EPISODE_INFO_ID;
+            }
+        }
+
+        return infoId;
+    }
+
+    public IEnumerable<TransactionItemModel> GetTransactionItems(int userId)
+    {
+        IEnumerable<TransactionItemModel> query = _context.SL_TRANSACTION
+            .Where(m => m.USER_ID == userId && m.TRANSACTION_TYPE_ID == (int)CodeValueIds.PURCHASE)
+            .GroupBy(m => m.ITEM)
+            .Select(m => new TransactionItemModel
+            {
+                Item = m.Key,
+                Quantity = m.OrderByDescending(m => m.TRANSACTION_DATE).Last().QUANTITY,
+                CostAmt = m.OrderByDescending(m => m.TRANSACTION_DATE).Last().COST_AMT
+            });
+
+        return query;
     }
 }

@@ -20,5 +20,7 @@ public class SL_TV_INFO
 
     public string? IMAGE_URL { get; set; }
 
+    public string? STATUS { get; set; }
+
     public ICollection<SL_TV_EPISODE_INFO> EPISODE_INFOS { get; set; }
 }

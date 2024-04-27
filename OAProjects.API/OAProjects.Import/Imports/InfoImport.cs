@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using OAProjects.Data.OAIdentity.Context;
 using OAProjects.Data.ShowLogger.Context;
 using OAProjects.Data.ShowLogger.Entities;
@@ -143,7 +144,7 @@ public class InfoImport : IInfoImport
                     AIR_DATE = m.AIR_DATE,
                     LAST_DATA_REFRESH = m.LAST_DATA_REFRESH,
                     LAST_UPDATED = m.LAST_UPDATED,
-                    IMAGE_URL = m.IMAGE_URL,
+                    POSTER_URL = m.IMAGE_URL,
                     API_TYPE = m.API_TYPE,
                     API_ID = m.API_ID,
                 };
@@ -162,6 +163,10 @@ public class InfoImport : IInfoImport
 
             _context.SaveChanges();
         }
+
+        string sql = File.ReadAllText(Path.Join(_dataConfig.DataFolderPath, "sl_movie_info_images.sql"));
+        _context.Database.ExecuteSqlRaw(sql);
+        _context.SaveChanges();
 
         int movieInfoImportCount = _context.SL_MOVIE_INFO.Count();
         Console.WriteLine($"Items that were imported: {movieInfoImportCount}");
