@@ -66,6 +66,10 @@ public class InfoImport : IInfoImport
             _context.SaveChanges();
         }
 
+        string tvSql = File.ReadAllText(Path.Join(_dataConfig.DataFolderPath, "tv_info_status_ids.sql"));
+        _context.Database.ExecuteSqlRaw(tvSql);
+        _context.SaveChanges();
+
         int tvInfoImportCount = _context.SL_TV_INFO.Count();
         Console.WriteLine($"Items that were imported: {tvInfoImportCount}");
         Console.WriteLine("----------------------------------------------");
@@ -164,8 +168,8 @@ public class InfoImport : IInfoImport
             _context.SaveChanges();
         }
 
-        string sql = File.ReadAllText(Path.Join(_dataConfig.DataFolderPath, "sl_movie_info_images.sql"));
-        _context.Database.ExecuteSqlRaw(sql);
+        string movieSql = File.ReadAllText(Path.Join(_dataConfig.DataFolderPath, "sl_movie_info_images.sql"));
+        _context.Database.ExecuteSqlRaw(movieSql);
         _context.SaveChanges();
 
         int movieInfoImportCount = _context.SL_MOVIE_INFO.Count();
