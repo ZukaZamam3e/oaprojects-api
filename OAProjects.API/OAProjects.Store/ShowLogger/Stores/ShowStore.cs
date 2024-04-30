@@ -186,9 +186,13 @@ public class ShowStore : IShowStore
 
             if (entity.INFO_ID != null)
             {
-                SL_TV_EPISODE_INFO nextEpisodeInfo = null;
+                SL_TV_EPISODE_INFO info = _context.SL_TV_EPISODE_INFO.First(m => m.TV_EPISODE_INFO_ID == entity.INFO_ID);
 
                 List<SL_TV_EPISODE_INFO> episodes = GetEpisodes(entity.INFO_ID);
+                List<SL_TV_EPISODE_ORDER> episodeOrder = _context.SL_TV_EPISODE_ORDER.Where(m => m.TV_INFO_ID == info.TV_INFO_ID).ToList();
+
+                int episodesLeft;
+                SL_TV_EPISODE_INFO? nextEpisodeInfo = GetNextEpisode(episodes, episodeOrder, info.TV_EPISODE_INFO_ID, out episodesLeft);
 
                 if (episodes != null)
                 {
@@ -219,6 +223,46 @@ public class ShowStore : IShowStore
         }
 
         return newShowId;
+    }
+
+    private SL_TV_EPISODE_INFO? GetNextEpisode(List<SL_TV_EPISODE_INFO> episodesList, List<SL_TV_EPISODE_ORDER> episodeOrders, int? episodeInfoId, out int episodesLeft)
+    {
+        SL_TV_EPISODE_INFO? nextEpisodeInfo = null;
+        SL_TV_EPISODE_INFO? currentEpisode = episodesList.First(m => m.TV_EPISODE_INFO_ID == episodeInfoId);
+        episodesLeft = 0;
+
+        if (currentEpisode != null)
+        {
+            List<SL_TV_EPISODE_INFO> episodes = episodesList.Where(m => m.TV_INFO_ID == currentEpisode.TV_INFO_ID).ToList();
+            List<SL_TV_EPISODE_ORDER> orders = episodeOrders.Where(m => m.TV_INFO_ID == currentEpisode.TV_INFO_ID).ToList();
+
+            if (episodes != null)
+            {
+                if (orders.Count > 0)
+                {
+                    SL_TV_EPISODE_ORDER order = orders.First(m => m.TV_EPISODE_INFO_ID == episodeInfoId);
+                    SL_TV_EPISODE_ORDER? next = orders.FirstOrDefault(m => m.EPISODE_ORDER == order.EPISODE_ORDER + 1);
+
+                    if (next != null)
+                    {
+                        int episodeCount = orders.Max(m => m.EPISODE_ORDER);
+                        episodesLeft = episodeCount - order.EPISODE_ORDER;
+                        nextEpisodeInfo = episodes.First(m => m.TV_EPISODE_INFO_ID == next.TV_EPISODE_INFO_ID);
+                    }
+                }
+                else
+                {
+                    int index = episodes.FindIndex(m => m.TV_EPISODE_INFO_ID == episodeInfoId);
+                    if (index != -1 && index + 1 < episodes.Count - 1)
+                    {
+                        nextEpisodeInfo = episodes[index + 1];
+                        episodesLeft = episodes.Count - (index + 1);
+                    }
+                }
+            }
+        }
+
+        return nextEpisodeInfo;
     }
 
     public bool DeleteShow(int userId, int showId)
@@ -343,7 +387,7 @@ public class ShowStore : IShowStore
         {
             SL_TRANSACTION? entity;
 
-            if(transaction.TransactionId == 0)
+            if(transaction.TransactionId < 0)
             {
                 entity = new SL_TRANSACTION();
                 _context.SL_TRANSACTION.Add(entity);

@@ -175,6 +175,54 @@ public class InfoImport : IInfoImport
         int movieInfoImportCount = _context.SL_MOVIE_INFO.Count();
         Console.WriteLine($"Items that were imported: {movieInfoImportCount}");
 
+        Console.WriteLine("----------------------------------------------");
+        Console.WriteLine("Importing SL_TV_EPISODE_ORDER");
+
+        string episodeOrderJson = File.ReadAllText(Path.Join(_dataConfig.DataFolderPath, ImportFiles.sl_tv_episode_order));
+        IEnumerable<EpisodeOrderImport> episodeOrderData = JsonConvert.DeserializeObject<IEnumerable<EpisodeOrderImport>>(episodeOrderJson);
+
+        int episodeOrderCount = episodeOrderData.Count();
+
+        Console.WriteLine($"Items to be imported: {episodeOrderCount}");
+
+
+        for (int i = 0; i < episodeOrderCount; i += 100)
+        {
+            List<EpisodeOrderImport> data = episodeOrderData.Skip(i).Take(100).ToList();
+
+            int[] oldTvInfoIds = data.Select(m => m.TV_INFO_ID).ToArray();
+            int[] oldTvEpoisodeInfoIds = data.Select(m => m.TV_EPISODE_INFO_ID).ToArray();
+
+            Dictionary<int, int> dictTvInfoIds = _context.SL_ID_XREF.Where(m => m.TABLE_ID == (int)TableIds.SL_TV_INFO && oldTvInfoIds.Contains(m.OLD_ID)).ToDictionary(m => m.OLD_ID, m => m.NEW_ID);
+            Dictionary<int, int> dictTvEpisodeInfoIds = _context.SL_ID_XREF.Where(m => m.TABLE_ID == (int)TableIds.SL_TV_EPISODE_INFO && oldTvEpoisodeInfoIds.Contains(m.OLD_ID)).ToDictionary(m => m.OLD_ID, m => m.NEW_ID);
+
+            data.ForEach(m =>
+            {
+                m.ENTITY = new SL_TV_EPISODE_ORDER
+                {
+                    TV_INFO_ID = dictTvInfoIds[m.TV_INFO_ID],
+                    TV_EPISODE_INFO_ID = dictTvEpisodeInfoIds[m.TV_EPISODE_INFO_ID],
+                    EPISODE_ORDER = m.EPISODE_ORDER
+                };
+            });
+
+            _context.SL_TV_EPISODE_ORDER.AddRange(data.Select(m => m.ENTITY));
+
+            _context.SaveChanges();
+
+            _context.SL_ID_XREF.AddRange(data.Select(m => new SL_ID_XREF
+            {
+                OLD_ID = m.TV_EPISODE_ORDER_ID,
+                NEW_ID = m.ENTITY.TV_EPISODE_ORDER_ID,
+                TABLE_ID = (int)TableIds.SL_TV_EPISODE_ORDER
+            }));
+
+            _context.SaveChanges();
+        }
+
+        int episodeOrderImportCount = _context.SL_TV_EPISODE_ORDER.Count();
+        Console.WriteLine($"Items that were imported: {episodeOrderImportCount}");
+
         Console.WriteLine("----------- Info Import Finished -----------");
 
     }
@@ -223,5 +271,15 @@ public class MovieInfoImport
     public int API_TYPE { get; set; }
     public string API_ID { get; set; }
     public SL_MOVIE_INFO ENTITY { get; set; }
+
+}
+
+public class EpisodeOrderImport
+{
+    public int TV_EPISODE_ORDER_ID { get; set; }
+    public int TV_INFO_ID { get; set; }
+    public int TV_EPISODE_INFO_ID { get; set; }
+    public int EPISODE_ORDER { get; set; }
+    public SL_TV_EPISODE_ORDER ENTITY { get; set; }
 
 }

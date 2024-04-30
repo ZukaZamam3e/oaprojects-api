@@ -184,7 +184,7 @@ public class InfoStore : IInfoStore
                             {
                                 if (requestTimer.Elapsed.Seconds < 1)
                                 {
-                                    Thread.Sleep(1 - (int)requestTimer.ElapsedMilliseconds);
+                                    Thread.Sleep(1000);
                                 }
 
                                 requestCount = 0;

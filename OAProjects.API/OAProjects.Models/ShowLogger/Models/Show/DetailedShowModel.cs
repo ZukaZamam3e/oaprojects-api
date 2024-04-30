@@ -8,21 +8,19 @@ using System.Threading.Tasks;
 namespace OAProjects.Models.ShowLogger.Models.Show;
 public class DetailedShowModel : ShowModel
 {
-    [Display(Name = "Info Id")]
     public int? InfoId { get; set; }
 
-    [Display(Name = "Episode Name")]
     public string? EpisodeName { get; set; }
 
-    [Display(Name = "Runtime")]
     public int? Runtime { get; set; }
 
-    [Display(Name = "Runtime")]
     public string RuntimeZ => Runtime != null ? $"{Runtime} minutes" : "";
 
     public string? ImageUrl { get; set; }
 
     public string? InfoUrl { get; set; }
+
+    public decimal TotalPurchases { get; set; }
 
     public string SeasonEpisode => SeasonNumber != null && EpisodeNumber != null ? $"s{SeasonNumber.Value.ToString().PadLeft(2, '0')}e{EpisodeNumber.Value.ToString().PadLeft(2, '0')}" : "";
 
