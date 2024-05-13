@@ -137,7 +137,7 @@ public class ShowStore : IShowStore
                 && (entity.EPISODE_NUMBER != model.EpisodeNumber
                 || entity.SEASON_NUMBER != model.SeasonNumber))
             {
-                entity.INFO_ID = GetTvEpisodeInfoId(entity.INFO_ID, entity.SEASON_NUMBER, entity.EPISODE_NUMBER);
+                entity.INFO_ID = GetTvEpisodeInfoId(entity.INFO_ID, model.SeasonNumber, model.EpisodeNumber);
             }
 
             entity.SHOW_TYPE_ID = model.ShowTypeId;
@@ -194,24 +194,11 @@ public class ShowStore : IShowStore
                 int episodesLeft;
                 SL_TV_EPISODE_INFO? nextEpisodeInfo = GetNextEpisode(episodes, episodeOrder, info.TV_EPISODE_INFO_ID, out episodesLeft);
 
-                if (episodes != null)
-                {
-                    int index = episodes.FindIndex(m => m.TV_EPISODE_INFO_ID == entity.INFO_ID);
-                    if (index != -1 && index + 1 < episodes.Count - 1)
-                    {
-                        nextEpisodeInfo = episodes[index + 1];
-                    }
-                }
-
                 if (nextEpisodeInfo != null)
                 {
                     nextEpisode.SEASON_NUMBER = nextEpisodeInfo.SEASON_NUMBER;
                     nextEpisode.EPISODE_NUMBER = nextEpisodeInfo.EPISODE_NUMBER;
                     nextEpisode.INFO_ID = nextEpisodeInfo.TV_EPISODE_INFO_ID;
-                }
-                else
-                {
-                    nextEpisode.INFO_ID = GetTvEpisodeInfoId(entity.INFO_ID, entity.SEASON_NUMBER, entity.EPISODE_NUMBER);
                 }
             }
 
@@ -320,7 +307,7 @@ public class ShowStore : IShowStore
     {
         for (int i = model.StartEpisode; i <= model.EndEpisode; i++)
         {
-            //int? nextInfoId = GetTvEpisodeInfoId(model.ShowName, model.SeasonNumber, i);
+            int? nextInfoId = GetTvEpisodeInfoId(model.ShowName, model.SeasonNumber, i);
 
             SL_SHOW nextEpisode = new SL_SHOW
             {
@@ -329,7 +316,7 @@ public class ShowStore : IShowStore
                 USER_ID = userId,
                 SEASON_NUMBER = model.SeasonNumber,
                 EPISODE_NUMBER = i,
-                //INFO_ID = nextInfoId,
+                INFO_ID = nextInfoId,
                 DATE_WATCHED = model.DateWatched.Date,
             };
 
@@ -550,16 +537,7 @@ public class ShowStore : IShowStore
         SL_TV_EPISODE_INFO? nextInfo = null;
         if (currentInfo != null)
         {
-            nextInfo = _context.SL_TV_EPISODE_INFO.FirstOrDefault(m => m.SEASON_NUMBER == seasonNumber && m.EPISODE_NUMBER == episodeNumber + 1 && m.TV_INFO_ID == currentInfo.TV_INFO_ID);
-
-            if (nextInfo == null && episodeNumber != null)
-            {
-                // Somes shows I track are by episode and ignoring season. 
-                // So get all episodes and then find the row that matches the episode
-                nextInfo = _context.SL_TV_EPISODE_INFO.Where(m => m.TV_INFO_ID == currentInfo.TV_INFO_ID && m.SEASON_NUMBER > 0)
-                .OrderBy(m => m.SEASON_NUMBER).ThenBy(m => m.EPISODE_NUMBER)
-                    .Skip(episodeNumber.Value - 1).FirstOrDefault();
-            }
+            nextInfo = _context.SL_TV_EPISODE_INFO.FirstOrDefault(m => m.SEASON_NUMBER == seasonNumber && m.EPISODE_NUMBER == episodeNumber && m.TV_INFO_ID == currentInfo.TV_INFO_ID);
         }
 
         return nextInfo?.TV_EPISODE_INFO_ID;

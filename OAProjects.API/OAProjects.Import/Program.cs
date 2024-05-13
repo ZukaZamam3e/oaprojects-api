@@ -8,6 +8,7 @@ using OAProjects.Data.ShowLogger.Context;
 using OAProjects.Import;
 using OAProjects.Import.Config;
 using OAProjects.Import.Imports;
+using System.Diagnostics;
 
 Console.WriteLine("Hello, World!");
 HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
@@ -15,6 +16,12 @@ HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
 var configBuilder = new ConfigurationBuilder()
     .SetBasePath(Directory.GetCurrentDirectory())
     .AddJsonFile("appsettings.json", optional: false);
+
+if (Debugger.IsAttached)
+{
+    configBuilder.AddJsonFile("appsettings.local.json");
+    //configBuilder.AddJsonFile("appsettings.development.json");
+}
 
 IConfiguration config = configBuilder.Build();
 
@@ -28,6 +35,9 @@ DataConfig dataConfig = new DataConfig();
 config.GetSection("Data").Bind(dataConfig);
 builder.Services.AddSingleton(dataConfig);
 
+ApiConfig apiConfig = new ApiConfig();
+config.GetSection("Apis").Bind(apiConfig);
+builder.Services.AddSingleton(apiConfig);
 
 builder.Services.AddTransient<IRestartImport, RestartImport>();
 builder.Services.AddTransient<IUserImport, UserImport>();

@@ -57,7 +57,7 @@ public class YearStatModel
 
         TimeSpan timespan = TimeSpan.FromMinutes(minutes.Value);
 
-        StringBuilder result = new StringBuilder("<br>");
+        StringBuilder result = new StringBuilder("");
 
         if (timespan.Days > 0)
         {
@@ -65,10 +65,10 @@ public class YearStatModel
 
             if (timespan.Days > 1)
             {
-                result.Append("s");
+                result.Append('s');
             }
 
-            result.Append(" ");
+            result.Append(' ');
         }
 
         if (timespan.Hours > 0)
@@ -77,10 +77,10 @@ public class YearStatModel
 
             if (timespan.Hours > 1)
             {
-                result.Append("s");
+                result.Append('s');
             }
 
-            result.Append(" ");
+            result.Append(' ');
         }
 
         if (timespan.Minutes > 0)

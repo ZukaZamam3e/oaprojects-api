@@ -150,7 +150,8 @@ public class InfoStore : IInfoStore
                         info.ShowOverview = show.Overview.Substring(0, show.Overview.Length > 4000 ? 4000 : show.Overview.Length);
                         info.ApiType = (int)INFO_API.TMDB_API;
                         info.ApiId = show.Id.ToString();
-                        info.ImageUrl = show.PosterPath;
+                        info.PosterUrl = show.PosterPath;
+                        info.BackdropUrl = show.BackdropPath;
                         info.Status = show.Status;
 
                         List<TvEpisodeInfoModel> episodes = new List<TvEpisodeInfoModel>();
@@ -239,7 +240,7 @@ public class InfoStore : IInfoStore
             ApiId = m.API_ID,
             LastDataRefresh = m.LAST_DATA_REFRESH,
             LastUpdated = m.LAST_UPDATED,
-            ImageUrl = !string.IsNullOrEmpty(m.IMAGE_URL) ? $"{_apisConfig.TMDbURL}{TMDBApiPaths.Image}{m.IMAGE_URL}" : "",
+            PosterUrl = !string.IsNullOrEmpty(m.POSTER_URL) ? $"{_apisConfig.TMDbURL}{TMDBApiPaths.Image}{m.POSTER_URL}" : "",
             Status = m.STATUS
         });
 
@@ -311,7 +312,8 @@ public class InfoStore : IInfoStore
 
         entity.SHOW_NAME = model.ShowName;
         entity.SHOW_OVERVIEW = model.ShowOverview;
-        entity.IMAGE_URL = model.ImageUrl;
+        entity.POSTER_URL = model.PosterUrl;
+        entity.BACKDROP_URL = model.BackdropUrl;
         entity.STATUS = model.Status;
 
         entity.LAST_DATA_REFRESH = DateTime.Now;

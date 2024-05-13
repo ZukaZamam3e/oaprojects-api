@@ -4,6 +4,10 @@ using OAProjects.Data.OAIdentity.Context;
 using OAProjects.Data.ShowLogger.Context;
 using OAProjects.Data.ShowLogger.Entities;
 using OAProjects.Import.Config;
+using System.Collections.Generic;
+using TMDbLib.Client;
+using TMDbLib.Objects.Movies;
+using TMDbLib.Objects.TvShows;
 
 namespace OAProjects.Import.Imports;
 
@@ -13,16 +17,21 @@ public class InfoImport : IInfoImport
 {
     private readonly ShowLoggerDbContext _context;
     private readonly DataConfig _dataConfig;
+    private readonly ApiConfig _apiConfig;
 
     public InfoImport(ShowLoggerDbContext context,
-        DataConfig dataConfig)
+        DataConfig dataConfig,
+        ApiConfig apiConfig)
     {
         _context = context;
         _dataConfig = dataConfig;
+        _apiConfig = apiConfig;
     }
 
     public void RunImport()
     {
+        TMDbClient client = new TMDbClient(_apiConfig.TMDbApiKey);
+
         // SL_TV_INFO
 
         Console.WriteLine("----------- Info Import Started -----------");
@@ -48,7 +57,7 @@ public class InfoImport : IInfoImport
                     API_ID = m.API_ID,
                     LAST_DATA_REFRESH = m.LAST_DATA_REFRESH,
                     LAST_UPDATED = m.LAST_UPDATED,
-                    IMAGE_URL = m.IMAGE_URL,
+                    POSTER_URL = m.IMAGE_URL,
                 };
             });
 
@@ -66,8 +75,33 @@ public class InfoImport : IInfoImport
             _context.SaveChanges();
         }
 
-        string tvSql = File.ReadAllText(Path.Join(_dataConfig.DataFolderPath, "tv_info_status_ids.sql"));
-        _context.Database.ExecuteSqlRaw(tvSql);
+        int[] tvInfoApiIds = _context.SL_TV_INFO.Where(m => string.IsNullOrEmpty(m.BACKDROP_URL) || string.IsNullOrEmpty(m.STATUS)).Select(m => int.Parse(m.API_ID)).ToArray();
+        string tvInfoUpdatesJson = File.ReadAllText(Path.Join(_dataConfig.DataFolderPath, "tv_info_updates.json"));
+        List<TvInfoUpdate> tvInfoUpdates = JsonConvert.DeserializeObject<List<TvInfoUpdate>>(tvInfoUpdatesJson) ?? new List<TvInfoUpdate>();
+
+        IEnumerable<int> missingTvInfoApiIds = tvInfoApiIds.Where(m => !tvInfoUpdates.Any(n => n.ApiId == m));
+
+        foreach (int apiId in missingTvInfoApiIds)
+        {
+            TvShow? tvShow = client.GetTvShowAsync(apiId).Result;
+
+            tvInfoUpdates.Add(new TvInfoUpdate
+            {
+                ApiId = apiId,
+                Status = tvShow.Status,
+                BackdropUrl = tvShow.BackdropPath
+            });
+
+            Thread.Sleep(50);
+        }
+
+        tvInfoUpdatesJson = JsonConvert.SerializeObject(tvInfoUpdates, Formatting.Indented);
+        File.WriteAllText(Path.Join(_dataConfig.DataFolderPath, "tv_info_updates.json"), tvInfoUpdatesJson);
+
+        string[] tvInfoSqls = tvInfoUpdates.Select(m => string.Format(m.UpdateSql, _dataConfig.ShowLoggerDbName)).ToArray();
+        string tvInfoSql = string.Join("\n", tvInfoSqls);
+
+        _context.Database.ExecuteSqlRaw(tvInfoSql);
         _context.SaveChanges();
 
         int tvInfoImportCount = _context.SL_TV_INFO.Count();
@@ -168,8 +202,33 @@ public class InfoImport : IInfoImport
             _context.SaveChanges();
         }
 
-        string movieSql = File.ReadAllText(Path.Join(_dataConfig.DataFolderPath, "sl_movie_info_images.sql"));
-        _context.Database.ExecuteSqlRaw(movieSql);
+        int[] movieApiIds = _context.SL_MOVIE_INFO.Where(m => string.IsNullOrEmpty(m.BACKDROP_URL) || string.IsNullOrEmpty(m.POSTER_URL)).Select(m => int.Parse(m.API_ID)).ToArray();
+        string movieInfoUpdatesJson = File.ReadAllText(Path.Join(_dataConfig.DataFolderPath, "movie_info_updates.json"));
+        List<MovieInfoUpdate> movieInfoUpdates = JsonConvert.DeserializeObject<List<MovieInfoUpdate>>(movieInfoUpdatesJson) ?? new List<MovieInfoUpdate>();
+
+        IEnumerable<int> missingApiIds = movieApiIds.Where(m => !movieInfoUpdates.Any(n => n.ApiId == m));
+
+        foreach (int apiId in missingApiIds)
+        {
+            Movie? movie = client.GetMovieAsync(apiId).Result;
+
+            movieInfoUpdates.Add(new MovieInfoUpdate
+            {
+                ApiId = apiId,
+                PosterUrl = movie.PosterPath,
+                BackdropUrl = movie.BackdropPath
+            });
+
+            Thread.Sleep(50);
+        }
+
+        movieInfoUpdatesJson = JsonConvert.SerializeObject(movieInfoUpdates, Formatting.Indented);
+        File.WriteAllText(Path.Join(_dataConfig.DataFolderPath, "movie_info_updates.json"), movieInfoUpdatesJson);
+
+        string[] movieInfoSqls = movieInfoUpdates.Select(m => string.Format(m.UpdateSql, _dataConfig.ShowLoggerDbName)).ToArray();
+        string movieInfoSql = string.Join("\n", movieInfoSqls);
+
+        _context.Database.ExecuteSqlRaw(movieInfoSql);
         _context.SaveChanges();
 
         int movieInfoImportCount = _context.SL_MOVIE_INFO.Count();
@@ -282,4 +341,26 @@ public class EpisodeOrderImport
     public int EPISODE_ORDER { get; set; }
     public SL_TV_EPISODE_ORDER ENTITY { get; set; }
 
+}
+
+public class TvInfoUpdate
+{
+    public int ApiId { get; set; }
+
+    public string Status { get; set; }
+
+    public string BackdropUrl { get; set; }
+
+    public string UpdateSql => $"UPDATE [{{0}}].[dbo].[SL_TV_INFO] SET STATUS='{Status}', BACKDROP_URL='{BackdropUrl}' WHERE API_ID={ApiId};";
+}
+
+public class MovieInfoUpdate
+{
+    public int ApiId { get; set; }
+
+    public string PosterUrl { get; set; }
+
+    public string BackdropUrl { get; set; }
+
+    public string UpdateSql => $"UPDATE [{{0}}].[dbo].[SL_MOVIE_INFO] SET POSTER_URL='{PosterUrl}', BACKDROP_URL='{BackdropUrl}' WHERE API_ID={ApiId}";
 }

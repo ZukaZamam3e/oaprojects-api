@@ -69,14 +69,6 @@ public class ShowController : BaseController
                 {
                     show.Transactions = GetShowTransactions(userId, show.ShowId);
 
-                    /*
-                        PURCHASE = 2002,
-                        ALIST = 2003,
-                        BENEFITS = 2004,
-                        REWARDS = 2005,
-                        TAX = 2006
-                    */
-
                     int[] creditTransactionTypes =
                     {
                         (int)CodeValueIds.PURCHASE,
@@ -119,11 +111,28 @@ public class ShowController : BaseController
             response.Model.Count = response.Model.Shows.Count();
             response.Model.Shows = response.Model.Shows.OrderByDescending(m => m.DateWatched).ThenByDescending(m => m.ShowId).Skip(offset).Take(take).ToArray();
 
-            foreach (ShowModel show in response.Model.Shows)
+            foreach (DetailedShowModel show in response.Model.Shows)
             {
                 if(show.ShowTypeId == (int)CodeValueIds.AMC)
                 {
                     show.Transactions = GetShowTransactions(userId, show.ShowId);
+
+                    int[] creditTransactionTypes =
+                    {
+                        (int)CodeValueIds.PURCHASE,
+                        (int)CodeValueIds.TAX,
+                    };
+
+                    int[] debitTransactionTypes =
+                    {
+                        (int)CodeValueIds.REWARDS,
+                        (int)CodeValueIds.BENEFITS,
+                    };
+
+                    show.TotalPurchases = show.Transactions
+                        .Where(m => debitTransactionTypes.Contains(m.TransactionTypeId) || creditTransactionTypes.Contains(m.TransactionTypeId))
+                        .Select(m => m.CostAmt * (creditTransactionTypes.Contains(m.TransactionTypeId) ? 1 : -1))
+                        .Sum();
                 }
             }
         }

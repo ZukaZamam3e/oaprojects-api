@@ -33,6 +33,10 @@ public class TvStatModel
 
     public int? InfoId { get; set; }
 
+    public string? InfoBackdropUrl { get; set; }
+
+    public string? InfoUrl { get; set; }
+
     public int? NextEpisodeInfoId { get; set; }
 
     public string? NextEpisodeName { get; set; }

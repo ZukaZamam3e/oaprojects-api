@@ -7,7 +7,7 @@ public class WatchListLoadResponse
 {
     public IEnumerable<SLCodeValueSimpleModel> ShowTypeIds { get; set; }
 
-    public IEnumerable<WatchListModel> WatchLists { get; set; }
+    public IEnumerable<DetailedWatchListModel> WatchLists { get; set; }
 
     public int Count { get; set; }
 }

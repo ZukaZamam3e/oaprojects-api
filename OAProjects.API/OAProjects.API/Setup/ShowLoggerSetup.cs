@@ -61,6 +61,7 @@ public static class ShowLoggerSetup
         services.AddScoped<IValidator<WatchListIdRequest>, WatchListIdValidator>();
         services.AddScoped<IValidator<WatchListMoveToShowsRequest>, WatchListMoveToShowsValidator>();
         services.AddScoped<IValidator<WatchListModel>, WatchListValidator>();
+        services.AddScoped<IValidator<AddWatchListFromSearchModel>, AddWatchListFromSearchValidator>();
 
         services.AddScoped<IValidator<InfoApiSearchModel>, InfoApiSearchValidator>();
         services.AddScoped<IValidator<InfoApiDownloadModel>, InfoApiDownloadValidator>();

@@ -18,7 +18,9 @@ public class TvInfoModel
 
     public DateTime LastUpdated { get; set; }
 
-    public string? ImageUrl { get; set; }
+    public string? PosterUrl { get; set; }
+
+    public string? BackdropUrl { get; set; }
 
     public string? Status { get; set; }
 

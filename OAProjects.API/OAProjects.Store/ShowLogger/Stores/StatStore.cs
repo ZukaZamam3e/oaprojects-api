@@ -3,6 +3,7 @@ using OAProjects.Data.ShowLogger.Context;
 using OAProjects.Data.ShowLogger.Entities;
 using OAProjects.Models.ShowLogger.Models.Config;
 using OAProjects.Models.ShowLogger.Models.Info;
+using OAProjects.Models.ShowLogger.Models.Show;
 using OAProjects.Models.ShowLogger.Models.Stat;
 using OAProjects.Store.ShowLogger.Stores.Interfaces;
 using System;
@@ -60,6 +61,14 @@ public class StatStore : IStatStore
                 {
                     count = UpdateLatest(model, previousShow, count);
 
+                    if (model.InfoId != null)
+                    {
+                        SL_TV_EPISODE_INFO episodeInfo = episodes.First(m => m.TV_EPISODE_INFO_ID == model.InfoId);
+                        SL_TV_INFO info = tvInfos.First(m => m.TV_INFO_ID == episodeInfo.TV_INFO_ID);
+                        model.InfoBackdropUrl = GetImageUrl(info.API_TYPE, info.BACKDROP_URL);
+                        model.InfoUrl = GetTvInfoUrl(info.API_TYPE, info.API_ID);
+                    }
+
                     if (model.InfoId != null && model.LastWatched > fourMonthsAgo)
                     {
                         int episodesLeft;
@@ -68,7 +77,7 @@ public class StatStore : IStatStore
                         if (nextEpisodeInfo != null)
                         {
                             SL_TV_INFO info = tvInfos.First(m => m.TV_INFO_ID == nextEpisodeInfo.TV_INFO_ID);
-                            UpdateNextEpisode(model, info, nextEpisodeInfo, count);  
+                            UpdateNextEpisode(model, info, nextEpisodeInfo, episodesLeft);  
                         }
                     }
 
@@ -83,6 +92,14 @@ public class StatStore : IStatStore
             {
                 count = UpdateLatest(model, previousShow, count);
 
+                if (model.InfoId != null)
+                {
+                    SL_TV_EPISODE_INFO episodeInfo = episodes.First(m => m.TV_EPISODE_INFO_ID == model.InfoId);
+                    SL_TV_INFO info = tvInfos.First(m => m.TV_INFO_ID == episodeInfo.TV_INFO_ID);
+                    model.InfoBackdropUrl = GetImageUrl(info.API_TYPE, info.BACKDROP_URL);
+                    model.InfoUrl = GetTvInfoUrl(info.API_TYPE, info.API_ID);
+                }
+
                 if (model.InfoId != null && model.LastWatched > fourMonthsAgo)
                 {
                     int episodesLeft;
@@ -91,7 +108,7 @@ public class StatStore : IStatStore
                     if (nextEpisodeInfo != null)
                     {
                         SL_TV_INFO info = tvInfos.First(m => m.TV_INFO_ID == nextEpisodeInfo.TV_INFO_ID);
-                        UpdateNextEpisode(model, info, nextEpisodeInfo, count);
+                        UpdateNextEpisode(model, info, nextEpisodeInfo, episodesLeft);
                     }
                 }
 
@@ -166,6 +183,54 @@ public class StatStore : IStatStore
         };
     }
 
+    private string GetTvInfoUrl(int? apiType, string? apiId)
+    {
+        if (apiType == null
+            || string.IsNullOrEmpty(apiId))
+        {
+            return "";
+        }
+
+        return (INFO_API)apiType switch
+        {
+            INFO_API.TMDB_API => $"{_apisConfig.TMDbURL}{TMDBApiPaths.TV}{$"{apiId}"}",
+            INFO_API.OMDB_API => "",
+            _ => throw new NotImplementedException(),
+        };
+    }
+
+    private string GetMovieInfoUrl(int? apiType, string? apiId)
+    {
+        if (apiType == null
+            || string.IsNullOrEmpty(apiId))
+        {
+            return "";
+        }
+
+        return (INFO_API)apiType switch
+        {
+            INFO_API.TMDB_API => $"{_apisConfig.TMDbURL}{TMDBApiPaths.Movie}{apiId}",
+            INFO_API.OMDB_API => "",
+            _ => throw new NotImplementedException(),
+        };
+    }
+
+    private string GetImageUrl(int? apiType, string? imageUrl)
+    {
+        if (apiType == null
+            || string.IsNullOrEmpty(imageUrl))
+        {
+            return "";
+        }
+
+        return (INFO_API)apiType switch
+        {
+            INFO_API.TMDB_API => $"{_apisConfig.TMDbURL}{TMDBApiPaths.Image}{imageUrl}",
+            INFO_API.OMDB_API => "",
+            _ => throw new NotImplementedException(),
+        };
+    }
+
     private SL_TV_EPISODE_INFO? GetNextEpisode(List<SL_TV_EPISODE_INFO> episodesList, List<SL_TV_EPISODE_ORDER> episodeOrders, int? episodeInfoId, out int episodesLeft)
     {
         SL_TV_EPISODE_INFO? nextEpisodeInfo = null;
@@ -210,6 +275,7 @@ public class StatStore : IStatStore
     {
         Dictionary<int, string> showTypeIds = _context.SL_CODE_VALUE.Where(m => m.CODE_TABLE_ID == (int)CodeTableIds.SHOW_TYPE_ID).ToDictionary(m => m.CODE_VALUE_ID, m => m.DECODE_TXT);
 
+
         List<MovieStatModel> query = _context.SL_SHOW
             .Where(m => m.USER_ID == userId
                 && (m.SHOW_TYPE_ID == (int)CodeValueIds.AMC || m.SHOW_TYPE_ID == (int)CodeValueIds.MOVIE))
@@ -221,7 +287,25 @@ public class StatStore : IStatStore
                 ShowTypeId = m.SHOW_TYPE_ID,
                 ShowTypeIdZ = showTypeIds[m.SHOW_TYPE_ID],
                 DateWatched = m.DATE_WATCHED,
+                InfoId = m.INFO_ID,
             }).ToList();
+
+        int[] movieInfoIds = query.Where(m => m.InfoId != null).Select(m => m.InfoId.Value).ToArray();   
+        Dictionary<int, SL_MOVIE_INFO> dictMovieInfos = _context.SL_MOVIE_INFO.Where(m => movieInfoIds.Contains(m.MOVIE_INFO_ID)).ToDictionary(m => m.MOVIE_INFO_ID);
+
+        query.ToList().ForEach(m =>
+        {
+            SL_MOVIE_INFO movieInfo;
+
+            if (m.InfoId != null)
+            {
+                if (dictMovieInfos.TryGetValue(m.InfoId.Value, out movieInfo))
+                {
+                    m.InfoBackdropUrl = GetImageUrl(movieInfo.API_TYPE, movieInfo.BACKDROP_URL);
+                    m.InfoUrl = GetMovieInfoUrl(movieInfo.API_TYPE, movieInfo.API_ID);
+                }
+            }
+        });
 
         int[] amcIds = query.Where(m => m.ShowTypeId == (int)CodeValueIds.AMC).Select(m => m.ShowId).ToArray();
 

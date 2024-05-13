@@ -25,4 +25,6 @@ public class WatchListModel
     public DateTime DateAdded { get; set; }
 
     public string? ShowNotes { get; set; }
+
+    public int? InfoId { get; set; }
 }

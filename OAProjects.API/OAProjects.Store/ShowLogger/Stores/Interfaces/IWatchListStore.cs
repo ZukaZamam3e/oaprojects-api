@@ -6,11 +6,11 @@ using OAProjects.Models.ShowLogger.Models.WatchList;
 namespace OAProjects.Store.ShowLogger.Stores.Interfaces;
 public interface IWatchListStore
 {
-    IEnumerable<WatchListModel> GetWatchLists(Expression<Func<WatchListModel, bool>>? predicate = null);
+    IEnumerable<DetailedWatchListModel> GetWatchLists(Expression<Func<WatchListInfoModel, bool>>? predicate = null);
 
     IEnumerable<WatchListModel> SearchWatchLists(int userId, string text);
 
-    int CreateWatchList(int userId, WatchListModel model);
+    int CreateWatchList(int userId, WatchListModel model, int? infoId = null);
 
     int UpdateWatchList(int userId, WatchListModel model);
 
