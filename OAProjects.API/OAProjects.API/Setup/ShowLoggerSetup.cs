@@ -43,6 +43,7 @@ public static class ShowLoggerSetup
         services.AddTransient<ITransactionStore, TransactionStore>();
         services.AddTransient<IStatStore, StatStore>();
         services.AddTransient<IBookStore, BookStore>();
+        services.AddTransient<IFriendHistoryStore, FriendHistoryStore>();
 
         services.AddScoped<IValidator<ShowModel>, ShowValidator>();
         services.AddScoped<IValidator<ShowTransactionModel>, ShowTransactionValidator>();

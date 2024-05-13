@@ -65,8 +65,8 @@ public class StatStore : IStatStore
                     {
                         SL_TV_EPISODE_INFO episodeInfo = episodes.First(m => m.TV_EPISODE_INFO_ID == model.InfoId);
                         SL_TV_INFO info = tvInfos.First(m => m.TV_INFO_ID == episodeInfo.TV_INFO_ID);
-                        model.InfoBackdropUrl = GetImageUrl(info.API_TYPE, info.BACKDROP_URL);
-                        model.InfoUrl = GetTvInfoUrl(info.API_TYPE, info.API_ID);
+                        model.InfoBackdropUrl = _apisConfig.GetImageUrl(info.API_TYPE, info.BACKDROP_URL);
+                        model.InfoUrl = _apisConfig.GetTvInfoUrl(info.API_TYPE, info.API_ID);
                     }
 
                     if (model.InfoId != null && model.LastWatched > fourMonthsAgo)
@@ -96,8 +96,8 @@ public class StatStore : IStatStore
                 {
                     SL_TV_EPISODE_INFO episodeInfo = episodes.First(m => m.TV_EPISODE_INFO_ID == model.InfoId);
                     SL_TV_INFO info = tvInfos.First(m => m.TV_INFO_ID == episodeInfo.TV_INFO_ID);
-                    model.InfoBackdropUrl = GetImageUrl(info.API_TYPE, info.BACKDROP_URL);
-                    model.InfoUrl = GetTvInfoUrl(info.API_TYPE, info.API_ID);
+                    model.InfoBackdropUrl = _apisConfig.GetImageUrl(info.API_TYPE, info.BACKDROP_URL);
+                    model.InfoUrl = _apisConfig.GetTvInfoUrl(info.API_TYPE, info.API_ID);
                 }
 
                 if (model.InfoId != null && model.LastWatched > fourMonthsAgo)
@@ -161,74 +161,8 @@ public class StatStore : IStatStore
         model.NextEpisodeInfoId = nextEpisodeInfo.TV_EPISODE_INFO_ID;
         model.NextEpisodeName = nextEpisodeInfo.EPISODE_NAME;
         model.NextAirDate = nextEpisodeInfo.AIR_DATE;
-        model.NextInfoUrl = GetTvEpisodeInfoUrl(info.API_TYPE, info.API_ID, nextEpisodeInfo.SEASON_NUMBER, nextEpisodeInfo.EPISODE_NUMBER);
+        model.NextInfoUrl = _apisConfig.GetTvEpisodeInfoUrl(info.API_TYPE, info.API_ID, nextEpisodeInfo.SEASON_NUMBER, nextEpisodeInfo.EPISODE_NUMBER);
         model.EpisodesLeft = episodesLeft;
-    }
-
-    private string GetTvEpisodeInfoUrl(int? apiType, string? apiId, int? seasonNumber, int? episodeNumber)
-    {
-        if (apiType == null
-            || string.IsNullOrEmpty(apiId)
-            || seasonNumber == null
-            || episodeNumber == null)
-        {
-            return "";
-        }
-
-        return (INFO_API)apiType switch
-        {
-            INFO_API.TMDB_API => $"{_apisConfig.TMDbURL}{TMDBApiPaths.TV}{$"{apiId}/season/{seasonNumber}/episode/{episodeNumber}"}",
-            INFO_API.OMDB_API => "",
-            _ => throw new NotImplementedException(),
-        };
-    }
-
-    private string GetTvInfoUrl(int? apiType, string? apiId)
-    {
-        if (apiType == null
-            || string.IsNullOrEmpty(apiId))
-        {
-            return "";
-        }
-
-        return (INFO_API)apiType switch
-        {
-            INFO_API.TMDB_API => $"{_apisConfig.TMDbURL}{TMDBApiPaths.TV}{$"{apiId}"}",
-            INFO_API.OMDB_API => "",
-            _ => throw new NotImplementedException(),
-        };
-    }
-
-    private string GetMovieInfoUrl(int? apiType, string? apiId)
-    {
-        if (apiType == null
-            || string.IsNullOrEmpty(apiId))
-        {
-            return "";
-        }
-
-        return (INFO_API)apiType switch
-        {
-            INFO_API.TMDB_API => $"{_apisConfig.TMDbURL}{TMDBApiPaths.Movie}{apiId}",
-            INFO_API.OMDB_API => "",
-            _ => throw new NotImplementedException(),
-        };
-    }
-
-    private string GetImageUrl(int? apiType, string? imageUrl)
-    {
-        if (apiType == null
-            || string.IsNullOrEmpty(imageUrl))
-        {
-            return "";
-        }
-
-        return (INFO_API)apiType switch
-        {
-            INFO_API.TMDB_API => $"{_apisConfig.TMDbURL}{TMDBApiPaths.Image}{imageUrl}",
-            INFO_API.OMDB_API => "",
-            _ => throw new NotImplementedException(),
-        };
     }
 
     private SL_TV_EPISODE_INFO? GetNextEpisode(List<SL_TV_EPISODE_INFO> episodesList, List<SL_TV_EPISODE_ORDER> episodeOrders, int? episodeInfoId, out int episodesLeft)
@@ -301,8 +235,8 @@ public class StatStore : IStatStore
             {
                 if (dictMovieInfos.TryGetValue(m.InfoId.Value, out movieInfo))
                 {
-                    m.InfoBackdropUrl = GetImageUrl(movieInfo.API_TYPE, movieInfo.BACKDROP_URL);
-                    m.InfoUrl = GetMovieInfoUrl(movieInfo.API_TYPE, movieInfo.API_ID);
+                    m.InfoBackdropUrl = _apisConfig.GetImageUrl(movieInfo.API_TYPE, movieInfo.BACKDROP_URL);
+                    m.InfoUrl = _apisConfig.GetMovieInfoUrl(movieInfo.API_TYPE, movieInfo.API_ID);
                 }
             }
         });
