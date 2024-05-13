@@ -90,8 +90,8 @@ public class WatchListStore : IWatchListStore
 
         IEnumerable<DetailedWatchListModel> query = infoQuery.ToList().Select(m =>
         {
-            m.ImageUrl = GetImageUrl(m.InfoApiType, m.InfoImageUrl);
-            m.InfoUrl = m.ShowTypeId == (int)CodeValueIds.TV ? GetTvEpisodeInfoUrl(m.InfoApiType, m.InfoApiId, m.InfoSeasonNumber, m.InfoEpisodeNumber) : GetMovieInfoUrl(m.InfoApiType, m.InfoApiId);
+            m.ImageUrl = _apisConfig.GetImageUrl(m.InfoApiType, m.InfoImageUrl);
+            m.InfoUrl = m.ShowTypeId == (int)CodeValueIds.TV ? _apisConfig.GetTvEpisodeInfoUrl(m.InfoApiType, m.InfoApiId, m.InfoSeasonNumber, m.InfoEpisodeNumber) : _apisConfig.GetMovieInfoUrl(m.InfoApiType, m.InfoApiId);
             return m;
         });
 
@@ -229,55 +229,5 @@ public class WatchListStore : IWatchListStore
         }
 
         return result;
-    }
-
-    private string GetImageUrl(int? apiType, string? imageUrl)
-    {
-        if (apiType == null
-            || string.IsNullOrEmpty(imageUrl))
-        {
-            return "";
-        }
-
-        return (INFO_API)apiType switch
-        {
-            INFO_API.TMDB_API => $"{_apisConfig.TMDbURL}{TMDBApiPaths.Image}{imageUrl}",
-            INFO_API.OMDB_API => "",
-            _ => throw new NotImplementedException(),
-        };
-    }
-
-    private string GetTvEpisodeInfoUrl(int? apiType, string? apiId, int? seasonNumber, int? episodeNumber)
-    {
-        if (apiType == null
-            || string.IsNullOrEmpty(apiId)
-            || seasonNumber == null
-            || episodeNumber == null)
-        {
-            return "";
-        }
-
-        return (INFO_API)apiType switch
-        {
-            INFO_API.TMDB_API => $"{_apisConfig.TMDbURL}{TMDBApiPaths.TV}{$"{apiId}/season/{seasonNumber}/episode/{episodeNumber}"}",
-            INFO_API.OMDB_API => "",
-            _ => throw new NotImplementedException(),
-        };
-    }
-
-    private string GetMovieInfoUrl(int? apiType, string? apiId)
-    {
-        if (apiType == null
-            || string.IsNullOrEmpty(apiId))
-        {
-            return "";
-        }
-
-        return (INFO_API)apiType switch
-        {
-            INFO_API.TMDB_API => $"{_apisConfig.TMDbURL}{TMDBApiPaths.Movie}{apiId}",
-            INFO_API.OMDB_API => "",
-            _ => throw new NotImplementedException(),
-        };
     }
 }

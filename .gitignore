@@ -400,3 +400,5 @@ FodyWeavers.xsd
 /old_data
 /old_server_data
 OAProjects.API/OAProjects.Import/appsettings.Local.json
+OAProjects.API/OAProjects.Import/appsettings.Development.json
+OAProjects.API/OAProjects.Import/appsettings.Development.json
