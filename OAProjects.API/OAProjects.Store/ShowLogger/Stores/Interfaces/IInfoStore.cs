@@ -20,7 +20,7 @@ public interface IInfoStore
 
     IEnumerable<TvEpisodeInfoModel> GetTvEpisodeInfos(Expression<Func<TvEpisodeInfoModel, bool>>? predicate = null);
 
-    long RefreshTvInfo(TvInfoModel model);
+    long UpdateTvInfo(TvInfoModel model);
 
     long RefreshTvInfo(int infoId);
 
@@ -30,7 +30,9 @@ public interface IInfoStore
 
     IEnumerable<MovieInfoModel> GetMovieInfos(Expression<Func<MovieInfoModel, bool>>? predicate = null);
 
-    long RefreshMovieInfo(MovieInfoModel model);
+    long UpdateMovieInfo(MovieInfoModel model);
 
     bool DeleteMovieInfo(int userId, int tvInfoId);
+
+    Task<string[]> RefreshRecurringTvShows();
 }

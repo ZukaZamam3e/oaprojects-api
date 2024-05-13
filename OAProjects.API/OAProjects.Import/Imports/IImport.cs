@@ -18,6 +18,7 @@ public static class ImportFiles
     public const string sl_tv_info = "sl_tv_info.json";
     public const string sl_user_pref = "sl_user_pref.json";
     public const string sl_watchlist = "sl_watchlist.json";
+    public const string sl_tv_episode_order = "sl_tv_episode_order.json";
 
     public const string oa_users = "oa_users.json";
 }

@@ -27,7 +27,7 @@ public class ShowValidator : AbstractValidator<ShowModel>
             {
                 if(t == null)
                 {
-                    return false;
+                    return true;
                 }
                 else if(t.Count(n => n.DeleteTransaction) != t.Count())
                 {

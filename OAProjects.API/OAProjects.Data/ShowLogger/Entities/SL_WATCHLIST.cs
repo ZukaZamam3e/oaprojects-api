@@ -19,4 +19,6 @@ public class SL_WATCHLIST
     public DateTime DATE_ADDED { get; set; }
 
     public string? SHOW_NOTES { get; set; }
+
+    public int? INFO_ID { get; set; }
 }

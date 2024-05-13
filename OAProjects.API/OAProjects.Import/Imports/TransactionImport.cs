@@ -86,9 +86,9 @@ public class TransactionImport : ITransactionImport
                     _showLoggerContext.SL_TRANSACTION.Add(taxEntity);
                 }
 
-                List<TransactionDataImport> benefits = transactions.Where(m => m.BENEFIT_AMT != null).ToList();
+                IEnumerable<TransactionDataImport> benefits = transactions.Where(m => m.BENEFIT_AMT != null || m.ITEM == "AMC Stubs Benefit");
 
-                if (benefits.Count > 0)
+                if (benefits.Any())
                 {
                     SL_TRANSACTION benefitEntity = new SL_TRANSACTION
                     {
@@ -105,7 +105,7 @@ public class TransactionImport : ITransactionImport
                     _showLoggerContext.SL_TRANSACTION.Add(benefitEntity);
                 }
 
-                IEnumerable<TransactionDataImport> discounts = transactions.Where(m => m.DISCOUNT_AMT != null);
+                IEnumerable<TransactionDataImport> discounts = transactions.Where(m => m.DISCOUNT_AMT != null || m.ITEM == "AMC Stubs Rewards");
 
                 if (discounts.Any())
                 {
@@ -121,7 +121,9 @@ public class TransactionImport : ITransactionImport
                     });
                 }
 
-                IEnumerable<TransactionDataImport> tickets = transactions.Where(m => m.TRANSACTION_TYPE_ID == (int)CodeValueIds.TICKET);
+                IEnumerable<TransactionDataImport> tickets = transactions
+                    .Where(m => m.TRANSACTION_TYPE_ID == (int)CodeValueIds.TICKET 
+                    || (m.TRANSACTION_TYPE_ID == (int)CodeValueIds.PURCHASE && m.ITEM == "Ticket"));
 
                 if (tickets.Any())
                 {
@@ -154,8 +156,10 @@ public class TransactionImport : ITransactionImport
                 }
 
                 int[] nonPurchases = [(int)CodeValueIds.TICKET, (int)CodeValueIds.REWARDS, (int)CodeValueIds.BENEFITS, (int)CodeValueIds.ALIST_TICKET, (int)CodeValueIds.TAX, (int)CodeValueIds.ALIST];
+                string[] otherNonPurchases = ["AMC Stubs Benefit", "Tax", "AMC Stubs Rewards", "Ticket"];
 
-                IEnumerable<TransactionDataImport> purchases = transactions.Where(m => !nonPurchases.Contains(m.TRANSACTION_TYPE_ID));
+
+                IEnumerable<TransactionDataImport> purchases = transactions.Where(m => !nonPurchases.Contains(m.TRANSACTION_TYPE_ID) && !otherNonPurchases.Contains(m.ITEM));
 
                 if (purchases.Any())
                 {

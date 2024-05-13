@@ -8,4 +8,8 @@ namespace OAProjects.Import.Config;
 public class DataConfig
 {
     public string DataFolderPath { get; set; }
+
+    public string ShowLoggerDbName { get; set; }
+
+    public string OAIdentityDbName { get; set; }
 }

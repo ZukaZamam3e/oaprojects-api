@@ -150,7 +150,9 @@ public class InfoStore : IInfoStore
                         info.ShowOverview = show.Overview.Substring(0, show.Overview.Length > 4000 ? 4000 : show.Overview.Length);
                         info.ApiType = (int)INFO_API.TMDB_API;
                         info.ApiId = show.Id.ToString();
-                        info.ImageUrl = show.PosterPath;
+                        info.PosterUrl = show.PosterPath;
+                        info.BackdropUrl = show.BackdropPath;
+                        info.Status = show.Status;
 
                         List<TvEpisodeInfoModel> episodes = new List<TvEpisodeInfoModel>();
 
@@ -183,7 +185,7 @@ public class InfoStore : IInfoStore
                             {
                                 if (requestTimer.Elapsed.Seconds < 1)
                                 {
-                                    Thread.Sleep(1 - (int)requestTimer.ElapsedMilliseconds);
+                                    Thread.Sleep(1000);
                                 }
 
                                 requestCount = 0;
@@ -193,7 +195,7 @@ public class InfoStore : IInfoStore
 
                         info.Episodes = episodes;
 
-                        downloadResult.Id = RefreshTvInfo(info);
+                        downloadResult.Id = UpdateTvInfo(info);
                         break;
 
                     }
@@ -209,10 +211,11 @@ public class InfoStore : IInfoStore
                             ApiId = movie.Id.ToString(),
                             Runtime = movie.Runtime,
                             AirDate = movie.ReleaseDate,
-                            ImageURL = movie.PosterPath
+                            PosterURL = movie.PosterPath,
+                            BackdropURL = movie.BackdropPath,
                         };
 
-                        downloadResult.Id = RefreshMovieInfo(info);
+                        downloadResult.Id = UpdateMovieInfo(info);
 
                         break;
                     }
@@ -237,7 +240,8 @@ public class InfoStore : IInfoStore
             ApiId = m.API_ID,
             LastDataRefresh = m.LAST_DATA_REFRESH,
             LastUpdated = m.LAST_UPDATED,
-            ImageUrl = !string.IsNullOrEmpty(m.IMAGE_URL) ? $"{_apisConfig.TMDbURL}{TMDBApiPaths.Image}{m.IMAGE_URL}" : ""
+            PosterUrl = !string.IsNullOrEmpty(m.POSTER_URL) ? $"{_apisConfig.TMDbURL}{TMDBApiPaths.Image}{m.POSTER_URL}" : "",
+            Status = m.STATUS
         });
 
         if (predicate != null)
@@ -291,7 +295,7 @@ public class InfoStore : IInfoStore
         return query;
     }
 
-    public long RefreshTvInfo(TvInfoModel model)
+    public long UpdateTvInfo(TvInfoModel model)
     {
         SL_TV_INFO? entity = _context.SL_TV_INFO.FirstOrDefault(m => m.API_TYPE == model.ApiType && m.API_ID == model.ApiId);
 
@@ -308,7 +312,9 @@ public class InfoStore : IInfoStore
 
         entity.SHOW_NAME = model.ShowName;
         entity.SHOW_OVERVIEW = model.ShowOverview;
-        entity.IMAGE_URL = model.ImageUrl;
+        entity.POSTER_URL = model.PosterUrl;
+        entity.BACKDROP_URL = model.BackdropUrl;
+        entity.STATUS = model.Status;
 
         entity.LAST_DATA_REFRESH = DateTime.Now;
         entity.LAST_UPDATED = DateTime.Now;
@@ -406,7 +412,7 @@ public class InfoStore : IInfoStore
             ApiId = m.API_ID,
             Runtime = m.RUNTIME,
             AirDate = m.AIR_DATE,
-            ImageURL = m.IMAGE_URL,
+            PosterURL = m.POSTER_URL,
             LastDataRefresh = m.LAST_DATA_REFRESH,
             LastUpdated = m.LAST_UPDATED,
         });
@@ -419,7 +425,7 @@ public class InfoStore : IInfoStore
         return query;
     }
 
-    public long RefreshMovieInfo(MovieInfoModel model)
+    public long UpdateMovieInfo(MovieInfoModel model)
     {
         SL_MOVIE_INFO? entity = _context.SL_MOVIE_INFO.FirstOrDefault(m => m.API_TYPE == model.ApiType && m.API_ID == model.ApiId);
 
@@ -438,7 +444,8 @@ public class InfoStore : IInfoStore
         entity.RUNTIME = model.Runtime;
         entity.AIR_DATE = model.AirDate;
 
-        entity.IMAGE_URL = model.ImageURL;
+        entity.POSTER_URL = model.PosterURL;
+        entity.BACKDROP_URL = model.BackdropURL;
 
         entity.LAST_DATA_REFRESH = DateTime.Now;
         entity.LAST_UPDATED = DateTime.Now;
@@ -489,7 +496,7 @@ public class InfoStore : IInfoStore
                     TvEpisodeInfoModel episode = GetTvEpisodeInfos(m => m.TvEpisodeInfoId == infoId).First();
                     TvInfoModel model = GetTvInfos(m => m.TvInfoId == episode.TvInfoId).First();
 
-                    RefreshTvInfo(model);
+                    UpdateTvInfo(model);
 
                     apiDownloadModel = new InfoApiDownloadModel
                     {
@@ -517,5 +524,23 @@ public class InfoStore : IInfoStore
         }
 
         return await Download(userId, apiDownloadModel);
+    }
+
+    public async Task<string[]> RefreshRecurringTvShows()
+    {
+        DateTime today = DateTime.Today;
+        SL_TV_INFO[] tvInfos = _context.SL_TV_INFO.Where(m => m.STATUS == "Returning Series" && m.LAST_DATA_REFRESH < today).ToArray();
+
+        foreach(SL_TV_INFO tvInfo in tvInfos)
+        {
+            await DownloadFromTMDb(new InfoApiDownloadModel
+            {
+                API = INFO_API.TMDB_API,
+                Type = INFO_TYPE.TV,
+                Id = tvInfo.API_ID
+            });
+        }
+
+        return tvInfos.Select(m => m.SHOW_NAME).ToArray();
     }
 }

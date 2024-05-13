@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using OAProjects.Data.ShowLogger.Context;
 
@@ -11,9 +12,10 @@ using OAProjects.Data.ShowLogger.Context;
 namespace OAProjects.Data.ShowLogger.Migrations
 {
     [DbContext(typeof(ShowLoggerDbContext))]
-    partial class ShowLoggerDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240421184146_0.009")]
+    partial class _0009
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -392,28 +394,6 @@ namespace OAProjects.Data.ShowLogger.Migrations
                     b.ToTable("SL_TV_EPISODE_INFO");
                 });
 
-            modelBuilder.Entity("OAProjects.Data.ShowLogger.Entities.SL_TV_EPISODE_ORDER", b =>
-                {
-                    b.Property<int>("TV_EPISODE_ORDER_ID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TV_EPISODE_ORDER_ID"), 1L, 1);
-
-                    b.Property<int>("EPISODE_ORDER")
-                        .HasColumnType("int");
-
-                    b.Property<int>("TV_EPISODE_INFO_ID")
-                        .HasColumnType("int");
-
-                    b.Property<int>("TV_INFO_ID")
-                        .HasColumnType("int");
-
-                    b.HasKey("TV_EPISODE_ORDER_ID");
-
-                    b.ToTable("SL_TV_EPISODE_ORDER");
-                });
-
             modelBuilder.Entity("OAProjects.Data.ShowLogger.Entities.SL_TV_INFO", b =>
                 {
                     b.Property<int>("TV_INFO_ID")
@@ -429,7 +409,7 @@ namespace OAProjects.Data.ShowLogger.Migrations
                     b.Property<int?>("API_TYPE")
                         .HasColumnType("int");
 
-                    b.Property<string>("BACKDROP_URL")
+                    b.Property<string>("IMAGE_URL")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("LAST_DATA_REFRESH")
@@ -437,9 +417,6 @@ namespace OAProjects.Data.ShowLogger.Migrations
 
                     b.Property<DateTime>("LAST_UPDATED")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("POSTER_URL")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("SHOW_NAME")
                         .IsRequired()
@@ -450,10 +427,6 @@ namespace OAProjects.Data.ShowLogger.Migrations
                         .IsRequired()
                         .HasMaxLength(4000)
                         .HasColumnType("nvarchar(4000)");
-
-                    b.Property<string>("STATUS")
-                        .HasMaxLength(25)
-                        .HasColumnType("nvarchar(25)");
 
                     b.HasKey("TV_INFO_ID");
 
@@ -493,9 +466,6 @@ namespace OAProjects.Data.ShowLogger.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<int?>("EPISODE_NUMBER")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("INFO_ID")
                         .HasColumnType("int");
 
                     b.Property<int?>("SEASON_NUMBER")

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using OAProjects.Data.ShowLogger.Context;
 
@@ -11,9 +12,10 @@ using OAProjects.Data.ShowLogger.Context;
 namespace OAProjects.Data.ShowLogger.Migrations
 {
     [DbContext(typeof(ShowLoggerDbContext))]
-    partial class ShowLoggerDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240429001715_0.011")]
+    partial class _0011
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -429,7 +431,7 @@ namespace OAProjects.Data.ShowLogger.Migrations
                     b.Property<int?>("API_TYPE")
                         .HasColumnType("int");
 
-                    b.Property<string>("BACKDROP_URL")
+                    b.Property<string>("IMAGE_URL")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("LAST_DATA_REFRESH")
@@ -437,9 +439,6 @@ namespace OAProjects.Data.ShowLogger.Migrations
 
                     b.Property<DateTime>("LAST_UPDATED")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("POSTER_URL")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("SHOW_NAME")
                         .IsRequired()
@@ -493,9 +492,6 @@ namespace OAProjects.Data.ShowLogger.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<int?>("EPISODE_NUMBER")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("INFO_ID")
                         .HasColumnType("int");
 
                     b.Property<int?>("SEASON_NUMBER")

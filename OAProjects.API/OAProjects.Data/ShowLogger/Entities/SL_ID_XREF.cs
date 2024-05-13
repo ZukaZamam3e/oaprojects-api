@@ -19,7 +19,8 @@ public enum TableIds
     SL_TV_INFO,
     SL_USER_PREF,
     SL_WATCHLIST,
-    SL_BOOK
+    SL_BOOK,
+    SL_TV_EPISODE_ORDER
 }
 
 public class SL_ID_XREF

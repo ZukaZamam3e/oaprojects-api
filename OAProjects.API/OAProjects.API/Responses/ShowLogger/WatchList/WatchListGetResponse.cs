@@ -5,7 +5,7 @@ namespace OAProjects.API.Responses.ShowLogger.WatchList;
 
 public class WatchListGetResponse
 {
-    public IEnumerable<WatchListModel> WatchLists { get; set; }
+    public IEnumerable<DetailedWatchListModel> WatchLists { get; set; }
 
     public int Count { get; set; }
 }

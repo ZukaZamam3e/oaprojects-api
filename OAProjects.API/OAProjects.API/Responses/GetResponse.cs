@@ -4,7 +4,7 @@ public class GetResponse<T>
 {
     public T Model { get; set; }
 
-    public IEnumerable<string> Errors { get; set; }
+    public IEnumerable<string> Errors { get; set; } = new List<string>();
 
     public GetResponse()
     {
@@ -15,5 +15,6 @@ public class GetResponse<T>
     {
         Model = model;
         Errors = errors;
+        Errors ??= new List<string>();
     }
 }

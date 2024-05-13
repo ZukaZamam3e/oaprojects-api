@@ -22,5 +22,7 @@ public class ShowModel
 
     public bool RestartBinge { get; set; }
 
+    public int? InfoId { get; set; }
+
     public IEnumerable<ShowTransactionModel>? Transactions { get; set; }
 }

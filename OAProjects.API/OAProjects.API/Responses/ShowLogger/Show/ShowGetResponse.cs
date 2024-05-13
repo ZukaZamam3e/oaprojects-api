@@ -4,7 +4,7 @@ namespace OAProjects.API.Responses.ShowLogger.Show;
 
 public class ShowGetResponse
 {
-    public IEnumerable<ShowModel> Shows { get; set; }
+    public IEnumerable<DetailedShowModel> Shows { get; set; }
 
     public int Count { get; set; }
 }

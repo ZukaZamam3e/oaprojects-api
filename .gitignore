@@ -398,3 +398,5 @@ FodyWeavers.xsd
 *.sln.iml
 /OAProjects.API/OAProjects.API/appsettings.Local.json
 /old_data
+/old_server_data
+OAProjects.API/OAProjects.Import/appsettings.Local.json

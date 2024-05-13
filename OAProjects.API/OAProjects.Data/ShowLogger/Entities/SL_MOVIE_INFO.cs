@@ -22,5 +22,7 @@ public class SL_MOVIE_INFO
 
     public DateTime LAST_UPDATED { get; set; }
 
-    public string? IMAGE_URL { get; set; }
+    public string? POSTER_URL { get; set; }
+
+    public string? BACKDROP_URL { get; set; }
 }

@@ -15,6 +15,7 @@ using OAProjects.Models.ShowLogger.Models.Show;
 using OAProjects.Store.OAIdentity.Stores.Interfaces;
 using OAProjects.Store.ShowLogger.Stores;
 using OAProjects.Store.ShowLogger.Stores.Interfaces;
+using System.Linq;
 using System.Linq.Expressions;
 using static System.Net.Mime.MediaTypeNames;
 
@@ -46,27 +47,44 @@ public class ShowController : BaseController
     }
 
     [HttpGet("Load")]
-    public async Task<IActionResult> Load()
+    public async Task<IActionResult> Load(int take = 10)
     {
         GetResponse<ShowLoadResponse> response = new GetResponse<ShowLoadResponse>();
 
         try
         {
-            int take = 10;
             int userId = await GetUserId();
             response.Model = new ShowLoadResponse();
 
             response.Model.ShowTypeIds = _codeValueStore.GetCodeValues(m => m.CodeTableId == (int)CodeTableIds.SHOW_TYPE_ID).Select(m => new SLCodeValueSimpleModel { CodeValueId = m.CodeValueId, DecodeTxt = m.DecodeTxt });
             response.Model.TransactionTypeIds = _codeValueStore.GetCodeValues(m => m.CodeTableId == (int)CodeTableIds.TRANSACTION_TYPE_ID).Select(m => new SLCodeValueSimpleModel { CodeValueId = m.CodeValueId, DecodeTxt = m.DecodeTxt });
+            response.Model.TransactionItems = _showStore.GetTransactionItems(userId);
             response.Model.Shows = _showStore.GetShows(m => m.UserId == userId);
             response.Model.Count = response.Model.Shows.Count();
             response.Model.Shows = response.Model.Shows.OrderByDescending(m => m.DateWatched).ThenByDescending(m => m.ShowId).Take(take).ToArray();
 
-            foreach (ShowModel show in response.Model.Shows)
+            foreach (DetailedShowModel show in response.Model.Shows)
             {
                 if (show.ShowTypeId == (int)CodeValueIds.AMC)
                 {
                     show.Transactions = GetShowTransactions(userId, show.ShowId);
+
+                    int[] creditTransactionTypes =
+                    {
+                        (int)CodeValueIds.PURCHASE,
+                        (int)CodeValueIds.TAX,
+                    };
+
+                    int[] debitTransactionTypes =
+                    {
+                        (int)CodeValueIds.REWARDS,
+                        (int)CodeValueIds.BENEFITS,
+                    };
+
+                    show.TotalPurchases = show.Transactions
+                        .Where(m => debitTransactionTypes.Contains(m.TransactionTypeId) || creditTransactionTypes.Contains(m.TransactionTypeId))
+                        .Select(m => m.CostAmt * (creditTransactionTypes.Contains(m.TransactionTypeId) ? 1 : -1))
+                        .Sum();
                 }
             }
         }
@@ -93,11 +111,28 @@ public class ShowController : BaseController
             response.Model.Count = response.Model.Shows.Count();
             response.Model.Shows = response.Model.Shows.OrderByDescending(m => m.DateWatched).ThenByDescending(m => m.ShowId).Skip(offset).Take(take).ToArray();
 
-            foreach (ShowModel show in response.Model.Shows)
+            foreach (DetailedShowModel show in response.Model.Shows)
             {
                 if(show.ShowTypeId == (int)CodeValueIds.AMC)
                 {
                     show.Transactions = GetShowTransactions(userId, show.ShowId);
+
+                    int[] creditTransactionTypes =
+                    {
+                        (int)CodeValueIds.PURCHASE,
+                        (int)CodeValueIds.TAX,
+                    };
+
+                    int[] debitTransactionTypes =
+                    {
+                        (int)CodeValueIds.REWARDS,
+                        (int)CodeValueIds.BENEFITS,
+                    };
+
+                    show.TotalPurchases = show.Transactions
+                        .Where(m => debitTransactionTypes.Contains(m.TransactionTypeId) || creditTransactionTypes.Contains(m.TransactionTypeId))
+                        .Select(m => m.CostAmt * (creditTransactionTypes.Contains(m.TransactionTypeId) ? 1 : -1))
+                        .Sum();
                 }
             }
         }

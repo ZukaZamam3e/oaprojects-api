@@ -37,4 +37,6 @@ public interface IShowStore : IStore
     int SaveShowTransactions(int userId, int showId, DateTime dateWatched, IEnumerable<ShowTransactionModel>? transactions);
 
     IEnumerable<FriendWatchHistoryModel> GetFriendWatchHistory(int userId, Dictionary<int, string> users);
+
+    IEnumerable<TransactionItemModel> GetTransactionItems(int userId);
 }
