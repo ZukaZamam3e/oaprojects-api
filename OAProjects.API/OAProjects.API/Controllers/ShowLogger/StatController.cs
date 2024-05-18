@@ -134,6 +134,19 @@ public class StatController : BaseController
             response.Model.YearStats = GetYearStatsData(userId, search);
             response.Model.Count = response.Model.YearStats.Count();
             response.Model.YearStats = response.Model.YearStats.OrderByDescending(m => m.Year).ThenBy(m => m.UserId == userId ? 0 : 1).ThenBy(m => m.Name).Skip(offset).Take(take).ToArray();
+
+            YearStatDataParameters[] parameters = response.Model.YearStats.Select(m => new YearStatDataParameters
+            {
+                UserId = m.UserId,
+                Year = m.Year
+            }).ToArray();
+
+            IEnumerable<YearStatDataModel> data = _statStore.GetYearStatData(parameters).ToArray();
+
+            foreach (YearStatModel year in response.Model.YearStats)
+            {
+                year.Data = data.Where(m => m.UserId == year.UserId && m.Year == year.Year).OrderByDescending(m => m.TotalRuntime);
+            }
         }
         catch (Exception ex)
         {

@@ -55,13 +55,19 @@ public class TransactionController : BaseController
             IEnumerable<TransactionModel> data = GetTransactions(false, userId);
             IEnumerable<TransactionModel> movieData = GetTransactions(true, userId);
 
-            response.Model.TransactionTypeIds = _codeValueStore.GetCodeValues(m => m.CodeTableId == (int)CodeTableIds.TRANSACTION_TYPE_ID).Select(m => new SLCodeValueSimpleModel { CodeValueId = m.CodeValueId, DecodeTxt = m.DecodeTxt });
+            int[] ignore = new int[] 
+            {                
+                (int)CodeValueIds.BENEFITS,
+                (int)CodeValueIds.REWARDS,
+                (int)CodeValueIds.TAX 
+            };
+
+            response.Model.TransactionTypeIds = _codeValueStore.GetCodeValues(m => m.CodeTableId == (int)CodeTableIds.TRANSACTION_TYPE_ID && !ignore.Contains(m.CodeValueId))
+                .Select(m => new SLCodeValueSimpleModel { CodeValueId = m.CodeValueId, DecodeTxt = m.DecodeTxt });
             
             response.Model.Count = data.Count();
             response.Model.Transactions = data.OrderByDescending(m => m.TransactionDate).Take(take).ToArray();
-
-            response.Model.MovieTransactionsCount = movieData.Count();
-            response.Model.MovieTransactions = movieData.OrderByDescending(m => m.TransactionDate).Take(take).ToArray();
+            response.Model.TransactionItems = _transactionStore.GetTransactionItems(userId);
         }
         catch (Exception ex)
         {

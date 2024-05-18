@@ -1,5 +1,6 @@
 ﻿using OAProjects.Data.ShowLogger.Context;
 using OAProjects.Data.ShowLogger.Entities;
+using OAProjects.Models.ShowLogger.Models.Show;
 using OAProjects.Models.ShowLogger.Models.Transaction;
 using OAProjects.Store.ShowLogger.Stores.Interfaces;
 using System.Linq.Expressions;
@@ -98,5 +99,24 @@ public class TransactionStore : ITransactionStore
         }
 
         return result;
+    }
+
+    public IEnumerable<TransactionItemModel> GetTransactionItems(int userId)
+    {
+        Dictionary<int, string> transactionTypeIds = _context.SL_CODE_VALUE.Where(m => m.CODE_TABLE_ID == (int)CodeTableIds.TRANSACTION_TYPE_ID).ToDictionary(m => m.CODE_VALUE_ID, m => m.DECODE_TXT);
+        
+        IEnumerable<TransactionItemModel> query = _context.SL_TRANSACTION
+            .Where(m => m.SHOW_ID == null && m.USER_ID == userId)
+            .GroupBy(m => new { m.TRANSACTION_TYPE_ID, m.ITEM })
+            .Select(m => new TransactionItemModel
+            {
+                Item = m.Key.ITEM,
+                TransactionTypeId = m.Key.TRANSACTION_TYPE_ID,
+                TransactionTypeIdZ = transactionTypeIds[m.Key.TRANSACTION_TYPE_ID],
+                Quantity = m.OrderByDescending(m => m.TRANSACTION_DATE).Last().QUANTITY,
+                CostAmt = m.OrderByDescending(m => m.TRANSACTION_DATE).Last().COST_AMT
+            });
+
+        return query;
     }
 }
