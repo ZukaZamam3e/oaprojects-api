@@ -1,4 +1,5 @@
-﻿using OAProjects.Models.ShowLogger.Models.Transaction;
+﻿using OAProjects.Models.ShowLogger.Models.Show;
+using OAProjects.Models.ShowLogger.Models.Transaction;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,4 +14,5 @@ public interface ITransactionStore
     int CreateTransaction(int userId, TransactionModel model);
     int UpdateTransaction(int userId, TransactionModel model);
     bool DeleteTransaction(int userId, int transactionId);
+    IEnumerable<TransactionItemModel> GetTransactionItems(int userId);
 }

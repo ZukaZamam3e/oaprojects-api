@@ -77,5 +77,5 @@ public static class TMDBApiPaths
 {
     public const string TV = "tv/";
     public const string Movie = "movie/";
-    public const string Image = "t/p/original/";
+    public const string Image = "t/p/original";
 }

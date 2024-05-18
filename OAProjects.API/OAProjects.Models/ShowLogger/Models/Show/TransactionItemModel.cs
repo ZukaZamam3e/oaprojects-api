@@ -9,6 +9,10 @@ public class TransactionItemModel
 {
     public string Item { get; set; }
 
+    public int TransactionTypeId { get; set; }
+
+    public string TransactionTypeIdZ { get; set; }
+
     public decimal CostAmt { get; set; }
 
     public int Quantity { get; set; }

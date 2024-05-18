@@ -368,6 +368,95 @@ public class StatStore : IStatStore
         return model;
     }
 
+    public IEnumerable<YearStatDataModel> GetYearStatData(int userId, int year)
+    {
+        Dictionary<int, string> showTypeIds = _context.SL_CODE_VALUE.Where(m => m.CODE_TABLE_ID == (int)CodeTableIds.SHOW_TYPE_ID).ToDictionary(m => m.CODE_VALUE_ID, m => m.DECODE_TXT);
+
+        int[] tvEpisodeInfoIds =  _context.SL_SHOW.Where(m => m.SHOW_TYPE_ID == (int)CodeValueIds.TV && m.USER_ID == userId && m.DATE_WATCHED.Year == year).Where(m => m.INFO_ID != null).Select(m => m.INFO_ID.Value).ToArray();
+        Dictionary<int, SL_TV_INFO> dictTvInfos = _context.SL_TV_EPISODE_INFO
+            .Join(_context.SL_TV_INFO, m => m.TV_INFO_ID, m => m.TV_INFO_ID, (episode, info) => new { episode, info })
+            .Where(m => tvEpisodeInfoIds.Contains(m.episode.TV_EPISODE_INFO_ID))
+            .ToDictionary(m => m.episode.TV_EPISODE_INFO_ID, m => m.info);
+
+        IEnumerable < YearStatDataModel > tvData = (from x in _context.SL_SHOW
+                                                    join ei in _context.SL_TV_EPISODE_INFO on x.INFO_ID equals ei.TV_EPISODE_INFO_ID into eis
+                                                    from ei in eis.DefaultIfEmpty()
+                                                    where x.SHOW_TYPE_ID == (int)CodeValueIds.TV && x.USER_ID == userId && x.DATE_WATCHED.Year == year
+                                                    group new { x, ei } by new { x.USER_ID, x.DATE_WATCHED.Year, x.SHOW_NAME } into g
+                                                    select new YearStatDataModel
+                                                    {
+                                                        UserId = g.Key.USER_ID,
+                                                        ShowName = g.Key.SHOW_NAME,
+                                                        Year = g.Key.Year,
+                                                        ShowTypeId = (int)CodeValueIds.TV,
+                                                        ShowTypeIdZ = showTypeIds[(int)CodeValueIds.TV],
+                                                        TotalRuntime = g.Sum(m => m.ei.RUNTIME) ?? 0,
+                                                        WatchCount = g.Count(),
+                                                        InfoBackdropUrl = g.Any(m => m.ei != null) ? _apisConfig.GetImageUrl(dictTvInfos[g.First().ei.TV_EPISODE_INFO_ID].API_TYPE, dictTvInfos[g.First().ei.TV_EPISODE_INFO_ID].BACKDROP_URL) : null,
+                                                        InfoUrl = g.Any(m => m.ei != null) ? _apisConfig.GetTvInfoUrl(dictTvInfos[g.First().ei.TV_EPISODE_INFO_ID].API_TYPE, dictTvInfos[g.First().ei.TV_EPISODE_INFO_ID].API_ID) : null,
+                                                    }).ToList();
+
+        IEnumerable<YearStatDataModel> movieData = (from x in _context.SL_SHOW
+                                                    join mi in _context.SL_MOVIE_INFO on x.INFO_ID equals mi.MOVIE_INFO_ID into mis
+                                                    from mi in mis.DefaultIfEmpty()
+                                                    where x.SHOW_TYPE_ID == (int)CodeValueIds.MOVIE && x.USER_ID == userId && x.DATE_WATCHED.Year == year
+                                                    select new YearStatDataModel
+                                                    {
+                                                        UserId = x.USER_ID,
+                                                        ShowName = x.SHOW_NAME,
+                                                        Year = x.DATE_WATCHED.Year,
+                                                        ShowTypeId = (int)CodeValueIds.MOVIE,
+                                                        ShowTypeIdZ = showTypeIds[(int)CodeValueIds.MOVIE],
+                                                        TotalRuntime = mi != null ? mi.RUNTIME : null,
+                                                        WatchCount = 1,
+                                                        InfoBackdropUrl = mi != null ? _apisConfig.GetImageUrl(mi.API_TYPE, mi.BACKDROP_URL) : null,
+                                                        InfoUrl = mi != null ? _apisConfig.GetMovieInfoUrl(mi.API_TYPE, mi.API_ID) : null,
+                                                    }).ToList();
+
+        IEnumerable<YearStatDataModel> amcData = (from x in _context.SL_SHOW
+                                                    join mi in _context.SL_MOVIE_INFO on x.INFO_ID equals mi.MOVIE_INFO_ID into mis
+                                                    from mi in mis.DefaultIfEmpty()
+                                                    where x.SHOW_TYPE_ID == (int)CodeValueIds.AMC && x.USER_ID == userId && x.DATE_WATCHED.Year == year
+                                                    select new YearStatDataModel
+                                                    {
+                                                        UserId = x.USER_ID,
+                                                        ShowName = x.SHOW_NAME,
+                                                        Year = x.DATE_WATCHED.Year,
+                                                        ShowTypeId = (int)CodeValueIds.AMC,
+                                                        ShowTypeIdZ = showTypeIds[(int)CodeValueIds.AMC],
+                                                        TotalRuntime = mi != null ? mi.RUNTIME : null,
+                                                        WatchCount = 1,
+                                                        InfoBackdropUrl = mi != null ? _apisConfig.GetImageUrl(mi.API_TYPE, mi.BACKDROP_URL) : null,
+                                                        InfoUrl = mi != null ? _apisConfig.GetMovieInfoUrl(mi.API_TYPE, mi.API_ID) : null,
+                                                    }).ToList();
+
+        IEnumerable<YearStatDataModel> data = tvData.Union(movieData).Union(amcData);
+            
+        return data; 
+    }
+
+    public IEnumerable<YearStatDataModel> GetYearStatData(YearStatDataParameters[] parameters)
+    {
+        Dictionary<int, string> showTypeIds = _context.SL_CODE_VALUE.Where(m => m.CODE_TABLE_ID == (int)CodeTableIds.SHOW_TYPE_ID).ToDictionary(m => m.CODE_VALUE_ID, m => m.DECODE_TXT);
+
+        IEnumerable<YearStatDataModel> query = _context.SL_YEAR_STATS_DATA_VW.AsEnumerable()
+            .Where(m => parameters.Any(n => n.UserId == m.USER_ID && n.Year == m.YEAR))
+            .Select(m => new YearStatDataModel
+            {
+                UserId = m.USER_ID,
+                Year = m.YEAR,
+                ShowName = m.SHOW_NAME,
+                ShowTypeId = m.SHOW_TYPE_ID,
+                ShowTypeIdZ = showTypeIds[m.SHOW_TYPE_ID],
+                TotalRuntime = m.TOTAL_RUNTIME,
+                WatchCount = m.WATCH_COUNT,
+                InfoBackdropUrl = _apisConfig.GetImageUrl(m.API_TYPE, m.BACKDROP_URL),
+                InfoUrl = m.SHOW_TYPE_ID == (int)CodeValueIds.TV ? _apisConfig.GetTvInfoUrl(m.API_TYPE, m.API_ID) : _apisConfig.GetMovieInfoUrl(m.API_TYPE, m.API_ID),
+            }) ;
+
+        return query;
+    }
+
     public IEnumerable<BookYearStatModel> GetBookYearStats(int userId, Dictionary<int, string> users)
     {
         int[] friends = _context.SL_FRIEND.Where(m => m.USER_ID == userId).Select(m => m.FRIEND_USER_ID)

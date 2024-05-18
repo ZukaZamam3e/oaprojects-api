@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using OAProjects.Data.OAIdentity.Entities;
 using OAProjects.Data.ShowLogger.Entities;
+using OAProjects.Data.ShowLogger.Views;
 
 namespace OAProjects.Data.ShowLogger.Context;
 
@@ -24,6 +25,9 @@ public class ShowLoggerDbContext : DbContext
     public DbSet<SL_ID_XREF> SL_ID_XREF { get; set; }
     public DbSet<SL_BOOK> SL_BOOK { get; set; }
     public DbSet<SL_TV_EPISODE_ORDER> SL_TV_EPISODE_ORDER { get; set; }
+
+    public DbSet<SL_YEAR_STATS_DATA_VW> SL_YEAR_STATS_DATA_VW { get; set; }
+
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -226,7 +230,9 @@ public class ShowLoggerDbContext : DbContext
                 .IsRequired();
 
             entity.Property(e => e.COST_AMT)
-                .IsRequired();
+                .IsRequired()
+                .HasColumnType("decimal")
+                .HasPrecision(2);
 
             entity.Property(e => e.TRANSACTION_NOTES)
                 .HasMaxLength(250);
@@ -280,5 +286,9 @@ public class ShowLoggerDbContext : DbContext
             entity.Property(e => e.EPISODE_ORDER)
                 .IsRequired();
         });
+
+        modelBuilder.Entity<SL_YEAR_STATS_DATA_VW>()
+            .ToView(nameof(SL_YEAR_STATS_DATA_VW))
+            .HasKey(e => new { e.USER_ID, e.YEAR, e.SHOW_NAME });
     }
 }

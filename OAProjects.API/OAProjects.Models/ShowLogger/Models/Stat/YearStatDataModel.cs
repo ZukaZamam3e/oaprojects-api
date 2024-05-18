@@ -1,60 +1,35 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace OAProjects.Models.ShowLogger.Models.Stat;
-public class YearStatModel
+public class YearStatDataModel
 {
     public int UserId { get; set; }
 
-    public string Name { get; set; }
-
     public int Year { get; set; }
 
-    public int TvCnt { get; set; }
+    public int ShowTypeId { get; set; }
 
-    public int TvNotTrackedCnt { get; set; }
+    public string ShowTypeIdZ { get; set; }
 
-    public int? TvRuntime { get; set; }
+    public string ShowName { get; set; }
 
-    public string TvRuntimeZ => ConvertRuntime(TvRuntime);
+    public int WatchCount { get; set; }
 
-    public string TvStats => $"{TvCnt} ({TvNotTrackedCnt}){TvRuntimeZ}";
+    public int? TotalRuntime { get; set; }
 
-    public int MoviesCnt { get; set; }
+    public string TotalRuntimeZ => ConvertRuntime(TotalRuntime);
 
-    public int MoviesNotTrackedCnt { get; set; }
+    public string? InfoBackdropUrl { get; set; }
 
-    public int? MoviesRuntime { get; set; }
-
-    public string MoviesRuntimeZ => ConvertRuntime(MoviesRuntime);
-
-    public string MovieStats => $"{MoviesCnt} ({MoviesNotTrackedCnt}){MoviesRuntimeZ}";
-
-    public int AmcCnt { get; set; }
-
-    public int AmcNotTrackedCnt { get; set; }
-
-    public int? AmcRuntime { get; set; }
-
-    public string AmcRuntimeZ => ConvertRuntime(AmcRuntime);
-
-    public string AmcStats => $"{AmcCnt} ({AmcNotTrackedCnt}){AmcRuntimeZ}";
-
-    public decimal AListMembership { get; set; }
-
-    public decimal AListTickets { get; set; }
-
-    public decimal AmcPurchases { get; set; }
-
-    public IEnumerable<YearStatDataModel> Data { get; set; }
+    public string? InfoUrl { get; set; }
 
     private string ConvertRuntime(int? minutes)
     {
-        if (minutes == null)
+        if (minutes == null || minutes == 0)
             return "";
 
         TimeSpan timespan = TimeSpan.FromMinutes(minutes.Value);
