@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web.Resource;
-using OAProjects.API.Responses;
+using OAProjects.Models.Common.Responses;
 using OAProjects.Store.OAIdentity.Stores.Interfaces;
 
 namespace OAProjects.API.Controllers;

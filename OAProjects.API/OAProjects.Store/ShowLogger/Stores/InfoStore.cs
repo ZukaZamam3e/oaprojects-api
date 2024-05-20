@@ -493,15 +493,12 @@ public class InfoStore : IInfoStore
         {
             case INFO_TYPE.TV:
                 {
-                    TvEpisodeInfoModel episode = GetTvEpisodeInfos(m => m.TvEpisodeInfoId == infoId).First();
-                    TvInfoModel model = GetTvInfos(m => m.TvInfoId == episode.TvInfoId).First();
-
-                    UpdateTvInfo(model);
+                    TvInfoModel model = GetTvInfos(m => m.TvInfoId == infoId).First();
 
                     apiDownloadModel = new InfoApiDownloadModel
                     {
                         API = (INFO_API)model.ApiType,
-                        Type = INFO_TYPE.MOVIE,
+                        Type = INFO_TYPE.TV,
                         Id = model.ApiId
                     };
 
@@ -516,6 +513,21 @@ public class InfoStore : IInfoStore
                     {
                         API = (INFO_API)model.ApiType,
                         Type = INFO_TYPE.MOVIE,
+                        Id = model.ApiId
+                    };
+
+                    break;
+                }
+
+            case INFO_TYPE.EPISODE:
+                {
+                    TvEpisodeInfoModel episode = GetTvEpisodeInfos(m => m.TvEpisodeInfoId == infoId).First();
+                    TvInfoModel model = GetTvInfos(m => m.TvInfoId == episode.TvInfoId).First();
+
+                    apiDownloadModel = new InfoApiDownloadModel
+                    {
+                        API = (INFO_API)model.ApiType,
+                        Type = INFO_TYPE.TV,
                         Id = model.ApiId
                     };
 

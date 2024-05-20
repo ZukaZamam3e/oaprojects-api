@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using OAProjects.API.Requests.Friend;
+using OAProjects.Models.ShowLogger.Requests.Friend;
 
 namespace OAProjects.API.Validators.ShowLogger.Friend;
 

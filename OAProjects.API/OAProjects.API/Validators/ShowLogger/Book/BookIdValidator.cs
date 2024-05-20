@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using OAProjects.API.Requests.Book;
+using OAProjects.Models.ShowLogger.Requests.Book;
 
 namespace OAProjects.API.Validators.ShowLogger.Book;
 

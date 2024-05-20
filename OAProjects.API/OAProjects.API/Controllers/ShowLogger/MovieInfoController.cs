@@ -1,17 +1,14 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
-using OAProjects.API.Responses.ShowLogger.Info;
-using OAProjects.API.Responses;
+using OAProjects.Models.ShowLogger.Responses.Info;
 using OAProjects.Models.ShowLogger.Models.Info;
 using OAProjects.Store.OAIdentity.Stores.Interfaces;
 using OAProjects.Store.ShowLogger.Stores.Interfaces;
 using System.Linq.Expressions;
-using TMDbLib.Objects.Search;
 using FluentValidation;
-using OAProjects.API.Requests.WatchList;
-using OAProjects.Store.ShowLogger.Stores;
 using FluentValidation.Results;
+using OAProjects.Models.Common.Responses;
 
 namespace OAProjects.API.Controllers.ShowLogger;
 

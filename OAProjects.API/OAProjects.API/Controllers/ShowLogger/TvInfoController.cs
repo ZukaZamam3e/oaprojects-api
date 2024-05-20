@@ -1,14 +1,14 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
-using OAProjects.API.Responses;
 using OAProjects.Store.OAIdentity.Stores.Interfaces;
 using OAProjects.Store.ShowLogger.Stores.Interfaces;
 using OAProjects.Models.ShowLogger.Models.Info;
 using System.Linq.Expressions;
-using OAProjects.API.Responses.ShowLogger.Info;
+using OAProjects.Models.ShowLogger.Responses.Info;
 using FluentValidation;
 using FluentValidation.Results;
+using OAProjects.Models.Common.Responses;
 
 namespace OAProjects.API.Controllers.ShowLogger;
 

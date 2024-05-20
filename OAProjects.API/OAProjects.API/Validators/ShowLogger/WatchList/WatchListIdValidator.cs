@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
-using OAProjects.API.Requests.Friend;
-using OAProjects.API.Requests.WatchList;
+using OAProjects.Models.ShowLogger.Requests.Friend;
+using OAProjects.Models.ShowLogger.Requests.WatchList;
 
 namespace OAProjects.API.Validators.ShowLogger.WatchList;
 

@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "OAProjects.Batch": {
+      "commandName": "Project",
+      "commandLineArgs": "p1"
+    }
+  }
+}

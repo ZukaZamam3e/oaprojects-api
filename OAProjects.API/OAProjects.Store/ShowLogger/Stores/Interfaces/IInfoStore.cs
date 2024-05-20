@@ -1,4 +1,5 @@
-﻿using OAProjects.Models.ShowLogger.Models.Info;
+﻿using OAProjects.Models.ShowLogger.Models.Batch;
+using OAProjects.Models.ShowLogger.Models.Info;
 using OAProjects.Models.ShowLogger.Models.UnlinkedShow;
 using System;
 using System.Collections.Generic;
@@ -33,6 +34,4 @@ public interface IInfoStore
     long UpdateMovieInfo(MovieInfoModel model);
 
     bool DeleteMovieInfo(int userId, int tvInfoId);
-
-    Task<string[]> RefreshRecurringTvShows();
 }
