@@ -67,7 +67,7 @@ public class BatchController : BaseController
     [HttpPost("RefreshTvSeries")]
     public async Task<IActionResult> RefreshTvSeries(RefreshTvSeriesRequest request)
     {
-        PostResponse<bool> response = new PostResponse<bool>();
+        PostResponse<RefreshTvSeriesResponse> response = new PostResponse<RefreshTvSeriesResponse>();
 
         try
         {
@@ -79,7 +79,11 @@ public class BatchController : BaseController
             {
                 DownloadResultModel result = await _infoStore.RefreshInfo(userId, info.TvInfoId, INFO_TYPE.TV);
 
-                response.Model = true;
+                response.Model = new RefreshTvSeriesResponse
+                {
+                    Successful = true,
+                    UpdatedEpisodeCount = result.UpdatedEpisodeCount
+                };
             }
         }
         catch (Exception ex)

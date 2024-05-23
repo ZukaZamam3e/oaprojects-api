@@ -65,14 +65,12 @@ public class RefreshRecurringTvShowsProcess : IRefreshRecurringTvShowsProcess
             foreach(ReturningSeriesModel series in returningSeries)
             {
                 timer.Restart();
-                bool refreshSuccessful = await RefreshSeries(series, token);
+                RefreshTvSeriesResponse response = await RefreshSeries(series, token);
                 timer.Stop();
 
-
-                if (refreshSuccessful)
+                if (response.Successful)
                 {
-                    
-                    _logger.Information($"{$"{index++}/{total}",8}: {series.SeriesName} refreshed successfully after {timer.ElapsedMilliseconds} milliseconds.");
+                    _logger.Information($"{$"{index++}/{total}", 8}: {series.SeriesName} refreshed successfully after {timer.ElapsedMilliseconds} milliseconds. {response.UpdatedEpisodeCount} episodes updated");
                 }
                 else
                 {
@@ -104,9 +102,9 @@ public class RefreshRecurringTvShowsProcess : IRefreshRecurringTvShowsProcess
         return returningSeries;
     }
 
-    private async Task<bool> RefreshSeries(ReturningSeriesModel series, string token)
+    private async Task<RefreshTvSeriesResponse> RefreshSeries(ReturningSeriesModel series, string token)
     {
-        bool successful = false;
+        RefreshTvSeriesResponse resp = null;
 
         HttpClient httpClient = _httpClientFactory.CreateClient("OAProjectsAPI");
         httpClient.DefaultRequestHeaders.Add("Authorization", token);
@@ -123,13 +121,13 @@ public class RefreshRecurringTvShowsProcess : IRefreshRecurringTvShowsProcess
         response.EnsureSuccessStatusCode();
 
         string result = await response.Content.ReadAsStringAsync();
-        PostResponse<bool>? refreshTvSeriesResponse = JsonConvert.DeserializeObject<PostResponse<bool>>(result);
+        PostResponse<RefreshTvSeriesResponse>? refreshTvSeriesResponse = JsonConvert.DeserializeObject<PostResponse<RefreshTvSeriesResponse>>(result);
 
         if(refreshTvSeriesResponse != null )
         {
-            successful = refreshTvSeriesResponse.Model;
+            resp = refreshTvSeriesResponse.Model;
         }
 
-        return successful;
+        return resp;
     }
 }

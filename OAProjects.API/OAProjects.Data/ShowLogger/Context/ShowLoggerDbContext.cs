@@ -232,7 +232,7 @@ public class ShowLoggerDbContext : DbContext
             entity.Property(e => e.COST_AMT)
                 .IsRequired()
                 .HasColumnType("decimal")
-                .HasPrecision(2);
+                .HasPrecision(6, 2);
 
             entity.Property(e => e.TRANSACTION_NOTES)
                 .HasMaxLength(250);
