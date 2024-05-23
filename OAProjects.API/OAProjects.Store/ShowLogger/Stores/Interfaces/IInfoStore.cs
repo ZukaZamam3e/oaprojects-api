@@ -21,7 +21,7 @@ public interface IInfoStore
 
     IEnumerable<TvEpisodeInfoModel> GetTvEpisodeInfos(Expression<Func<TvEpisodeInfoModel, bool>>? predicate = null);
 
-    long UpdateTvInfo(TvInfoModel model);
+    UpdateTvInfoModel UpdateTvInfo(TvInfoModel model);
 
     long RefreshTvInfo(int infoId);
 
