@@ -7,6 +7,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Requests\**" />
+    <Compile Remove="Responses\**" />
+    <Content Remove="Requests\**" />
+    <Content Remove="Responses\**" />
+    <EmbeddedResource Remove="Requests\**" />
+    <EmbeddedResource Remove="Responses\**" />
+    <None Remove="Requests\**" />
+    <None Remove="Responses\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="FluentValidation" Version="11.7.1" />
     <PackageReference Include="Microsoft.AspNetCore.Authorization" Version="6.0.22" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.22" />
@@ -22,11 +33,6 @@
   <ItemGroup>
     <ProjectReference Include="..\OAProjects.Data\OAProjects.Data.csproj" />
     <ProjectReference Include="..\OAProjects.Store\OAProjects.Store.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Requests\" />
-    <Folder Include="Responses\ShowLogger\" />
   </ItemGroup>
 
 </Project>
