@@ -77,7 +77,7 @@ public class TransactionImport : ITransactionImport
                         TRANSACTION_TYPE_ID = (int)CodeValueIds.TAX,
                         SHOW_ID = showId,
                         ITEM = tax.ITEM,
-                        COST_AMT = tax.COST_AMT,
+                        COST_AMT = decimal.Round(tax.COST_AMT, 2),
                         QUANTITY = 1,
                         TRANSACTION_DATE = transactionDate,
                         TRANSACTION_NOTES = tax.TRANSACTION_NOTES,
@@ -96,7 +96,7 @@ public class TransactionImport : ITransactionImport
                         TRANSACTION_TYPE_ID = (int)CodeValueIds.BENEFITS,
                         SHOW_ID = showId,
                         ITEM = "Benefits",
-                        COST_AMT = benefits.Sum(m => m.BENEFIT_AMT).Value,
+                        COST_AMT = decimal.Round(benefits.Sum(m => m.BENEFIT_AMT).Value, 2),
                         QUANTITY = 1,
                         TRANSACTION_DATE = transactionDate
                     };
@@ -115,7 +115,7 @@ public class TransactionImport : ITransactionImport
                         TRANSACTION_TYPE_ID = (int)CodeValueIds.REWARDS,
                         SHOW_ID = showId,
                         ITEM = "Rewards",
-                        COST_AMT = discounts.Sum(m => m.DISCOUNT_AMT).Value,
+                        COST_AMT = decimal.Round(discounts.Sum(m => m.DISCOUNT_AMT).Value, 2),
                         QUANTITY = 1,
                         TRANSACTION_DATE = transactionDate
                     });
@@ -133,7 +133,7 @@ public class TransactionImport : ITransactionImport
                         TRANSACTION_TYPE_ID = (int)CodeValueIds.TICKET,
                         SHOW_ID = showId,
                         ITEM = "Ticket",
-                        COST_AMT = tickets.Sum(m => m.COST_AMT),
+                        COST_AMT = decimal.Round(tickets.Sum(m => m.COST_AMT), 2),
                         QUANTITY = tickets.Count(),
                         TRANSACTION_DATE = transactionDate
                     });
@@ -149,7 +149,7 @@ public class TransactionImport : ITransactionImport
                         TRANSACTION_TYPE_ID = (int)CodeValueIds.ALIST_TICKET,
                         SHOW_ID = showId,
                         ITEM = "A-list Ticket",
-                        COST_AMT = aListTickets.Sum(m => m.COST_AMT),
+                        COST_AMT = decimal.Round(aListTickets.Sum(m => m.COST_AMT), 2),
                         QUANTITY = aListTickets.Count(),
                         TRANSACTION_DATE = transactionDate
                     });
@@ -169,7 +169,7 @@ public class TransactionImport : ITransactionImport
                         TRANSACTION_TYPE_ID = (int)CodeValueIds.PURCHASE,
                         SHOW_ID = showId,
                         ITEM = m.Key,
-                        COST_AMT = m.Sum(n => n.COST_AMT),
+                        COST_AMT = decimal.Round(m.Sum(n => n.COST_AMT), 2),
                         QUANTITY = m.Count(),
                         TRANSACTION_DATE = transactionDate
                     });
@@ -187,7 +187,7 @@ public class TransactionImport : ITransactionImport
                     TRANSACTION_TYPE_ID = (int)CodeValueIds.ALIST,
                     SHOW_ID = null,
                     ITEM = transactions.First().ITEM,
-                    COST_AMT = transactions.First().COST_AMT,
+                    COST_AMT = decimal.Round(transactions.First().COST_AMT, 2),
                     QUANTITY = 1,
                     TRANSACTION_DATE = transactionDate,
                     TRANSACTION_NOTES = transactions.First().TRANSACTION_NOTES,

@@ -1,4 +1,6 @@
-﻿using OAProjects.Data.ShowLogger.Context;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using OAProjects.Data.ShowLogger.Context;
 using OAProjects.Data.ShowLogger.Entities;
 using OAProjects.Models.ShowLogger.Models.Config;
 using OAProjects.Models.ShowLogger.Models.Info;
@@ -15,6 +17,7 @@ using System.Threading.Tasks;
 using TMDbLib.Client;
 using TMDbLib.Objects.General;
 using TMDbLib.Objects.Movies;
+using TMDbLib.Objects.People;
 using TMDbLib.Objects.Search;
 using TMDbLib.Objects.TvShows;
 
@@ -159,10 +162,28 @@ public class InfoStore : IInfoStore
                         int requestCount = 1;
                         Stopwatch requestTimer = Stopwatch.StartNew();
 
-                        foreach (var season in show.Seasons)
+                        List<Task<TvSeason>> tasks = new List<Task<TvSeason>>();
+
+                        Dictionary<int, SearchTvSeason> dict = new Dictionary<int, SearchTvSeason>();
+
+                        for(int i = 0; i < show.Seasons.Count; ++i)
                         {
-                            requestCount++;
-                            TvSeason? seasonData = await client.GetTvSeasonAsync(show.Id, season.SeasonNumber);
+                            if((i+1) % 35 == 0)
+                            {
+                                Thread.Sleep(500);
+                            }
+
+                            dict.Add(show.Seasons[i].SeasonNumber, show.Seasons[i]);
+
+                            tasks.Add(client.GetTvSeasonAsync(show.Id, show.Seasons[i].SeasonNumber));
+                        }
+
+                        await Task.WhenAll(tasks);
+
+                        foreach (Task<TvSeason> task in tasks)
+                        {
+                            //requestCount++;
+                            TvSeason? seasonData = task.Result;
 
                             if (seasonData != null)
                             {
@@ -170,9 +191,9 @@ public class InfoStore : IInfoStore
                                 {
                                     ApiType = (int)INFO_API.TMDB_API,
                                     ApiId = m.Id.ToString(),
-                                    SeasonName = season.Name,
+                                    SeasonName = dict[m.SeasonNumber].Name,
                                     EpisodeName = m.Name,
-                                    SeasonNumber = season.SeasonNumber,
+                                    SeasonNumber = m.SeasonNumber,
                                     EpisodeNumber = m.EpisodeNumber,
                                     EpisodeOverview = m.Overview.Substring(0, m.Overview.Length > 4000 ? 4000 : m.Overview.Length),
                                     Runtime = m.Runtime,
@@ -181,21 +202,24 @@ public class InfoStore : IInfoStore
                                 }));
                             }
 
-                            if (requestCount >= 30)
-                            {
-                                if (requestTimer.Elapsed.Seconds < 1)
-                                {
-                                    Thread.Sleep(1000);
-                                }
+                            //if (requestCount >= 30)
+                            //{
+                            //    if (requestTimer.Elapsed.Seconds < 1)
+                            //    {
+                            //        Thread.Sleep(1000);
+                            //    }
 
-                                requestCount = 0;
-                                requestTimer.Restart();
-                            }
+                            //    requestCount = 0;
+                            //    requestTimer.Restart();
+                            //}
                         }
 
                         info.Episodes = episodes;
 
-                        downloadResult.Id = UpdateTvInfo(info);
+                        UpdateTvInfoModel result = UpdateTvInfo(info);
+
+                        downloadResult.Id = result.TvInfoId;
+                        downloadResult.UpdatedEpisodeCount = result.UpdatedEpisodeCount;
                         break;
 
                     }
@@ -295,7 +319,7 @@ public class InfoStore : IInfoStore
         return query;
     }
 
-    public long UpdateTvInfo(TvInfoModel model)
+    public UpdateTvInfoModel UpdateTvInfo(TvInfoModel model)
     {
         SL_TV_INFO? entity = _context.SL_TV_INFO.FirstOrDefault(m => m.API_TYPE == model.ApiType && m.API_ID == model.ApiId);
 
@@ -320,11 +344,44 @@ public class InfoStore : IInfoStore
         entity.LAST_UPDATED = DateTime.Now;
 
         _context.SaveChanges();
-        long id = entity.TV_INFO_ID;
+        int id = entity.TV_INFO_ID;
 
-        foreach (TvEpisodeInfoModel episode in model.Episodes)
+        List<SL_TV_EPISODE_INFO> episodes = _context.SL_TV_EPISODE_INFO.Where(m => m.TV_INFO_ID == id).ToList();
+
+        IEnumerable<TvEpisodeInfoModel> newEpisodes = model.Episodes.Where(m => !episodes.Any(n => n.API_ID == m.ApiId && n.API_TYPE == m.ApiType));
+
+        if (newEpisodes.Any())
         {
-            SL_TV_EPISODE_INFO? episodeEntity = _context.SL_TV_EPISODE_INFO.FirstOrDefault(m => m.API_TYPE == model.ApiType && m.API_ID == episode.ApiId);
+            _context.SL_TV_EPISODE_INFO.AddRange(newEpisodes.Select(m => new SL_TV_EPISODE_INFO
+            {
+                TV_INFO_ID = entity.TV_INFO_ID,
+                API_TYPE = model.ApiType,
+                API_ID = m.ApiId,
+                SEASON_NUMBER = m.SeasonNumber,
+                EPISODE_NUMBER = m.EpisodeNumber,
+                EPISODE_OVERVIEW = m.EpisodeOverview,
+                SEASON_NAME = m.SeasonName,
+                EPISODE_NAME = m.EpisodeName,
+                RUNTIME = m.Runtime,
+                AIR_DATE = m.AirDate,
+                IMAGE_URL = m.ImageUrl,
+            }));
+        }
+
+        List<Tuple<SL_TV_EPISODE_INFO, TvEpisodeInfoModel>> updatedEpisodes = (from m in model.Episodes
+                                                                               join e in episodes on new { m.ApiId, m.ApiType } equals new { ApiId = e.API_ID, ApiType = e.API_TYPE }
+                                                                               where m.EpisodeName != e.EPISODE_NAME
+                                                                                || m.EpisodeOverview != e.EPISODE_OVERVIEW
+                                                                                || m.SeasonName != e.SEASON_NAME
+                                                                                || m.Runtime != e.RUNTIME
+                                                                                || m.AirDate != e.AIR_DATE
+                                                                                || m.ImageUrl != e.IMAGE_URL
+                                                                               select new Tuple<SL_TV_EPISODE_INFO, TvEpisodeInfoModel>(e, m)).ToList();
+
+        foreach (Tuple<SL_TV_EPISODE_INFO, TvEpisodeInfoModel> episodeTuple in updatedEpisodes)
+        {
+            SL_TV_EPISODE_INFO episodeEntity = episodeTuple.Item1;
+            TvEpisodeInfoModel episode = episodeTuple.Item2;
 
             if (episodeEntity == null)
             {
@@ -345,7 +402,6 @@ public class InfoStore : IInfoStore
             episodeEntity.EPISODE_OVERVIEW = episode.EpisodeOverview;
 
             episodeEntity.SEASON_NAME = episode.SeasonName;
-            episodeEntity.EPISODE_NAME = episode.EpisodeName;
 
             episodeEntity.RUNTIME = episode.Runtime;
             episodeEntity.AIR_DATE = episode.AirDate;
@@ -356,7 +412,11 @@ public class InfoStore : IInfoStore
         entity.LAST_UPDATED = DateTime.Now;
         _context.SaveChanges();
 
-        return id;
+        return new UpdateTvInfoModel
+        {
+            TvInfoId = id,
+            UpdatedEpisodeCount = newEpisodes.Count() + updatedEpisodes.Count
+        };
     }
 
     public long RefreshTvInfo(int infoId)
@@ -493,15 +553,12 @@ public class InfoStore : IInfoStore
         {
             case INFO_TYPE.TV:
                 {
-                    TvEpisodeInfoModel episode = GetTvEpisodeInfos(m => m.TvEpisodeInfoId == infoId).First();
-                    TvInfoModel model = GetTvInfos(m => m.TvInfoId == episode.TvInfoId).First();
-
-                    UpdateTvInfo(model);
+                    TvInfoModel model = GetTvInfos(m => m.TvInfoId == infoId).First();
 
                     apiDownloadModel = new InfoApiDownloadModel
                     {
                         API = (INFO_API)model.ApiType,
-                        Type = INFO_TYPE.MOVIE,
+                        Type = INFO_TYPE.TV,
                         Id = model.ApiId
                     };
 
@@ -516,6 +573,21 @@ public class InfoStore : IInfoStore
                     {
                         API = (INFO_API)model.ApiType,
                         Type = INFO_TYPE.MOVIE,
+                        Id = model.ApiId
+                    };
+
+                    break;
+                }
+
+            case INFO_TYPE.EPISODE:
+                {
+                    TvEpisodeInfoModel episode = GetTvEpisodeInfos(m => m.TvEpisodeInfoId == infoId).First();
+                    TvInfoModel model = GetTvInfos(m => m.TvInfoId == episode.TvInfoId).First();
+
+                    apiDownloadModel = new InfoApiDownloadModel
+                    {
+                        API = (INFO_API)model.ApiType,
+                        Type = INFO_TYPE.TV,
                         Id = model.ApiId
                     };
 

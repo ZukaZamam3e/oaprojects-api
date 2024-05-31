@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using OAProjects.API.Requests.Transaction;
+using OAProjects.Models.ShowLogger.Requests.Transaction;
 
 namespace OAProjects.API.Validators.ShowLogger.Transaction;
 

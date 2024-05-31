@@ -1,23 +1,19 @@
-﻿using Azure.Core;
-using FluentValidation;
+﻿using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using OAProjects.API.Requests.Show;
-using OAProjects.API.Responses;
-using OAProjects.API.Responses.ShowLogger.Show;
+using OAProjects.Models.ShowLogger.Requests.Show;
+using OAProjects.Models.ShowLogger.Responses.Show;
 using OAProjects.Data.ShowLogger.Entities;
+using OAProjects.Models.Common.Responses;
 using OAProjects.Models.ShowLogger.Models.CodeValue;
 using OAProjects.Models.ShowLogger.Models.Info;
 using OAProjects.Models.ShowLogger.Models.Show;
 using OAProjects.Store.OAIdentity.Stores.Interfaces;
-using OAProjects.Store.ShowLogger.Stores;
 using OAProjects.Store.ShowLogger.Stores.Interfaces;
-using System.Linq;
 using System.Linq.Expressions;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace OAProjects.API.Controllers.ShowLogger;
 

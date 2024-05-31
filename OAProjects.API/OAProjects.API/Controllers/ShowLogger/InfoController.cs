@@ -2,17 +2,13 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
-using OAProjects.API.Responses.ShowLogger.Info;
-using OAProjects.API.Responses;
+using OAProjects.Models.ShowLogger.Responses.Info;
 using OAProjects.Models.ShowLogger.Models.Info;
-using OAProjects.Models.ShowLogger.Models.Show;
 using OAProjects.Store.OAIdentity.Stores.Interfaces;
 using OAProjects.Store.ShowLogger.Stores.Interfaces;
-using OAProjects.API.Responses.ShowLogger.WatchList;
 using OAProjects.Models.ShowLogger.Models.CodeValue;
-using OAProjects.Store.ShowLogger.Stores;
-using Azure.Core;
 using FluentValidation.Results;
+using OAProjects.Models.Common.Responses;
 
 namespace OAProjects.API.Controllers.ShowLogger;
 
@@ -137,27 +133,6 @@ public class InfoController : BaseController
                 };
             }
 
-        }
-        catch (Exception ex)
-        {
-            response.Errors = new List<string>() { ex.Message };
-        }
-
-        return Ok(response);
-    }
-
-    [HttpPost("RefreshRecurringTvShows")]
-    public async Task<IActionResult> RefreshRecurringTvShows()
-    {
-        PostResponse<RefreshRecurringTvShowsResponse> response = new PostResponse<RefreshRecurringTvShowsResponse>();
-
-        try
-        {
-            int userId = await GetUserId();
-
-            response.Model = new RefreshRecurringTvShowsResponse();
-
-            response.Model.UpdatedShows = await _infoStore.RefreshRecurringTvShows();
         }
         catch (Exception ex)
         {

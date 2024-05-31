@@ -16,4 +16,6 @@ public class DownloadResultModel
     public INFO_TYPE Type { get; set; }
 
     public long Id { get; set; }
+
+    public int UpdatedEpisodeCount { get; set; }
 }

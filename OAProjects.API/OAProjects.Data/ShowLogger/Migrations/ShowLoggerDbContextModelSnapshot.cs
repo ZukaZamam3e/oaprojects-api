@@ -309,8 +309,8 @@ namespace OAProjects.Data.ShowLogger.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TRANSACTION_ID"), 1L, 1);
 
                     b.Property<decimal>("COST_AMT")
-                        .HasPrecision(2)
-                        .HasColumnType("decimal(2)");
+                        .HasPrecision(6, 2)
+                        .HasColumnType("decimal(6,2)");
 
                     b.Property<string>("ITEM")
                         .IsRequired()
@@ -520,6 +520,40 @@ namespace OAProjects.Data.ShowLogger.Migrations
                     b.HasKey("WATCHLIST_ID");
 
                     b.ToTable("SL_WATCHLIST");
+                });
+
+            modelBuilder.Entity("OAProjects.Data.ShowLogger.Views.SL_YEAR_STATS_DATA_VW", b =>
+                {
+                    b.Property<int>("USER_ID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("YEAR")
+                        .HasColumnType("int");
+
+                    b.Property<string>("SHOW_NAME")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("API_ID")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("API_TYPE")
+                        .HasColumnType("int");
+
+                    b.Property<string>("BACKDROP_URL")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("SHOW_TYPE_ID")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("TOTAL_RUNTIME")
+                        .HasColumnType("int");
+
+                    b.Property<int>("WATCH_COUNT")
+                        .HasColumnType("int");
+
+                    b.HasKey("USER_ID", "YEAR", "SHOW_NAME");
+
+                    b.ToView("SL_YEAR_STATS_DATA_VW");
                 });
 
             modelBuilder.Entity("OAProjects.Data.ShowLogger.Entities.SL_TV_EPISODE_INFO", b =>

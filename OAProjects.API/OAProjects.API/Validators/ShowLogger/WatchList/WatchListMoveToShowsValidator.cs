@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using OAProjects.API.Requests.WatchList;
+using OAProjects.Models.ShowLogger.Requests.WatchList;
 
 namespace OAProjects.API.Validators.ShowLogger.WatchList;
 

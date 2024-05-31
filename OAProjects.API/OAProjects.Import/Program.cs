@@ -19,8 +19,8 @@ var configBuilder = new ConfigurationBuilder()
 
 if (Debugger.IsAttached)
 {
-    //configBuilder.AddJsonFile("appsettings.local.json");
-    configBuilder.AddJsonFile("appsettings.development.json");
+    configBuilder.AddJsonFile("appsettings.local.json");
+    //configBuilder.AddJsonFile("appsettings.development.json");
 }
 
 IConfiguration config = configBuilder.Build();

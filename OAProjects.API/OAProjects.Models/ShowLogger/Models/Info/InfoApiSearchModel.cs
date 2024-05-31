@@ -15,7 +15,8 @@ public enum INFO_API
 public enum INFO_TYPE
 {
     TV = 0,
-    MOVIE = 1
+    MOVIE = 1,
+    EPISODE = 2
 }
 
 public static class ApiResults
