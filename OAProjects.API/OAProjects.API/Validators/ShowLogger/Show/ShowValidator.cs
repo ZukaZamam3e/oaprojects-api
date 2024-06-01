@@ -12,7 +12,7 @@ public class ShowValidator : AbstractValidator<ShowModel>
         RuleFor(x => x.DateWatched).GreaterThan(DateTime.MinValue);
 
         // TV Show
-        RuleFor(x => x.SeasonNumber).NotNull().When(m => m.ShowTypeId == (int)CodeValueIds.TV);
+        RuleFor(x => x.SeasonNumber).NotNull().When(m => m.ShowTypeId == (int)CodeValueIds.TV).GreaterThan(0);
         RuleFor(x => x.EpisodeNumber).NotNull().When(m => m.ShowTypeId == (int)CodeValueIds.TV);
 
         // Movies or AMC

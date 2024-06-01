@@ -193,7 +193,7 @@ public class StatStore : IStatStore
                 else
                 {
                     int index = episodes.FindIndex(m => m.TV_EPISODE_INFO_ID == episodeInfoId);
-                    if (index != -1 && index + 1 < episodes.Count - 1)
+                    if (index != -1 && index + 1 < episodes.Count)
                     {
                         nextEpisodeInfo = episodes[index + 1];
                         episodesLeft = episodes.Count - (index + 1);
