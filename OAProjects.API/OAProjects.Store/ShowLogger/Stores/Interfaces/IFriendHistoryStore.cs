@@ -4,5 +4,8 @@ using OAProjects.Store.Stores.Interfaces;
 namespace OAProjects.Store.ShowLogger.Stores.Interfaces;
 public interface IFriendHistoryStore : IStore
 {
-    IEnumerable<FriendHistoryModel> GetFriendHistory(int userId, Dictionary<int, string> users);
+    IEnumerable<ShowFriendHistoryModel> GetShowFriendHistory(int userId, Dictionary<int, string> users);
+
+    IEnumerable<BookFriendHistoryModel> GetBookFriendHistory(int userId, Dictionary<int, string> users);
+
 }

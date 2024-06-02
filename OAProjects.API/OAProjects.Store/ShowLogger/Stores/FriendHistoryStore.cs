@@ -1,5 +1,6 @@
 ﻿using OAProjects.Data.ShowLogger.Context;
 using OAProjects.Data.ShowLogger.Entities;
+using OAProjects.Models.ShowLogger.Models.Book;
 using OAProjects.Models.ShowLogger.Models.Config;
 using OAProjects.Models.ShowLogger.Models.FriendHistory;
 using OAProjects.Models.ShowLogger.Models.Info;
@@ -24,7 +25,7 @@ public class FriendHistoryStore : IFriendHistoryStore
         _apisConfig = apisConfig;
     }
 
-    public IEnumerable<FriendHistoryModel> GetFriendHistory(int userId, Dictionary<int, string> users)
+    public IEnumerable<ShowFriendHistoryModel> GetShowFriendHistory(int userId, Dictionary<int, string> users)
     {
         int[] friends = _context.SL_FRIEND.Where(m => m.USER_ID == userId).Select(m => m.FRIEND_USER_ID)
             .Union(_context.SL_FRIEND.Where(m => m.FRIEND_USER_ID == userId).Select(m => m.USER_ID)).ToArray();
@@ -69,7 +70,7 @@ public class FriendHistoryStore : IFriendHistoryStore
             return m;
         });
 
-        List<FriendHistoryModel> friendQuery = showQuery.ToList().Select(m => new FriendHistoryModel
+        List<ShowFriendHistoryModel> friendQuery = showQuery.ToList().Select(m => new ShowFriendHistoryModel
         {
             Show = m,
             Name = users[m.UserId]
@@ -77,4 +78,30 @@ public class FriendHistoryStore : IFriendHistoryStore
 
         return friendQuery;
     }
+
+    public IEnumerable<BookFriendHistoryModel> GetBookFriendHistory(int userId, Dictionary<int, string> users)
+    {
+        int[] friends = _context.SL_FRIEND.Where(m => m.USER_ID == userId).Select(m => m.FRIEND_USER_ID)
+            .Union(_context.SL_FRIEND.Where(m => m.FRIEND_USER_ID == userId).Select(m => m.USER_ID)).ToArray();
+
+        IEnumerable<BookFriendHistoryModel> query = _context.SL_BOOK.Where(m => friends.Contains(m.USER_ID)).ToList()
+            .Select(m => new BookFriendHistoryModel
+            {
+                Book = new BookModel
+                {
+                    BookId = m.BOOK_ID,
+                    UserId = m.USER_ID,
+                    BookName = m.BOOK_NAME,
+                    StartDate = m.START_DATE,
+                    EndDate = m.END_DATE,
+                    Chapters = m.CHAPTERS,
+                    Pages = m.PAGES,
+                    BookNotes = m.BOOK_NOTES,
+                },
+                Name = users[m.USER_ID]
+            });
+
+        return query;
+    }
+
 }

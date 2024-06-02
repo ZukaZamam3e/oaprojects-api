@@ -3,9 +3,9 @@ using OAProjects.Models.ShowLogger.Models.Stat;
 
 namespace OAProjects.Models.ShowLogger.Responses.FriendHistory;
 
-public class FriendHistoryGetResponse
+public class ShowFriendHistoryGetResponse
 {
-    public IEnumerable<FriendHistoryModel> FriendHistory { get; set; }
+    public IEnumerable<ShowFriendHistoryModel> ShowFriendHistory { get; set; }
 
     public int Count { get; set; }
 }

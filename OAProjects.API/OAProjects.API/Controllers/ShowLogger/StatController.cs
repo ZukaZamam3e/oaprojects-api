@@ -187,7 +187,7 @@ public class StatController : BaseController
 
             response.Model.BookYearStats = GetBookYearStatsData(userId, search);
             response.Model.Count = response.Model.BookYearStats.Count();
-            response.Model.BookYearStats = response.Model.BookYearStats.OrderByDescending(m => m.Year).ThenByDescending(m => m.Name).Skip(offset).Take(take).ToArray();
+            response.Model.BookYearStats = response.Model.BookYearStats.OrderByDescending(m => m.Year).ThenBy(m => m.Name).Skip(offset).Take(take).ToArray();
         }
         catch (Exception ex)
         {
