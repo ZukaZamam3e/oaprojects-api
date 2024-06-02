@@ -154,7 +154,7 @@ public class StatController : BaseController
 
     private IEnumerable<YearStatModel> GetYearStatsData(int userId, string? search = null)
     {
-        Dictionary<int, string> userLookUps = _userStore.GetUserLookUps();
+        Dictionary<int, string> userLookUps = _userStore.GetUserNameLookUps();
         IEnumerable<YearStatModel> query = _statStore.GetYearStats(userId, userLookUps);
 
         Expression<Func<YearStatModel, bool>>? predicate = null;
@@ -199,7 +199,7 @@ public class StatController : BaseController
 
     private IEnumerable<BookYearStatModel> GetBookYearStatsData(int userId, string? search = null)
     {
-        Dictionary<int, string> userLookUps = _userStore.GetUserLookUps();
+        Dictionary<int, string> userLookUps = _userStore.GetUserNameLookUps();
         IEnumerable<BookYearStatModel> query = _statStore.GetBookYearStats(userId, userLookUps);
 
         Expression<Func<BookYearStatModel, bool>>? predicate = null;
@@ -214,7 +214,6 @@ public class StatController : BaseController
         {
             query = query.AsQueryable().Where(predicate).AsEnumerable();
         }
-
 
         return query;
     }

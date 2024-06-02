@@ -57,7 +57,7 @@ public class FriendHistoryController : BaseController
 
     private IEnumerable<ShowFriendHistoryModel> GetShowData(int userId, string? search = null)
     {
-        Dictionary<int, string> userLookUps = _userStore.GetUserLookUps();
+        Dictionary<int, string> userLookUps = _userStore.GetUserNameLookUps();
         IEnumerable<ShowFriendHistoryModel> query = _friendHistoryStore.GetShowFriendHistory(userId, userLookUps);
 
         Expression<Func<ShowFriendHistoryModel, bool>>? predicate = null;
@@ -118,7 +118,7 @@ public class FriendHistoryController : BaseController
 
     private IEnumerable<BookFriendHistoryModel> GetBookData(int userId, string? search = null)
     {
-        Dictionary<int, string> userLookUps = _userStore.GetUserLookUps();
+        Dictionary<int, string> userLookUps = _userStore.GetUserNameLookUps();
         IEnumerable<BookFriendHistoryModel> query = _friendHistoryStore.GetBookFriendHistory(userId, userLookUps);
 
         Expression<Func<BookFriendHistoryModel, bool>>? predicate = null;

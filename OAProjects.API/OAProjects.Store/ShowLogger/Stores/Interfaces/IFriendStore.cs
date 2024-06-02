@@ -1,10 +1,11 @@
-﻿using OAProjects.Models.ShowLogger.Models.Friend;
+﻿using OAProjects.Models.OAIdentity;
+using OAProjects.Models.ShowLogger.Models.Friend;
 using OAProjects.Store.Stores.Interfaces;
 
 namespace OAProjects.Store.ShowLogger.Stores.Interfaces;
 public interface IFriendStore : IStore
 {
-    IEnumerable<FriendModel> GetFriends(int userId);
+    IEnumerable<FriendModel> GetFriends(int userId, Dictionary<int, UserModel> users);
 
     bool SendFriendRequest(int userId, int friendId);
 

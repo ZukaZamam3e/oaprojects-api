@@ -3,6 +3,7 @@ using OAProjects.Data.ShowLogger.Entities;
 using OAProjects.Models.ShowLogger.Models.Friend;
 using OAProjects.Models;
 using OAProjects.Store.ShowLogger.Stores.Interfaces;
+using OAProjects.Models.OAIdentity;
 
 namespace OAProjects.Store.ShowLogger.Stores;
 public class FriendStore : IFriendStore
@@ -14,7 +15,7 @@ public class FriendStore : IFriendStore
         _context = context;
     }
 
-    public IEnumerable<FriendModel> GetFriends(int userId)
+    public IEnumerable<FriendModel> GetFriends(int userId, Dictionary<int, UserModel> users)
     {
         List<FriendModel> query = _context.SL_FRIEND.Where(m => m.USER_ID == userId || m.FRIEND_USER_ID == userId)
             .Select(m => new FriendModel
@@ -22,6 +23,8 @@ public class FriendStore : IFriendStore
                 Id = m.FRIEND_ID,
                 FriendUserId = userId != m.FRIEND_USER_ID ? m.FRIEND_USER_ID : m.USER_ID,
                 CreatedDate = m.CREATED_DATE,
+                FriendName = $"{users[userId != m.FRIEND_USER_ID ? m.FRIEND_USER_ID : m.USER_ID].LastName}, {users[userId != m.FRIEND_USER_ID ? m.FRIEND_USER_ID : m.USER_ID].FirstName}",
+                FriendEmail = users[userId != m.FRIEND_USER_ID ? m.FRIEND_USER_ID : m.USER_ID].Email,
                 IsPending = false
             }).ToList();
 
@@ -31,6 +34,8 @@ public class FriendStore : IFriendStore
                 Id = m.FRIEND_REQUEST_ID,
                 FriendUserId = userId != m.RECEIVED_USER_ID ? m.RECEIVED_USER_ID : m.SENT_USER_ID,
                 CreatedDate = m.DATE_SENT,
+                FriendName = $"{users[userId != m.RECEIVED_USER_ID ? m.RECEIVED_USER_ID : m.SENT_USER_ID].LastName}, {users[userId != m.RECEIVED_USER_ID ? m.RECEIVED_USER_ID : m.SENT_USER_ID].FirstName}",
+                FriendEmail = users[userId != m.RECEIVED_USER_ID ? m.RECEIVED_USER_ID : m.SENT_USER_ID].Email,
                 IsPending = true
             }).ToList();
 

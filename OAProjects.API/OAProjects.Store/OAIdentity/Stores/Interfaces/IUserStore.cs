@@ -13,5 +13,8 @@ public interface IUserStore
 
     UserModel? GetUserByEmail(string email);
 
-    Dictionary<int, string> GetUserLookUps();
+    Dictionary<int, string> GetUserNameLookUps();
+
+    Dictionary<int, UserModel> GetUserLookUps();
+
 }

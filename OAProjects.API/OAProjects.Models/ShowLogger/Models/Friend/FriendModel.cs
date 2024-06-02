@@ -7,6 +7,8 @@ public class FriendModel
 
     public string FriendEmail { get; set; }
 
+    public string FriendName { get; set; }
+
     public DateTime CreatedDate { get; set; }
 
     public bool IsPending { get; set; }

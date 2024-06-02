@@ -90,10 +90,26 @@ public class UserStore : IUserStore
         return model;
     }
 
-    public Dictionary<int, string> GetUserLookUps()
+    public Dictionary<int, string> GetUserNameLookUps()
     {
         Dictionary<int, string> userLookUp = _context.OA_USER.ToDictionary(m => m.USER_ID, m => $"{m.LAST_NAME}, {m.FIRST_NAME}");
 
         return userLookUp;
     }
+
+    public Dictionary<int, UserModel> GetUserLookUps()
+    {
+        Dictionary<int, UserModel> userLookUp = _context.OA_USER.ToDictionary(m => m.USER_ID, m => new UserModel
+        {
+            FirstName = m.FIRST_NAME,
+            LastName = m.LAST_NAME,
+            UserId = m.USER_ID,
+            Email = m.EMAIL,
+            DateAdded = m.DATE_ADDED,
+            UserName = m.USER_NAME,
+        });
+
+        return userLookUp;
+    }
+
 }
