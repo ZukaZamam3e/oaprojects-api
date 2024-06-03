@@ -48,7 +48,7 @@ public class FriendController : BaseController
 
             response.Model.Friends = GetData(userId);
             response.Model.Count = response.Model.Friends.Count();
-            response.Model.Friends = response.Model.Friends.OrderBy(m => m.FriendEmail).Take(take);
+            response.Model.Friends = response.Model.Friends.OrderByDescending(m => m.IsPending).ThenBy(m => m.FriendEmail).Take(take);
         }
         catch (Exception ex)
         {
@@ -69,7 +69,7 @@ public class FriendController : BaseController
 
             response.Model = new FriendGetResponse();
 
-            response.Model.Friends = GetData(userId);
+            response.Model.Friends = GetData(userId, search);
             response.Model.Count = response.Model.Friends.Count();
             response.Model.Friends = response.Model.Friends.OrderByDescending(m => m.IsPending).ThenBy(m => m.FriendName).Skip(offset).Take(take);
         }

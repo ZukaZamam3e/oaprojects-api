@@ -265,6 +265,8 @@ public class InfoStore : IInfoStore
             LastDataRefresh = m.LAST_DATA_REFRESH,
             LastUpdated = m.LAST_UPDATED,
             PosterUrl = !string.IsNullOrEmpty(m.POSTER_URL) ? $"{_apisConfig.TMDbURL}{TMDBApiPaths.Image}{m.POSTER_URL}" : "",
+            BackdropUrl = !string.IsNullOrEmpty(m.BACKDROP_URL) ? $"{_apisConfig.TMDbURL}{TMDBApiPaths.Image}{m.BACKDROP_URL}" : "",
+            InfoUrl = _apisConfig.GetTvInfoUrl(m.API_TYPE, m.API_ID),
             Status = m.STATUS
         });
 

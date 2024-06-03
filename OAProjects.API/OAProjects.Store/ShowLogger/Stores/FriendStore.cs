@@ -31,7 +31,7 @@ public class FriendStore : IFriendStore
         List<FriendModel> friendRequests = _context.SL_FRIEND_REQUEST.Where(m => m.RECEIVED_USER_ID == userId)
             .Select(m => new FriendModel
             {
-                Id = m.FRIEND_REQUEST_ID,
+                Id = m.FRIEND_REQUEST_ID * -1,
                 FriendUserId = userId != m.RECEIVED_USER_ID ? m.RECEIVED_USER_ID : m.SENT_USER_ID,
                 CreatedDate = m.DATE_SENT,
                 FriendName = $"{users[userId != m.RECEIVED_USER_ID ? m.RECEIVED_USER_ID : m.SENT_USER_ID].LastName}, {users[userId != m.RECEIVED_USER_ID ? m.RECEIVED_USER_ID : m.SENT_USER_ID].FirstName}",
