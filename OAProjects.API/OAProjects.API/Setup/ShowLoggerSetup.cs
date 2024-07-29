@@ -34,8 +34,8 @@ public static class ShowLoggerSetup
     public static IServiceCollection AddShowLoggerDb(this IServiceCollection services, ConfigurationManager configuration)
     {
         string? showLoggerConnectionString = configuration.GetConnectionString("ShowLoggerConnection");
-        services.AddDbContext<ShowLoggerDbContext>(m => m.UseSqlServer(showLoggerConnectionString, m => m.MigrationsHistoryTable("__SL_EFMigrationsHistory")), ServiceLifetime.Transient);
-
+        services.AddDbContext<ShowLoggerDbContext>(m => m.UseMySql(showLoggerConnectionString, ServerVersion.AutoDetect(showLoggerConnectionString), m => m.MigrationsHistoryTable("__SL_EFMigrationsHistory")), ServiceLifetime.Transient);
+        
         services.AddTransient<IShowStore, ShowStore>();
         services.AddTransient<IFriendStore, FriendStore>();
         services.AddTransient<IWatchListStore, WatchListStore>();

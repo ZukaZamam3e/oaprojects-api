@@ -2,7 +2,6 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using OAProjects.Data.OAIdentity.Context;
 
@@ -17,18 +16,14 @@ namespace OAProjects.Data.OAIdentity.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.22")
-                .HasAnnotation("Relational:MaxIdentifierLength", 128);
-
-            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
+                .HasAnnotation("ProductVersion", "6.0.28")
+                .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
             modelBuilder.Entity("OAProjects.Data.OAIdentity.Entities.OA_ID_XREF", b =>
                 {
                     b.Property<int>("ID_XREF_ID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID_XREF_ID"), 1L, 1);
 
                     b.Property<int>("NEW_ID")
                         .HasColumnType("int");
@@ -50,26 +45,24 @@ namespace OAProjects.Data.OAIdentity.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("USER_ID"), 1L, 1);
-
                     b.Property<DateTime>("DATE_ADDED")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetime(6)");
 
                     b.Property<string>("EMAIL")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("longtext");
 
                     b.Property<string>("FIRST_NAME")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("longtext");
 
                     b.Property<string>("LAST_NAME")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("longtext");
 
                     b.Property<string>("USER_NAME")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("longtext");
 
                     b.HasKey("USER_ID");
 
@@ -82,10 +75,8 @@ namespace OAProjects.Data.OAIdentity.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("USER_TOKEN_ID"), 1L, 1);
-
                     b.Property<DateTime>("EXPIRY_DATE_UTC")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetime(6)");
 
                     b.Property<int>("EXPIRY_TIME")
                         .HasColumnType("int");
@@ -94,11 +85,11 @@ namespace OAProjects.Data.OAIdentity.Migrations
                         .HasColumnType("int");
 
                     b.Property<DateTime>("ISSUED_AT_DATE_UTC")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetime(6)");
 
                     b.Property<string>("TOKEN")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("longtext");
 
                     b.Property<int>("USER_ID")
                         .HasColumnType("int");

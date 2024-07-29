@@ -2,7 +2,6 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using OAProjects.Data.ShowLogger.Context;
 
@@ -17,10 +16,8 @@ namespace OAProjects.Data.ShowLogger.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.22")
-                .HasAnnotation("Relational:MaxIdentifierLength", 128);
-
-            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
+                .HasAnnotation("ProductVersion", "6.0.28")
+                .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
             modelBuilder.Entity("OAProjects.Data.ShowLogger.Entities.SL_BOOK", b =>
                 {
@@ -28,28 +25,26 @@ namespace OAProjects.Data.ShowLogger.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("BOOK_ID"), 1L, 1);
-
                     b.Property<string>("BOOK_NAME")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("varchar(100)");
 
                     b.Property<string>("BOOK_NOTES")
                         .HasMaxLength(250)
-                        .HasColumnType("nvarchar(250)");
+                        .HasColumnType("varchar(250)");
 
                     b.Property<int?>("CHAPTERS")
                         .HasColumnType("int");
 
                     b.Property<DateTime?>("END_DATE")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetime(6)");
 
                     b.Property<int?>("PAGES")
                         .HasColumnType("int");
 
                     b.Property<DateTime?>("START_DATE")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetime(6)");
 
                     b.Property<int>("USER_ID")
                         .HasColumnType("int");
@@ -70,11 +65,11 @@ namespace OAProjects.Data.ShowLogger.Migrations
                     b.Property<string>("DECODE_TXT")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("varchar(100)");
 
                     b.Property<string>("EXTRA_INFO")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("varchar(100)");
 
                     b.HasKey("CODE_VALUE_ID");
 
@@ -149,10 +144,8 @@ namespace OAProjects.Data.ShowLogger.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("FRIEND_ID"), 1L, 1);
-
                     b.Property<DateTime>("CREATED_DATE")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetime(6)");
 
                     b.Property<int>("FRIEND_USER_ID")
                         .HasColumnType("int");
@@ -171,10 +164,8 @@ namespace OAProjects.Data.ShowLogger.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("FRIEND_REQUEST_ID"), 1L, 1);
-
                     b.Property<DateTime>("DATE_SENT")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetime(6)");
 
                     b.Property<int>("RECEIVED_USER_ID")
                         .HasColumnType("int");
@@ -192,8 +183,6 @@ namespace OAProjects.Data.ShowLogger.Migrations
                     b.Property<int>("ID_XREF_ID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID_XREF_ID"), 1L, 1);
 
                     b.Property<int>("NEW_ID")
                         .HasColumnType("int");
@@ -215,39 +204,37 @@ namespace OAProjects.Data.ShowLogger.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MOVIE_INFO_ID"), 1L, 1);
-
                     b.Property<DateTime?>("AIR_DATE")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetime(6)");
 
                     b.Property<string>("API_ID")
                         .HasMaxLength(25)
-                        .HasColumnType("nvarchar(25)");
+                        .HasColumnType("varchar(25)");
 
                     b.Property<int?>("API_TYPE")
                         .HasColumnType("int");
 
                     b.Property<string>("BACKDROP_URL")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("longtext");
 
                     b.Property<DateTime>("LAST_DATA_REFRESH")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetime(6)");
 
                     b.Property<DateTime>("LAST_UPDATED")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetime(6)");
 
                     b.Property<string>("MOVIE_NAME")
                         .IsRequired()
                         .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                        .HasColumnType("varchar(500)");
 
                     b.Property<string>("MOVIE_OVERVIEW")
                         .IsRequired()
                         .HasMaxLength(4000)
-                        .HasColumnType("nvarchar(4000)");
+                        .HasColumnType("varchar(4000)");
 
                     b.Property<string>("POSTER_URL")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("longtext");
 
                     b.Property<int?>("RUNTIME")
                         .HasColumnType("int");
@@ -263,10 +250,8 @@ namespace OAProjects.Data.ShowLogger.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SHOW_ID"), 1L, 1);
-
                     b.Property<DateTime>("DATE_WATCHED")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetime(6)");
 
                     b.Property<int?>("EPISODE_NUMBER")
                         .HasColumnType("int");
@@ -275,7 +260,7 @@ namespace OAProjects.Data.ShowLogger.Migrations
                         .HasColumnType("int");
 
                     b.Property<bool>("RESTART_BINGE")
-                        .HasColumnType("bit");
+                        .HasColumnType("tinyint(1)");
 
                     b.Property<int?>("SEASON_NUMBER")
                         .HasColumnType("int");
@@ -283,11 +268,11 @@ namespace OAProjects.Data.ShowLogger.Migrations
                     b.Property<string>("SHOW_NAME")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("varchar(100)");
 
                     b.Property<string>("SHOW_NOTES")
                         .HasMaxLength(250)
-                        .HasColumnType("nvarchar(250)");
+                        .HasColumnType("varchar(250)");
 
                     b.Property<int>("SHOW_TYPE_ID")
                         .HasColumnType("int");
@@ -306,8 +291,6 @@ namespace OAProjects.Data.ShowLogger.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TRANSACTION_ID"), 1L, 1);
-
                     b.Property<decimal>("COST_AMT")
                         .HasPrecision(6, 2)
                         .HasColumnType("decimal(6,2)");
@@ -315,7 +298,7 @@ namespace OAProjects.Data.ShowLogger.Migrations
                     b.Property<string>("ITEM")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("varchar(100)");
 
                     b.Property<int>("QUANTITY")
                         .HasColumnType("int");
@@ -324,11 +307,11 @@ namespace OAProjects.Data.ShowLogger.Migrations
                         .HasColumnType("int");
 
                     b.Property<DateTime>("TRANSACTION_DATE")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetime(6)");
 
                     b.Property<string>("TRANSACTION_NOTES")
                         .HasMaxLength(250)
-                        .HasColumnType("nvarchar(250)");
+                        .HasColumnType("varchar(250)");
 
                     b.Property<int>("TRANSACTION_TYPE_ID")
                         .HasColumnType("int");
@@ -347,38 +330,36 @@ namespace OAProjects.Data.ShowLogger.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TV_EPISODE_INFO_ID"), 1L, 1);
-
                     b.Property<DateTime?>("AIR_DATE")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetime(6)");
 
                     b.Property<string>("API_ID")
                         .HasMaxLength(25)
-                        .HasColumnType("nvarchar(25)");
+                        .HasColumnType("varchar(25)");
 
                     b.Property<int?>("API_TYPE")
                         .HasColumnType("int");
 
                     b.Property<string>("EPISODE_NAME")
                         .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                        .HasColumnType("varchar(500)");
 
                     b.Property<int?>("EPISODE_NUMBER")
                         .HasColumnType("int");
 
                     b.Property<string>("EPISODE_OVERVIEW")
                         .HasMaxLength(4000)
-                        .HasColumnType("nvarchar(4000)");
+                        .HasColumnType("varchar(4000)");
 
                     b.Property<string>("IMAGE_URL")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("longtext");
 
                     b.Property<int?>("RUNTIME")
                         .HasColumnType("int");
 
                     b.Property<string>("SEASON_NAME")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("varchar(100)");
 
                     b.Property<int?>("SEASON_NUMBER")
                         .HasColumnType("int");
@@ -398,8 +379,6 @@ namespace OAProjects.Data.ShowLogger.Migrations
                     b.Property<int>("TV_EPISODE_ORDER_ID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TV_EPISODE_ORDER_ID"), 1L, 1);
 
                     b.Property<int>("EPISODE_ORDER")
                         .HasColumnType("int");
@@ -421,40 +400,38 @@ namespace OAProjects.Data.ShowLogger.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TV_INFO_ID"), 1L, 1);
-
                     b.Property<string>("API_ID")
                         .HasMaxLength(25)
-                        .HasColumnType("nvarchar(25)");
+                        .HasColumnType("varchar(25)");
 
                     b.Property<int?>("API_TYPE")
                         .HasColumnType("int");
 
                     b.Property<string>("BACKDROP_URL")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("longtext");
 
                     b.Property<DateTime>("LAST_DATA_REFRESH")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetime(6)");
 
                     b.Property<DateTime>("LAST_UPDATED")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetime(6)");
 
                     b.Property<string>("POSTER_URL")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("longtext");
 
                     b.Property<string>("SHOW_NAME")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("varchar(100)");
 
                     b.Property<string>("SHOW_OVERVIEW")
                         .IsRequired()
                         .HasMaxLength(4000)
-                        .HasColumnType("nvarchar(4000)");
+                        .HasColumnType("varchar(4000)");
 
                     b.Property<string>("STATUS")
                         .HasMaxLength(25)
-                        .HasColumnType("nvarchar(25)");
+                        .HasColumnType("varchar(25)");
 
                     b.HasKey("TV_INFO_ID");
 
@@ -467,12 +444,10 @@ namespace OAProjects.Data.ShowLogger.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("USER_PREF_ID"), 1L, 1);
-
                     b.Property<string>("DEFAULT_AREA")
                         .IsRequired()
                         .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasColumnType("varchar(20)");
 
                     b.Property<int>("USER_ID")
                         .HasColumnType("int");
@@ -488,10 +463,8 @@ namespace OAProjects.Data.ShowLogger.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("WATCHLIST_ID"), 1L, 1);
-
                     b.Property<DateTime>("DATE_ADDED")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetime(6)");
 
                     b.Property<int?>("EPISODE_NUMBER")
                         .HasColumnType("int");
@@ -505,11 +478,11 @@ namespace OAProjects.Data.ShowLogger.Migrations
                     b.Property<string>("SHOW_NAME")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("varchar(100)");
 
                     b.Property<string>("SHOW_NOTES")
                         .HasMaxLength(250)
-                        .HasColumnType("nvarchar(250)");
+                        .HasColumnType("varchar(250)");
 
                     b.Property<int>("SHOW_TYPE_ID")
                         .HasColumnType("int");
@@ -531,16 +504,16 @@ namespace OAProjects.Data.ShowLogger.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("SHOW_NAME")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("varchar(255)");
 
                     b.Property<string>("API_ID")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("longtext");
 
                     b.Property<int?>("API_TYPE")
                         .HasColumnType("int");
 
                     b.Property<string>("BACKDROP_URL")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("longtext");
 
                     b.Property<int>("SHOW_TYPE_ID")
                         .HasColumnType("int");
