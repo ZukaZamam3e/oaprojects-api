@@ -18,4 +18,6 @@ public class DownloadResultModel
     public long Id { get; set; }
 
     public int UpdatedEpisodeCount { get; set; }
+
+    public string ShowName { get; set; }
 }

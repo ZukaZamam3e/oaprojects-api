@@ -220,6 +220,7 @@ public class InfoStore : IInfoStore
 
                         downloadResult.Id = result.TvInfoId;
                         downloadResult.UpdatedEpisodeCount = result.UpdatedEpisodeCount;
+                        downloadResult.ShowName = show.Name;
                         break;
 
                     }
@@ -240,6 +241,7 @@ public class InfoStore : IInfoStore
                         };
 
                         downloadResult.Id = UpdateMovieInfo(info);
+                        downloadResult.ShowName = movie.Title;
 
                         break;
                     }

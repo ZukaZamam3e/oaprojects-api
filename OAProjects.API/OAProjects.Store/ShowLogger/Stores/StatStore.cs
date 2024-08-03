@@ -260,7 +260,8 @@ public class StatStore : IStatStore
                     movie.PurchaseAmt = transaction.Where(m => m.TRANSACTION_TYPE_ID == (int)CodeValueIds.PURCHASE).Sum(m => m.COST_AMT);
                     movie.BenefitsAmt = transaction.Where(m => m.TRANSACTION_TYPE_ID == (int)CodeValueIds.BENEFITS).Sum(m => m.COST_AMT);
                     movie.RewardsAmt = transaction.Where(m => m.TRANSACTION_TYPE_ID == (int)CodeValueIds.REWARDS).Sum(m => m.COST_AMT);
-                    movie.TotalAmt = movie.PurchaseAmt - movie.BenefitsAmt - movie.RewardsAmt;
+                    decimal taxAmt = transaction.Where(m => m.TRANSACTION_TYPE_ID == (int)CodeValueIds.TAX).Sum(m => m.COST_AMT);
+                    movie.TotalAmt = movie.PurchaseAmt + taxAmt - movie.BenefitsAmt - movie.RewardsAmt;
                 }
             }
         }

@@ -6,6 +6,8 @@ public class DownloadInfoResponse
 {
     public string Result { get; set; }
 
+    public string ShowName { get; set; }
+
     public bool IsSuccessful { get; set; }
 
     public long Id { get; set; }

@@ -128,6 +128,7 @@ public class InfoController : BaseController
                 response.Model = new DownloadInfoResponse
                 {
                     Result = downloadResult.Result,
+                    ShowName = downloadResult.ShowName,
                     IsSuccessful = downloadResult.IsSuccessful,
                     Id = downloadResult.Id
                 };
