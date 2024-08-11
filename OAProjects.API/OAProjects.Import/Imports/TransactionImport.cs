@@ -67,20 +67,19 @@ public class TransactionImport : ITransactionImport
             if (groupedTransaction.ShowId != null)
             {
                 showId = dictShowIds[groupedTransaction.ShowId.Value];
-                TransactionDataImport? tax = transactions.FirstOrDefault(m => m.ITEM == "Tax");
+                IEnumerable<TransactionDataImport> tax = transactions.Where(m => m.ITEM == "Tax");
 
-                if (tax != null)
+                if (tax.Any())
                 {
                     SL_TRANSACTION taxEntity = new SL_TRANSACTION
                     {
                         USER_ID = userId,
                         TRANSACTION_TYPE_ID = (int)CodeValueIds.TAX,
                         SHOW_ID = showId,
-                        ITEM = tax.ITEM,
-                        COST_AMT = decimal.Round(tax.COST_AMT, 2),
+                        ITEM = "Tax",
+                        COST_AMT = decimal.Round(tax.Sum(m => m.COST_AMT), 2),
                         QUANTITY = 1,
                         TRANSACTION_DATE = transactionDate,
-                        TRANSACTION_NOTES = tax.TRANSACTION_NOTES,
                     };
 
                     _showLoggerContext.SL_TRANSACTION.Add(taxEntity);

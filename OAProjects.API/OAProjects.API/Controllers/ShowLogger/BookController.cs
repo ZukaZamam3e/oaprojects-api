@@ -14,7 +14,7 @@ using OAProjects.Models.Common.Responses;
 namespace OAProjects.API.Controllers.ShowLogger;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/show-logger/[controller]")]
 [EnableCors("_myAllowSpecificOrigins")]
 [Authorize("User.ReadWrite")]
 public class BookController : BaseController
@@ -98,7 +98,7 @@ public class BookController : BaseController
     }
 
     [HttpPost("Save")]
-    public async Task<IActionResult> SaveShow(BookModel model,
+    public async Task<IActionResult> Save(BookModel model,
         [FromServices] IValidator<BookModel> validator)
     {
         PostResponse<BookModel> response = new PostResponse<BookModel>();

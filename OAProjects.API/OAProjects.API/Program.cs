@@ -51,6 +51,7 @@ builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("User.ReadWrite", policy => policy.Requirements.Add(new HasScopeRequirement("User.ReadWrite", domain)));
     options.AddPolicy("Batch.ReadWrite", policy => policy.Requirements.Add(new HasScopeRequirement("Batch.ReadWrite", domain)));
+    options.AddPolicy("Info.ReadWrite", policy => policy.Requirements.Add(new HasScopeRequirement("Info.ReadWrite", domain)));
 });
 
 builder.Services.AddSingleton<IAuthorizationHandler, HasScopeHandler>();
@@ -68,7 +69,7 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddHttpClient("Auth0", httpClient =>
 {
-    httpClient.BaseAddress = new Uri("https://dev-3126h7e6syg2548p.us.auth0.com/userinfo");
+    httpClient.BaseAddress = new Uri("https://dev-3126h7e6syg2548p.us.auth0.com");
 });
 
 var app = builder.Build();

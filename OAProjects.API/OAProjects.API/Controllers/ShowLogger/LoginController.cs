@@ -16,7 +16,7 @@ using OAProjects.Store.ShowLogger.Stores.Interfaces;
 namespace OAProjects.API.Controllers.ShowLogger;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/show-logger/[controller]")]
 [EnableCors("_myAllowSpecificOrigins")]
 [Authorize("User.ReadWrite")]
 public class LoginController : BaseController
@@ -43,6 +43,33 @@ public class LoginController : BaseController
         {
             int userId = await GetUserId();
             response.Model = new LoginLoadResponse();
+
+            await GetRoles();
+
+            List<PageModel> pages = [
+                new PageModel
+                {
+                    Title = "Home",
+                    Href = "/home"
+                },
+                new PageModel
+                {
+                    Title = "Shows",
+                    Href = "/shows"
+                },
+                new PageModel
+                {
+                    Title = "Books",
+                    Href = "/books"
+                },
+                new PageModel
+                {
+                    Title = "Friends",
+                    Href = "/friends"
+                },
+            ];
+
+            //resposne.Pages = 
 
             response.Model.UserPref = _loginStore.GetUserPref(userId);
         }
