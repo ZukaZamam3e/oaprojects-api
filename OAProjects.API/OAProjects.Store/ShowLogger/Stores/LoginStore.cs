@@ -41,7 +41,11 @@ public class LoginStore : ILoginStore
 
         if (entity == null)
         {
-            entity = new SL_USER_PREF();
+            entity = new SL_USER_PREF
+            {
+                USER_ID = userId,
+            };
+            _context.SL_USER_PREF.Add(entity);
         }
 
         entity.DEFAULT_AREA = model.DefaultArea;

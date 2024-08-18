@@ -8,4 +8,6 @@ namespace OAProjects.Models.ShowLogger.Models.Login;
 public class UserPrefModel
 {
     public string DefaultArea { get; set; }
+
+    public bool HasAdminRole { get; set; }
 }

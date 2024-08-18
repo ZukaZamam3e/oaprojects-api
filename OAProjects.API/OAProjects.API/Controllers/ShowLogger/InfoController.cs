@@ -15,7 +15,7 @@ namespace OAProjects.API.Controllers.ShowLogger;
 [ApiController]
 [Route("api/show-logger/[controller]")]
 [EnableCors("_myAllowSpecificOrigins")]
-[Authorize("Info.ReadWrite")]
+[Authorize("User.ReadWrite")]
 public class InfoController : BaseController
 {
     private readonly ILogger<InfoController> _logger;

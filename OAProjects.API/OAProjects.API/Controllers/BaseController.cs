@@ -9,6 +9,7 @@ using OAProjects.Store.OAIdentity.Stores.Interfaces;
 using System;
 using System.Net.Http;
 using System.Security.Claims;
+using System.Text;
 using System.Text.Json.Serialization;
 
 namespace OAProjects.API.Controllers;
@@ -17,7 +18,7 @@ public class BaseController : ControllerBase
 {
     private readonly ILogger<BaseController> _logger;
     protected readonly IUserStore _userStore;
-    private readonly IHttpClientFactory _httpClientFactory;
+    protected readonly IHttpClientFactory _httpClientFactory;
     private readonly int UserId;
 
     //protected int _userId;
@@ -134,44 +135,7 @@ public class BaseController : ControllerBase
         return userId;
     }
 
-    protected async Task<int> GetRoles()
-    {
-        int userId = -1;
-
-        string accessToken = Request.Headers[HeaderNames.Authorization];
-        string exp = HttpContext.User.FindFirst("exp").Value;
-        string iat = HttpContext.User.FindFirst("iat").Value;
-
-        UserModel? user = _userStore.GetUserByToken(accessToken);
-
-        if (user != null)
-        {
-            // if empty, get user information from Auth0
-            HttpClient httpClient = _httpClientFactory.CreateClient("Auth0");
-
-            httpClient.DefaultRequestHeaders.Add(HeaderNames.Authorization, accessToken);
-
-            HttpResponseMessage response = await httpClient.GetAsync("/api/v2/users/roles");
-
-            if (response.IsSuccessStatusCode)
-            {
-                // Retrieved user infomation back
-                // See if email exist in database
-                // If not, add it
-                // Then add token to database
-
-                string responseText = await response.Content.ReadAsStringAsync();
-                //Auth0UserInfoModel? userInfo = JsonConvert.DeserializeObject<Auth0UserInfoModel>(responseText);
-                int x = 0;
-            }
-        }
-        else
-        {
-            userId = user.UserId;
-        }
-
-        return userId;
-    }
+    
 
     protected string GetUserClaim(string claimType)
     {
