@@ -1,13 +1,8 @@
 ﻿using Newtonsoft.Json;
 using OAProjects.Batch.Config;
-using OAProjects.Batch.Models;
 using OAProjects.Batch.Processes.Interface;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using OAProjects.Models.ShowLogger.Responses.Auth;
 using System.Text;
-using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace OAProjects.Batch.Processes;
 public class GetAuthTokenProcess : IGetAuthTokenProcess

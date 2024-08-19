@@ -7,25 +7,31 @@ using OAProjects.Models.ShowLogger.Responses.Stat;
 using System.Linq.Expressions;
 using OAProjects.Models.ShowLogger.Models.Stat;
 using OAProjects.Models.Common.Responses;
+using OAProjects.Store.ShowLogger.Stores;
+using OAProjects.Data.ShowLogger.Entities;
 
 namespace OAProjects.API.Controllers.ShowLogger;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/show-logger/[controller]")]
 [EnableCors("_myAllowSpecificOrigins")]
 [Authorize("User.ReadWrite")]
 public class StatController : BaseController
 {
     private readonly ILogger<StatController> _logger;
     private readonly IStatStore _statStore;
+    private readonly ICodeValueStore _codeValueStore;
+
     public StatController(ILogger<StatController> logger,
         IUserStore userStore,
         IStatStore statStore,
+        ICodeValueStore codeValueStore,
         IHttpClientFactory httpClientFactory)
         : base(logger, userStore, httpClientFactory)
     {
         _logger = logger;
         _statStore = statStore;
+        _codeValueStore = codeValueStore;
     }
 
     [HttpGet("GetTvStats")]
@@ -99,12 +105,23 @@ public class StatController : BaseController
     {
         IEnumerable<MovieStatModel> query = _statStore.GetMovieStats(userId);
 
+        Dictionary<string, int> showTypeIds = _codeValueStore.GetCodeValues(m => m.CodeTableId == (int)CodeTableIds.SHOW_TYPE_ID)
+                .ToDictionary(m => m.DecodeTxt.ToLower(), m => m.CodeValueId);
+
         Expression<Func<MovieStatModel, bool>>? predicate = null;
         DateTime dateSearch;
 
         if (!string.IsNullOrEmpty(search))
         {
-            predicate = m => m.MovieName.ToLower().Contains(search.ToLower());
+            if (showTypeIds.ContainsKey(search.ToLower()))
+            {
+                predicate = m => m.ShowTypeId == showTypeIds[search.ToLower()]
+                    && m.UserId == userId;
+            }
+            else
+            {
+                predicate = m => m.MovieName.ToLower().Contains(search.ToLower());
+            }
         }
 
         if (predicate != null)
@@ -154,7 +171,7 @@ public class StatController : BaseController
 
     private IEnumerable<YearStatModel> GetYearStatsData(int userId, string? search = null)
     {
-        Dictionary<int, string> userLookUps = _userStore.GetUserLookUps();
+        Dictionary<int, string> userLookUps = _userStore.GetUserNameLookUps();
         IEnumerable<YearStatModel> query = _statStore.GetYearStats(userId, userLookUps);
 
         Expression<Func<YearStatModel, bool>>? predicate = null;
@@ -187,7 +204,7 @@ public class StatController : BaseController
 
             response.Model.BookYearStats = GetBookYearStatsData(userId, search);
             response.Model.Count = response.Model.BookYearStats.Count();
-            response.Model.BookYearStats = response.Model.BookYearStats.OrderByDescending(m => m.Year).ThenByDescending(m => m.Name).Skip(offset).Take(take).ToArray();
+            response.Model.BookYearStats = response.Model.BookYearStats.OrderByDescending(m => m.Year).ThenBy(m => m.Name).Skip(offset).Take(take).ToArray();
         }
         catch (Exception ex)
         {
@@ -199,7 +216,7 @@ public class StatController : BaseController
 
     private IEnumerable<BookYearStatModel> GetBookYearStatsData(int userId, string? search = null)
     {
-        Dictionary<int, string> userLookUps = _userStore.GetUserLookUps();
+        Dictionary<int, string> userLookUps = _userStore.GetUserNameLookUps();
         IEnumerable<BookYearStatModel> query = _statStore.GetBookYearStats(userId, userLookUps);
 
         Expression<Func<BookYearStatModel, bool>>? predicate = null;
@@ -214,7 +231,6 @@ public class StatController : BaseController
         {
             query = query.AsQueryable().Where(predicate).AsEnumerable();
         }
-
 
         return query;
     }

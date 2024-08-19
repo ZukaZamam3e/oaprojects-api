@@ -22,6 +22,8 @@ public class TvInfoModel
 
     public string? BackdropUrl { get; set; }
 
+    public string? InfoUrl { get; set; }
+
     public string? Status { get; set; }
 
     public IEnumerable<TvInfoSeasonModel> Seasons { get; set; }

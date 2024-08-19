@@ -19,7 +19,9 @@ public class MovieInfoModel
 
     public DateTime LastUpdated { get; set; }
 
-    public string? PosterURL { get; set; }
+    public string? PosterUrl { get; set; }
 
-    public string? BackdropURL { get; set; }
+    public string? BackdropUrl { get; set; }
+
+    public string? InfoUrl { get; set; }
 }

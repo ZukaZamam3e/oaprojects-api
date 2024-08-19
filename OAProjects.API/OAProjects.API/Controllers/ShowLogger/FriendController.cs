@@ -9,11 +9,16 @@ using OAProjects.Models.ShowLogger.Models.Friend;
 using FluentValidation.Results;
 using OAProjects.Models.ShowLogger.Responses.Friend;
 using OAProjects.Models.Common.Responses;
+using OAProjects.Models.ShowLogger.Models.Stat;
+using OAProjects.Store.ShowLogger.Stores;
+using System.Linq.Expressions;
+using System.Linq;
+using OAProjects.Models.OAIdentity;
 
 namespace OAProjects.API.Controllers.ShowLogger;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/show-logger/[controller]")]
 [EnableCors("_myAllowSpecificOrigins")]
 [Authorize("User.ReadWrite")]
 public class FriendController : BaseController
@@ -41,9 +46,9 @@ public class FriendController : BaseController
             int userId = await GetUserId();
             response.Model = new FriendLoadResponse();
 
-            response.Model.Friends = _friendStore.GetFriends(userId);
+            response.Model.Friends = GetData(userId);
             response.Model.Count = response.Model.Friends.Count();
-            response.Model.Friends = response.Model.Friends.OrderBy(m => m.FriendEmail).Take(take);
+            response.Model.Friends = response.Model.Friends.OrderByDescending(m => m.IsPending).ThenBy(m => m.FriendEmail).Take(take);
         }
         catch (Exception ex)
         {
@@ -63,17 +68,10 @@ public class FriendController : BaseController
             int userId = await GetUserId();
 
             response.Model = new FriendGetResponse();
-            if (!string.IsNullOrEmpty(search))
-            {
-                //response.Model.Friends = _friendStore.SearchShows(userId, search);
-            }
-            else
-            {
-                response.Model.Friends = _friendStore.GetFriends(userId);
-            }
 
+            response.Model.Friends = GetData(userId, search);
             response.Model.Count = response.Model.Friends.Count();
-            response.Model.Friends = response.Model.Friends.OrderBy(m => m.FriendEmail).Skip(offset).Take(take);
+            response.Model.Friends = response.Model.Friends.OrderByDescending(m => m.IsPending).ThenBy(m => m.FriendName).Skip(offset).Take(take);
         }
         catch (Exception ex)
         {
@@ -81,6 +79,28 @@ public class FriendController : BaseController
         }
 
         return Ok(response);
+    }
+
+    private IEnumerable<FriendModel> GetData(int userId, string? search = null)
+    {
+        Dictionary<int, UserModel> userLookUps = _userStore.GetUserLookUps();
+        IEnumerable<FriendModel> query = _friendStore.GetFriends(userId, userLookUps);
+
+        Expression<Func<FriendModel, bool>>? predicate = null;
+        DateTime dateSearch;
+
+        if (!string.IsNullOrEmpty(search))
+        {
+            predicate = m => m.FriendName.ToLower().Contains(search.ToLower())
+                || m.FriendEmail.ToLower().Contains(search.ToLower());
+        }
+
+        if (predicate != null)
+        {
+            query = query.AsQueryable().Where(predicate).AsEnumerable();
+        }
+
+        return query;
     }
 
     [HttpPost("AddFriend")]

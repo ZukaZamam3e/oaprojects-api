@@ -19,7 +19,7 @@ using OAProjects.Models.ShowLogger.Responses.Batch;
 namespace OAProjects.API.Controllers.ShowLogger;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/show-logger/[controller]")]
 [EnableCors("_myAllowSpecificOrigins")]
 [Authorize("Batch.ReadWrite")]
 public class BatchController : BaseController

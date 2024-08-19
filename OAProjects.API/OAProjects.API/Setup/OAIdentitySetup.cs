@@ -11,7 +11,7 @@ public static class OAIdentitySetup
     public static IServiceCollection AddOAIdentityDb(this IServiceCollection services, ConfigurationManager configuration)
     {
         string? oaIdentityConnectionString = configuration.GetConnectionString("OAIdentityConnection");
-        services.AddDbContext<OAIdentityDbContext>(m => m.UseSqlServer(oaIdentityConnectionString, m => m.MigrationsHistoryTable("__OA_EFMigrationsHistory")), ServiceLifetime.Transient);
+        services.AddDbContext<OAIdentityDbContext>(m => m.UseMySql(oaIdentityConnectionString, ServerVersion.AutoDetect(oaIdentityConnectionString), m => m.MigrationsHistoryTable("__OA_EFMigrationsHistory")), ServiceLifetime.Transient);
         services.AddTransient<IUserStore, UserStore>();
         return services;
     }

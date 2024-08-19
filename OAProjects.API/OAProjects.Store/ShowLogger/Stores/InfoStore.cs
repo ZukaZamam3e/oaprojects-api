@@ -220,6 +220,7 @@ public class InfoStore : IInfoStore
 
                         downloadResult.Id = result.TvInfoId;
                         downloadResult.UpdatedEpisodeCount = result.UpdatedEpisodeCount;
+                        downloadResult.ShowName = show.Name;
                         break;
 
                     }
@@ -235,11 +236,12 @@ public class InfoStore : IInfoStore
                             ApiId = movie.Id.ToString(),
                             Runtime = movie.Runtime,
                             AirDate = movie.ReleaseDate,
-                            PosterURL = movie.PosterPath,
-                            BackdropURL = movie.BackdropPath,
+                            PosterUrl = movie.PosterPath,
+                            BackdropUrl = movie.BackdropPath,
                         };
 
                         downloadResult.Id = UpdateMovieInfo(info);
+                        downloadResult.ShowName = movie.Title;
 
                         break;
                     }
@@ -265,6 +267,8 @@ public class InfoStore : IInfoStore
             LastDataRefresh = m.LAST_DATA_REFRESH,
             LastUpdated = m.LAST_UPDATED,
             PosterUrl = !string.IsNullOrEmpty(m.POSTER_URL) ? $"{_apisConfig.TMDbURL}{TMDBApiPaths.Image}{m.POSTER_URL}" : "",
+            BackdropUrl = !string.IsNullOrEmpty(m.BACKDROP_URL) ? $"{_apisConfig.TMDbURL}{TMDBApiPaths.Image}{m.BACKDROP_URL}" : "",
+            InfoUrl = _apisConfig.GetTvInfoUrl(m.API_TYPE, m.API_ID),
             Status = m.STATUS
         });
 
@@ -472,9 +476,11 @@ public class InfoStore : IInfoStore
             ApiId = m.API_ID,
             Runtime = m.RUNTIME,
             AirDate = m.AIR_DATE,
-            PosterURL = m.POSTER_URL,
+            PosterUrl = !string.IsNullOrEmpty(m.POSTER_URL) ? $"{_apisConfig.TMDbURL}{TMDBApiPaths.Image}{m.POSTER_URL}" : "",
+            BackdropUrl = !string.IsNullOrEmpty(m.BACKDROP_URL) ? $"{_apisConfig.TMDbURL}{TMDBApiPaths.Image}{m.BACKDROP_URL}" : "",
             LastDataRefresh = m.LAST_DATA_REFRESH,
             LastUpdated = m.LAST_UPDATED,
+            InfoUrl = _apisConfig.GetMovieInfoUrl(m.API_TYPE, m.API_ID),
         });
 
         if (predicate != null)
@@ -504,8 +510,8 @@ public class InfoStore : IInfoStore
         entity.RUNTIME = model.Runtime;
         entity.AIR_DATE = model.AirDate;
 
-        entity.POSTER_URL = model.PosterURL;
-        entity.BACKDROP_URL = model.BackdropURL;
+        entity.POSTER_URL = model.PosterUrl;
+        entity.BACKDROP_URL = model.BackdropUrl;
 
         entity.LAST_DATA_REFRESH = DateTime.Now;
         entity.LAST_UPDATED = DateTime.Now;

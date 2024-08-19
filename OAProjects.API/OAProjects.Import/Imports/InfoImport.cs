@@ -351,7 +351,7 @@ public class TvInfoUpdate
 
     public string BackdropUrl { get; set; }
 
-    public string UpdateSql => $"UPDATE [{{0}}].[dbo].[SL_TV_INFO] SET STATUS='{Status}', BACKDROP_URL='{BackdropUrl}' WHERE API_ID={ApiId};";
+    public string UpdateSql => $"UPDATE SL_TV_INFO SET STATUS='{Status}', BACKDROP_URL='{BackdropUrl}' WHERE API_ID={ApiId};";
 }
 
 public class MovieInfoUpdate
@@ -362,5 +362,5 @@ public class MovieInfoUpdate
 
     public string BackdropUrl { get; set; }
 
-    public string UpdateSql => $"UPDATE [{{0}}].[dbo].[SL_MOVIE_INFO] SET POSTER_URL='{PosterUrl}', BACKDROP_URL='{BackdropUrl}' WHERE API_ID={ApiId}";
+    public string UpdateSql => $"UPDATE SL_MOVIE_INFO SET POSTER_URL='{PosterUrl}', BACKDROP_URL='{BackdropUrl}' WHERE API_ID={ApiId};";
 }

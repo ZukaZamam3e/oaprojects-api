@@ -13,7 +13,7 @@ using OAProjects.Models.Common.Responses;
 namespace OAProjects.API.Controllers.ShowLogger;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/show-logger/[controller]")]
 [EnableCors("_myAllowSpecificOrigins")]
 [Authorize("User.ReadWrite")]
 public class InfoController : BaseController
@@ -128,6 +128,7 @@ public class InfoController : BaseController
                 response.Model = new DownloadInfoResponse
                 {
                     Result = downloadResult.Result,
+                    ShowName = downloadResult.ShowName,
                     IsSuccessful = downloadResult.IsSuccessful,
                     Id = downloadResult.Id
                 };

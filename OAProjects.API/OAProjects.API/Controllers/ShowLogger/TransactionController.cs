@@ -15,7 +15,7 @@ using OAProjects.Models.Common.Responses;
 
 namespace OAProjects.API.Controllers.ShowLogger;
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/show-logger/[controller]")]
 [EnableCors("_myAllowSpecificOrigins")]
 [Authorize("User.ReadWrite")]
 public class TransactionController : BaseController

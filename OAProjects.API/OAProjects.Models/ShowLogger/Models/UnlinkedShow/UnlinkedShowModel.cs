@@ -15,7 +15,7 @@ public class UnlinkedShowModel
 
     public DateTime? LastDataRefresh { get; set; }
 
-    public int InfoId { get; set; }
+    public int? InfoId { get; set; }
 
     public bool InShowLoggerIndc { get; set; }
 }

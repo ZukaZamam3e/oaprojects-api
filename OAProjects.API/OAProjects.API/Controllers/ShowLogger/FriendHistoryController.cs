@@ -12,7 +12,7 @@ using OAProjects.Models.Common.Responses;
 namespace OAProjects.API.Controllers.ShowLogger;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/show-logger/[controller]")]
 [EnableCors("_myAllowSpecificOrigins")]
 [Authorize("User.ReadWrite")]
 public class FriendHistoryController : BaseController
@@ -32,20 +32,20 @@ public class FriendHistoryController : BaseController
         _codeValueStore = codeValueStore;
     }
 
-    [HttpGet("Get")]
-    public async Task<IActionResult> Get(int offset = 0, string? search = null, int take = 10)
+    [HttpGet("GetShows")]
+    public async Task<IActionResult> GetShows(int offset = 0, string? search = null, int take = 10)
     {
-        GetResponse<FriendHistoryGetResponse> response = new GetResponse<FriendHistoryGetResponse>();
+        GetResponse<ShowFriendHistoryGetResponse> response = new GetResponse<ShowFriendHistoryGetResponse>();
 
         try
         {
             int userId = await GetUserId();
 
-            response.Model = new FriendHistoryGetResponse();
+            response.Model = new ShowFriendHistoryGetResponse();
 
-            response.Model.FriendHistory = GetData(userId, search);
-            response.Model.Count = response.Model.FriendHistory.Count();
-            response.Model.FriendHistory = response.Model.FriendHistory.OrderByDescending(m => m.Show.ShowId).ThenByDescending(m => m.Show.DateWatched).ThenByDescending(m => m.Show.ShowName).Skip(offset).Take(take).ToArray();
+            response.Model.ShowFriendHistory = GetShowData(userId, search);
+            response.Model.Count = response.Model.ShowFriendHistory.Count();
+            response.Model.ShowFriendHistory = response.Model.ShowFriendHistory.OrderByDescending(m => m.Show.ShowId).ThenByDescending(m => m.Show.DateWatched).ThenByDescending(m => m.Show.ShowName).Skip(offset).Take(take).ToArray();
         }
         catch (Exception ex)
         {
@@ -55,12 +55,12 @@ public class FriendHistoryController : BaseController
         return Ok(response);
     }
 
-    private IEnumerable<FriendHistoryModel> GetData(int userId, string? search = null)
+    private IEnumerable<ShowFriendHistoryModel> GetShowData(int userId, string? search = null)
     {
-        Dictionary<int, string> userLookUps = _userStore.GetUserLookUps();
-        IEnumerable<FriendHistoryModel> query = _friendHistoryStore.GetFriendHistory(userId, userLookUps);
+        Dictionary<int, string> userLookUps = _userStore.GetUserNameLookUps();
+        IEnumerable<ShowFriendHistoryModel> query = _friendHistoryStore.GetShowFriendHistory(userId, userLookUps);
 
-        Expression<Func<FriendHistoryModel, bool>>? predicate = null;
+        Expression<Func<ShowFriendHistoryModel, bool>>? predicate = null;
 
         DateTime dateSearch;
 
@@ -81,6 +81,61 @@ public class FriendHistoryController : BaseController
             {
                 predicate = m => 
                     (m.Show.ShowName.ToLower().Contains(search.ToLower())
+                     || m.Name.ToLower().Contains(search.ToLower()));
+            }
+        }
+
+        if (predicate != null)
+        {
+            query = query.AsQueryable().Where(predicate).AsEnumerable();
+        }
+
+        return query;
+    }
+
+    [HttpGet("GetBooks")]
+    public async Task<IActionResult> GetBooks(int offset = 0, string? search = null, int take = 10)
+    {
+        GetResponse<BookFriendHistoryResponse> response = new GetResponse<BookFriendHistoryResponse>();
+
+        try
+        {
+            int userId = await GetUserId();
+
+            response.Model = new BookFriendHistoryResponse();
+
+            response.Model.BookFriendHistory = GetBookData(userId, search);
+            response.Model.Count = response.Model.BookFriendHistory.Count();
+            response.Model.BookFriendHistory = response.Model.BookFriendHistory.OrderByDescending(m => m.Book.EndDate == null).ThenByDescending(m => m.Book.EndDate).ThenByDescending(m => m.Book.StartDate).Skip(offset).Take(take).ToArray();
+        }
+        catch (Exception ex)
+        {
+            response.Errors = new List<string>() { ex.Message };
+        }
+
+        return Ok(response);
+    }
+
+    private IEnumerable<BookFriendHistoryModel> GetBookData(int userId, string? search = null)
+    {
+        Dictionary<int, string> userLookUps = _userStore.GetUserNameLookUps();
+        IEnumerable<BookFriendHistoryModel> query = _friendHistoryStore.GetBookFriendHistory(userId, userLookUps);
+
+        Expression<Func<BookFriendHistoryModel, bool>>? predicate = null;
+
+        DateTime dateSearch;
+
+        if (!string.IsNullOrEmpty(search))
+        {
+            if (DateTime.TryParse(search, out dateSearch))
+            {
+                predicate = m => (m.Book.StartDate != null ? m.Book.StartDate.Value.Date == dateSearch.Date : true)
+                    || (m.Book.EndDate != null ? m.Book.EndDate.Value.Date == dateSearch.Date : true);
+            }
+            else
+            {
+                predicate = m =>
+                    (m.Book.BookName.ToLower().Contains(search.ToLower())
                      || m.Name.ToLower().Contains(search.ToLower()));
             }
         }

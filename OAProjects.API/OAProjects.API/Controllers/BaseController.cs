@@ -9,6 +9,7 @@ using OAProjects.Store.OAIdentity.Stores.Interfaces;
 using System;
 using System.Net.Http;
 using System.Security.Claims;
+using System.Text;
 using System.Text.Json.Serialization;
 
 namespace OAProjects.API.Controllers;
@@ -17,7 +18,7 @@ public class BaseController : ControllerBase
 {
     private readonly ILogger<BaseController> _logger;
     protected readonly IUserStore _userStore;
-    private readonly IHttpClientFactory _httpClientFactory;
+    protected readonly IHttpClientFactory _httpClientFactory;
     private readonly int UserId;
 
     //protected int _userId;
@@ -133,6 +134,8 @@ public class BaseController : ControllerBase
 
         return userId;
     }
+
+    
 
     protected string GetUserClaim(string claimType)
     {

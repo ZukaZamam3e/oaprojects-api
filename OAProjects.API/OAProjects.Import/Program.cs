@@ -19,17 +19,17 @@ var configBuilder = new ConfigurationBuilder()
 
 if (Debugger.IsAttached)
 {
-    configBuilder.AddJsonFile("appsettings.local.json");
-    //configBuilder.AddJsonFile("appsettings.development.json");
+    //configBuilder.AddJsonFile("appsettings.local.json");
+    configBuilder.AddJsonFile("appsettings.development.json");
 }
 
 IConfiguration config = configBuilder.Build();
 
 string? showLoggerConnectionString = config.GetConnectionString("ShowLoggerConnection");
-builder.Services.AddDbContext<ShowLoggerDbContext>(m => m.UseSqlServer(showLoggerConnectionString, m => m.MigrationsHistoryTable("__SL_EFMigrationsHistory")), ServiceLifetime.Transient);
+builder.Services.AddDbContext<ShowLoggerDbContext>(m => m.UseMySql(showLoggerConnectionString, ServerVersion.AutoDetect(showLoggerConnectionString), m => m.MigrationsHistoryTable("__SL_EFMigrationsHistory")), ServiceLifetime.Transient);
 
 string? oaIdentityConnectionString = config.GetConnectionString("OAIdentityConnection");
-builder.Services.AddDbContext<OAIdentityDbContext>(m => m.UseSqlServer(oaIdentityConnectionString, m => m.MigrationsHistoryTable("__OA_EFMigrationsHistory")), ServiceLifetime.Transient);
+builder.Services.AddDbContext<OAIdentityDbContext>(m => m.UseMySql(oaIdentityConnectionString, ServerVersion.AutoDetect(oaIdentityConnectionString), m => m.MigrationsHistoryTable("__OA_EFMigrationsHistory")), ServiceLifetime.Transient);
 
 DataConfig dataConfig = new DataConfig();
 config.GetSection("Data").Bind(dataConfig);

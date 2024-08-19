@@ -88,7 +88,7 @@ public class RefreshRecurringTvShowsProcess : IRefreshRecurringTvShowsProcess
 
         HttpClient httpClient = _httpClientFactory.CreateClient("OAProjectsAPI");
         httpClient.DefaultRequestHeaders.Add("Authorization", token);
-        using HttpResponseMessage response = await httpClient.GetAsync($"batch/getreturningseries");
+        using HttpResponseMessage response = await httpClient.GetAsync($"show-logger/batch/getreturningseries");
         response.EnsureSuccessStatusCode();
 
         string result = await response.Content.ReadAsStringAsync();
@@ -117,7 +117,7 @@ public class RefreshRecurringTvShowsProcess : IRefreshRecurringTvShowsProcess
             Encoding.UTF8,
             "application/json");
 
-        using HttpResponseMessage response = await httpClient.PostAsync("batch/refreshtvseries", jsonContent);
+        using HttpResponseMessage response = await httpClient.PostAsync("show-logger/batch/refreshtvseries", jsonContent);
         response.EnsureSuccessStatusCode();
 
         string result = await response.Content.ReadAsStringAsync();

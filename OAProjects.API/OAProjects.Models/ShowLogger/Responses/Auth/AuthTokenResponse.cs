@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OAProjects.Batch.Models;
+namespace OAProjects.Models.ShowLogger.Responses.Auth;
 public class AuthTokenResponse
 {
     [JsonProperty("access_token")]

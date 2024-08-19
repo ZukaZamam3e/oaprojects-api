@@ -24,6 +24,8 @@ using OAProjects.API.Validators.ShowLogger.Transaction;
 using OAProjects.API.Validators.ShowLogger.Book;
 using OAProjects.Models.ShowLogger.Requests.Book;
 using OAProjects.Models.ShowLogger.Models.Book;
+using OAProjects.Models.ShowLogger.Models.Login;
+using OAProjects.API.Validators.ShowLogger.Login;
 
 namespace OAProjects.API.Setup;
 
@@ -32,8 +34,8 @@ public static class ShowLoggerSetup
     public static IServiceCollection AddShowLoggerDb(this IServiceCollection services, ConfigurationManager configuration)
     {
         string? showLoggerConnectionString = configuration.GetConnectionString("ShowLoggerConnection");
-        services.AddDbContext<ShowLoggerDbContext>(m => m.UseSqlServer(showLoggerConnectionString, m => m.MigrationsHistoryTable("__SL_EFMigrationsHistory")), ServiceLifetime.Transient);
-
+        services.AddDbContext<ShowLoggerDbContext>(m => m.UseMySql(showLoggerConnectionString, ServerVersion.AutoDetect(showLoggerConnectionString), m => m.MigrationsHistoryTable("__SL_EFMigrationsHistory")), ServiceLifetime.Transient);
+        
         services.AddTransient<IShowStore, ShowStore>();
         services.AddTransient<IFriendStore, FriendStore>();
         services.AddTransient<IWatchListStore, WatchListStore>();
@@ -44,6 +46,7 @@ public static class ShowLoggerSetup
         services.AddTransient<IStatStore, StatStore>();
         services.AddTransient<IBookStore, BookStore>();
         services.AddTransient<IFriendHistoryStore, FriendHistoryStore>();
+        services.AddTransient<ILoginStore, LoginStore>();
 
         services.AddScoped<IValidator<ShowModel>, ShowValidator>();
         services.AddScoped<IValidator<ShowTransactionModel>, ShowTransactionValidator>();
@@ -74,6 +77,8 @@ public static class ShowLoggerSetup
 
         services.AddScoped<IValidator<BookModel>, BookValidator>();
         services.AddScoped<IValidator<BookIdRequest>, BookIdValidator>();
+
+        services.AddScoped<IValidator<UserPrefModel>, UserPrefValidator>();
 
         return services;
     }

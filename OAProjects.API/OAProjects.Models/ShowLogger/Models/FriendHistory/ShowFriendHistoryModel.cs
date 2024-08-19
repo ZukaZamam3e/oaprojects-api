@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace OAProjects.Models.ShowLogger.Models.FriendHistory;
-public class FriendHistoryModel
+public class ShowFriendHistoryModel
 {
     public string Name { get; set; }
 

@@ -193,7 +193,7 @@ public class StatStore : IStatStore
                 else
                 {
                     int index = episodes.FindIndex(m => m.TV_EPISODE_INFO_ID == episodeInfoId);
-                    if (index != -1 && index + 1 < episodes.Count - 1)
+                    if (index != -1 && index + 1 < episodes.Count)
                     {
                         nextEpisodeInfo = episodes[index + 1];
                         episodesLeft = episodes.Count - (index + 1);
@@ -260,7 +260,8 @@ public class StatStore : IStatStore
                     movie.PurchaseAmt = transaction.Where(m => m.TRANSACTION_TYPE_ID == (int)CodeValueIds.PURCHASE).Sum(m => m.COST_AMT);
                     movie.BenefitsAmt = transaction.Where(m => m.TRANSACTION_TYPE_ID == (int)CodeValueIds.BENEFITS).Sum(m => m.COST_AMT);
                     movie.RewardsAmt = transaction.Where(m => m.TRANSACTION_TYPE_ID == (int)CodeValueIds.REWARDS).Sum(m => m.COST_AMT);
-                    movie.TotalAmt = movie.PurchaseAmt - movie.BenefitsAmt - movie.RewardsAmt;
+                    decimal taxAmt = transaction.Where(m => m.TRANSACTION_TYPE_ID == (int)CodeValueIds.TAX).Sum(m => m.COST_AMT);
+                    movie.TotalAmt = movie.PurchaseAmt + taxAmt - movie.BenefitsAmt - movie.RewardsAmt;
                 }
             }
         }
@@ -465,18 +466,18 @@ public class StatStore : IStatStore
         SL_BOOK[] books = _context.SL_BOOK.ToArray();
 
         IEnumerable<BookYearStatModel> model = from x in books
-                                                where x.END_DATE != null && x.START_DATE != null
-                                                group new { x } by new { x.USER_ID, x.END_DATE.Value.Year } into g
-                                                select new BookYearStatModel
-                                                {
-                                                    UserId = g.Key.USER_ID,
-                                                    Name = users[g.Key.USER_ID],
-                                                    Year = g.Key.Year,
-                                                    BookCnt = g.Count(),
-                                                    ChapterCnt = g.Sum(m => m.x.CHAPTERS) ?? 0,
-                                                    PageCnt = g.Sum(m => m.x.PAGES) ?? 0,
-                                                    TotalDays = (decimal)g.Sum(m => (m.x.END_DATE.Value - m.x.START_DATE.Value).TotalDays)
-                                                };
+                                               where x.END_DATE != null && x.START_DATE != null && (x.USER_ID == userId || friends.Contains(x.USER_ID))
+                                               group new { x } by new { x.USER_ID, x.END_DATE.Value.Year } into g
+                                               select new BookYearStatModel
+                                               {
+                                                   UserId = g.Key.USER_ID,
+                                                   Name = users[g.Key.USER_ID],
+                                                   Year = g.Key.Year,
+                                                   BookCnt = g.Count(),
+                                                   ChapterCnt = g.Sum(m => m.x.CHAPTERS) ?? 0,
+                                                   PageCnt = g.Sum(m => m.x.PAGES) ?? 0,
+                                                   TotalDays = (decimal)g.Sum(m => (m.x.END_DATE.Value - m.x.START_DATE.Value).TotalDays)
+                                               };
 
         return model;
     }
