@@ -1,21 +1,13 @@
 ﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using OAProjects.Batch.Config;
-using OAProjects.Batch.Models;
 using OAProjects.Batch.Processes.Interface;
 using OAProjects.Models.Common.Responses;
 using OAProjects.Models.ShowLogger.Models.Batch;
 using OAProjects.Models.ShowLogger.Requests.Batch;
 using OAProjects.Models.ShowLogger.Responses.Batch;
 using Serilog;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Net.Http.Json;
 using System.Text;
-using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace OAProjects.Batch.Processes;
 public class RefreshRecurringTvShowsProcess : IRefreshRecurringTvShowsProcess

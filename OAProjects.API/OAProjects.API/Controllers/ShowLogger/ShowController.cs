@@ -14,6 +14,7 @@ using OAProjects.Models.ShowLogger.Models.Show;
 using OAProjects.Store.OAIdentity.Stores.Interfaces;
 using OAProjects.Store.ShowLogger.Stores.Interfaces;
 using System.Linq.Expressions;
+using OAProjects.Models.ShowLogger.Models.WatchList;
 
 namespace OAProjects.API.Controllers.ShowLogger;
 
@@ -25,12 +26,14 @@ public class ShowController : BaseController
 {
     private readonly ILogger<ShowController> _logger;
     private readonly IShowStore _showStore;
+    private readonly IWatchListStore _watchListStore;
     private readonly IInfoStore _infoStore;
     private readonly ICodeValueStore _codeValueStore;
 
     public ShowController(ILogger<ShowController> logger,
         IUserStore userStore,
         IShowStore showStore,
+        IWatchListStore watchListStore,
         IInfoStore infoStore,
         ICodeValueStore codeValueStore,
         IHttpClientFactory httpClientFactory)
@@ -38,6 +41,7 @@ public class ShowController : BaseController
     {
         _logger = logger;
         _showStore = showStore;
+        _watchListStore = watchListStore;
         _infoStore = infoStore;
         _codeValueStore = codeValueStore;
     }
@@ -102,14 +106,14 @@ public class ShowController : BaseController
             int userId = await GetUserId();
 
             response.Model = new ShowGetResponse();
-            
+
             response.Model.Shows = GetShows(userId, search);
             response.Model.Count = response.Model.Shows.Count();
             response.Model.Shows = response.Model.Shows.OrderByDescending(m => m.DateWatched).ThenByDescending(m => m.ShowId).Skip(offset).Take(take).ToArray();
 
             foreach (DetailedShowModel show in response.Model.Shows)
             {
-                if(show.ShowTypeId == (int)CodeValueIds.AMC)
+                if (show.ShowTypeId == (int)CodeValueIds.AMC)
                 {
                     show.Transactions = GetShowTransactions(userId, show.ShowId);
 
@@ -183,16 +187,16 @@ public class ShowController : BaseController
         [FromServices] IValidator<ShowTransactionModel> transactionValidator)
     {
         PostResponse<DetailedShowModel> response = new PostResponse<DetailedShowModel>();
-        
+
         try
         {
             int userId = await GetUserId();
             ValidationResult showResult = await showValidator.ValidateAsync(model);
             List<ValidationResult> transactionResults = new List<ValidationResult>();
 
-            if(model.Transactions != null)
+            if (model.Transactions != null)
             {
-                foreach(ShowTransactionModel transaction in model.Transactions)
+                foreach (ShowTransactionModel transaction in model.Transactions)
                 {
                     ValidationResult transactionResult = await transactionValidator.ValidateAsync(transaction);
                     transactionResults.Add(transactionResult);
@@ -206,14 +210,14 @@ public class ShowController : BaseController
             {
                 List<string> errors = new List<string>();
 
-                if(showErrors)
+                if (showErrors)
                 {
                     errors.AddRange(showResult.Errors.Select(m => m.ErrorMessage));
                 }
 
-                if(transactionErrors)
+                if (transactionErrors)
                 {
-                    foreach(ValidationResult result in transactionResults) 
+                    foreach (ValidationResult result in transactionResults)
                     {
                         errors.AddRange(result.Errors.Select(m => m.ErrorMessage));
                     }
@@ -331,7 +335,7 @@ public class ShowController : BaseController
             {
                 bool successful = _showStore.AddOneDay(userId, request.ShowId);
 
-                if(successful)
+                if (successful)
                 {
                     response.Model = _showStore.GetShows(m => m.UserId == userId && m.ShowId == request.ShowId).First();
                 }
@@ -411,7 +415,7 @@ public class ShowController : BaseController
         [FromServices] IValidator<AddWatchFromSearchModel> showValidator,
         [FromServices] IValidator<ShowTransactionModel> transacationValidator)
     {
-        PostResponse<DetailedShowModel> response = new PostResponse<DetailedShowModel>();
+        PostResponse<AddWatchFromSearchResponse> response = new PostResponse<AddWatchFromSearchResponse>();
 
         try
         {
@@ -460,12 +464,12 @@ public class ShowController : BaseController
                     Id = model.Id
                 });
 
-                if(info.Type == INFO_TYPE.TV)
+                if (info.Type == INFO_TYPE.TV)
                 {
                     TvEpisodeInfoModel? episode = _infoStore.GetTvEpisodeInfos(m => m.TvInfoId == info.Id)
                         .FirstOrDefault(m => m.SeasonNumber == model.SeasonNumber && m.EpisodeNumber == model.EpisodeNumber);
 
-                    if(episode != null)
+                    if (episode != null)
                     {
                         infoId = episode.TvEpisodeInfoId;
                     }
@@ -475,27 +479,51 @@ public class ShowController : BaseController
                     infoId = (int)info.Id;
                 }
 
-                int showId = _showStore.CreateShow(userId, new ShowModel
+                if (!model.Watchlist)
                 {
-                    ShowName = model.ShowName,
-                    ShowTypeId = model.ShowTypeId,
-                    DateWatched = model.DateWatched,
-                    SeasonNumber = model.SeasonNumber,
-                    EpisodeNumber = model.EpisodeNumber,
-                    ShowNotes = model.ShowNotes,
-                    RestartBinge = model.RestartBinge,
-                    Transactions = model.Transactions
-                }, infoId);
-
-                if (showId > 0)
-                {
-                    response.Model = _showStore.GetShows(m => m.UserId == userId && m.ShowId == showId).First();
-
-                    if (response.Model.ShowTypeId == (int)CodeValueIds.AMC)
+                    int showId = _showStore.CreateShow(userId, new ShowModel
                     {
-                        response.Model.Transactions = GetShowTransactions(userId, response.Model.ShowId);
+                        ShowName = model.ShowName,
+                        ShowTypeId = model.ShowTypeId,
+                        DateWatched = model.DateWatched,
+                        SeasonNumber = model.SeasonNumber,
+                        EpisodeNumber = model.EpisodeNumber,
+                        ShowNotes = model.ShowNotes,
+                        RestartBinge = model.RestartBinge,
+                        Transactions = model.Transactions
+                    }, infoId);
+
+                    if (showId > 0)
+                    {
+
+                        response.Model.Show = _showStore.GetShows(m => m.UserId == userId && m.ShowId == showId).First();
+
+                        if (response.Model.Show.ShowTypeId == (int)CodeValueIds.AMC)
+                        {
+                            response.Model = new AddWatchFromSearchResponse();
+                            response.Model.Show.Transactions = GetShowTransactions(userId, response.Model.Show.ShowId);
+                        }
                     }
                 }
+                else
+                {
+                    int watchlistId = _watchListStore.CreateWatchList(userId, new WatchListModel
+                    {
+                        ShowName = model.ShowName,
+                        ShowTypeId = model.ShowTypeId,
+                        DateAdded = model.DateWatched,
+                        SeasonNumber = model.SeasonNumber,
+                        EpisodeNumber = model.EpisodeNumber,
+                        ShowNotes = model.ShowNotes,
+                    }, infoId);
+
+                    if (watchlistId > 0)
+                    {
+                        response.Model = new AddWatchFromSearchResponse();
+                        response.Model.WatchList = _watchListStore.GetWatchLists(m => m.UserId == userId && m.WatchlistId == watchlistId).First();
+                    }
+                }
+
             }
         }
         catch (Exception ex)
