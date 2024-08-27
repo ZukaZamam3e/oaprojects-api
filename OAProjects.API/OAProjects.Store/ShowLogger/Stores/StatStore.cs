@@ -173,7 +173,7 @@ public class StatStore : IStatStore
 
         if (currentEpisode != null)
         {
-            List<SL_TV_EPISODE_INFO> episodes = episodesList.Where(m => m.TV_INFO_ID == currentEpisode.TV_INFO_ID).ToList();
+            List<SL_TV_EPISODE_INFO> episodes = episodesList.Where(m => m.TV_INFO_ID == currentEpisode.TV_INFO_ID && m.AIR_DATE != null && m.AIR_DATE.Value <= DateTime.Now.Date).ToList();
             List<SL_TV_EPISODE_ORDER> orders = episodeOrders.Where(m => m.TV_INFO_ID == currentEpisode.TV_INFO_ID).ToList();
 
             if (episodes != null)
