@@ -28,6 +28,7 @@ public class ShowController : BaseController
     private readonly IShowStore _showStore;
     private readonly IWatchListStore _watchListStore;
     private readonly IInfoStore _infoStore;
+    private readonly IWhatsNextStore _whatsNextStore;
     private readonly ICodeValueStore _codeValueStore;
 
     public ShowController(ILogger<ShowController> logger,
@@ -35,6 +36,7 @@ public class ShowController : BaseController
         IShowStore showStore,
         IWatchListStore watchListStore,
         IInfoStore infoStore,
+        IWhatsNextStore whatsNextStore,
         ICodeValueStore codeValueStore,
         IHttpClientFactory httpClientFactory)
         : base(logger, userStore, httpClientFactory)
@@ -43,6 +45,7 @@ public class ShowController : BaseController
         _showStore = showStore;
         _watchListStore = watchListStore;
         _infoStore = infoStore;
+        _whatsNextStore = whatsNextStore;
         _codeValueStore = codeValueStore;
     }
 
@@ -54,6 +57,7 @@ public class ShowController : BaseController
         try
         {
             int userId = await GetUserId();
+            
             response.Model = new ShowLoadResponse();
 
             response.Model.ShowTypeIds = _codeValueStore.GetCodeValues(m => m.CodeTableId == (int)CodeTableIds.SHOW_TYPE_ID).Select(m => new SLCodeValueSimpleModel { CodeValueId = m.CodeValueId, DecodeTxt = m.DecodeTxt });
@@ -87,6 +91,8 @@ public class ShowController : BaseController
                         .Sum();
                 }
             }
+
+            _whatsNextStore.GetWhatsNext(userId);
         }
         catch (Exception ex)
         {

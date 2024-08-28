@@ -25,5 +25,7 @@ public class WhatsNextModel
 public class WhatsNextModelInfo : WhatsNextModel
 {
     public int UserId { get; set; }
-    public int LastSeasonWatched { get; set; }
+    public int SeasonNumber { get; set; }
+
+    public int[] TvEpisodeIds { get; set; }
 }
