@@ -9,5 +9,5 @@ using System.Threading.Tasks;
 namespace OAProjects.Store.ShowLogger.Stores.Interfaces;
 public interface IWhatsNextStore
 {
-    IEnumerable<WhatsNextModel> GetWhatsNext(int userId);
+    IEnumerable<WhatsNextShowModel> GetWhatsNext(int userId);
 }
