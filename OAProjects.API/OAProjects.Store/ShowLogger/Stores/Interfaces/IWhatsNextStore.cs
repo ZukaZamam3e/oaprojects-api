@@ -1,13 +1,18 @@
 ﻿using OAProjects.Models.ShowLogger.Models.WhatsNext;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace OAProjects.Store.ShowLogger.Stores.Interfaces;
 public interface IWhatsNextStore
 {
-    IEnumerable<WhatsNextShowModel> GetWhatsNext(int userId);
+    IEnumerable<WhatsNextShowModel> GetWhatsNext(int userId, Expression<Func<WhatsNextShowModel, bool>> predicate);
+
+    IEnumerable<WhatsNextWatchEpisodeModel> GetWhatsNextSubs(Expression<Func<WhatsNextWatchEpisodeModel, bool>>? predicate);
+
+    int CreateWhatsNextSub(int userId, WhatsNextWatchEpisodeModel model);
+
+    int UpdateWhatsNextSub(int userId, WhatsNextWatchEpisodeModel model);
+
+    bool DeleteWhatsNextSub(int userId, int whatsNextSubId);
+
+    int WatchEpisode(int userId, int tvEpisodeInfoId, DateTime dateWatched);
 }

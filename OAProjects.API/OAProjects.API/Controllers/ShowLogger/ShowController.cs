@@ -28,7 +28,6 @@ public class ShowController : BaseController
     private readonly IShowStore _showStore;
     private readonly IWatchListStore _watchListStore;
     private readonly IInfoStore _infoStore;
-    private readonly IWhatsNextStore _whatsNextStore;
     private readonly ICodeValueStore _codeValueStore;
 
     public ShowController(ILogger<ShowController> logger,
@@ -36,7 +35,6 @@ public class ShowController : BaseController
         IShowStore showStore,
         IWatchListStore watchListStore,
         IInfoStore infoStore,
-        IWhatsNextStore whatsNextStore,
         ICodeValueStore codeValueStore,
         IHttpClientFactory httpClientFactory)
         : base(logger, userStore, httpClientFactory)
@@ -45,7 +43,6 @@ public class ShowController : BaseController
         _showStore = showStore;
         _watchListStore = watchListStore;
         _infoStore = infoStore;
-        _whatsNextStore = whatsNextStore;
         _codeValueStore = codeValueStore;
     }
 
@@ -91,8 +88,6 @@ public class ShowController : BaseController
                         .Sum();
                 }
             }
-
-            _whatsNextStore.GetWhatsNext(userId);
         }
         catch (Exception ex)
         {
@@ -501,12 +496,11 @@ public class ShowController : BaseController
 
                     if (showId > 0)
                     {
-
+                        response.Model = new AddWatchFromSearchResponse();
                         response.Model.Show = _showStore.GetShows(m => m.UserId == userId && m.ShowId == showId).First();
 
                         if (response.Model.Show.ShowTypeId == (int)CodeValueIds.AMC)
                         {
-                            response.Model = new AddWatchFromSearchResponse();
                             response.Model.Show.Transactions = GetShowTransactions(userId, response.Model.Show.ShowId);
                         }
                     }

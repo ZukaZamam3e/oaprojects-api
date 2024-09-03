@@ -26,6 +26,9 @@ using OAProjects.Models.ShowLogger.Requests.Book;
 using OAProjects.Models.ShowLogger.Models.Book;
 using OAProjects.Models.ShowLogger.Models.Login;
 using OAProjects.API.Validators.ShowLogger.Login;
+using OAProjects.Models.ShowLogger.Models.WhatsNext;
+using OAProjects.Models.ShowLogger.Requests.WhatsNext;
+using OAProjects.API.Validators.ShowLogger.WhatsNext;
 
 namespace OAProjects.API.Setup;
 
@@ -80,6 +83,11 @@ public static class ShowLoggerSetup
         services.AddScoped<IValidator<BookIdRequest>, BookIdValidator>();
 
         services.AddScoped<IValidator<UserPrefModel>, UserPrefValidator>();
+
+        services.AddScoped<IValidator<WhatsNextWatchEpisodeModel>, WhatsNextSubValidator>();
+        services.AddScoped<IValidator<WhatsNextSubIdRequest>, WhatsNextSubIdValidator>();
+        services.AddScoped<IValidator<CreateSubscriptionModel>, CreateSubscriptionValidator>();
+        services.AddScoped<IValidator<WhatsNextWatchEpisodeRequest>, WhatsNextWatchEpisodeValidator>();
 
         return services;
     }

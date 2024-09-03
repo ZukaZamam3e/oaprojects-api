@@ -32,16 +32,30 @@ public class WhatsNextModelInfo : WhatsNextModel
 
 public class WhatsNextShowModel
 {
+    public int WhatsNextSubId { get; set; }
+
     public int TvInfoId { get; set; }
 
     public string ShowName { get; set; }
 
-    public string Status { get; set; }
+    public string SeasonStatus { get; set; }
 
     public int? SeasonNumber { get; set; }
 
     public string SeasonName { get; set; }
 
+    public DateTime StartDate { get; set; }
+    public DateTime EndDate { get; set; }
+
+    public string? PosterUrl { get; set; }
+
+    public string? BackdropUrl { get; set; }
+
+    public string? InfoUrl { get; set; }
+
+    public string? SeasonUrl { get; set; }
+
+    public string? Status { get; set; }
 
     public IEnumerable<WhatsNextEpisodeModel> Episodes { get; set; }
 }
@@ -58,4 +72,10 @@ public class WhatsNextEpisodeModel
     public string EpisodeName { get; set; }
 
     public DateTime AirDate { get; set; }
+
+    public string EpisodeOverview { get; set; }
+
+    public int? Runtime { get; set; }
+
+    public string ImageUrl { get; set; }
 }

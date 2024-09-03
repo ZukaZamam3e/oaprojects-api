@@ -18,7 +18,7 @@ namespace OAProjects.Data.ShowLogger.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.28")
+                .HasAnnotation("ProductVersion", "8.0.8")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
             modelBuilder.Entity("OAProjects.Data.ShowLogger.Entities.SL_BOOK", b =>
