@@ -205,6 +205,20 @@ public class StatController : BaseController
             response.Model.BookYearStats = GetBookYearStatsData(userId, search);
             response.Model.Count = response.Model.BookYearStats.Count();
             response.Model.BookYearStats = response.Model.BookYearStats.OrderByDescending(m => m.Year).ThenBy(m => m.Name).Skip(offset).Take(take).ToArray();
+
+            YearBookStatDataParameters[] parameters = response.Model.BookYearStats.Select(m => new YearBookStatDataParameters
+            {
+                UserId = m.UserId,
+                Year = m.Year
+            }).ToArray();
+
+            IEnumerable<BookYearStatDataModel> data = _statStore.GetBookYearStatData(parameters).ToArray();
+
+            foreach (BookYearStatModel year in response.Model.BookYearStats)
+            {
+                year.Data = data.Where(m => m.UserId == year.UserId && m.Year == year.Year).OrderBy(m => m.Month);
+                year.MonthAvg = year.Data.Count() / year.Data.Select(m => m.StartDate.Month).Distinct().Count();
+            }
         }
         catch (Exception ex)
         {

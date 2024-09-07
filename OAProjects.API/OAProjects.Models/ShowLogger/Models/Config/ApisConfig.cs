@@ -66,7 +66,24 @@ public class ApisConfig
 
         return (INFO_API)apiType switch
         {
-            INFO_API.TMDB_API => $"{TMDbURL}{TMDBApiPaths.TV}{$"{apiId}"}",
+            INFO_API.TMDB_API => $"{TMDbURL}{TMDBApiPaths.TV}{apiId}",
+            INFO_API.OMDB_API => "",
+            _ => throw new NotImplementedException(),
+        };
+    }
+
+    public string GetTvInfoSeasonUrl(int? apiType, string? apiId, int? seasonNumber)
+    {
+        if (apiType == null
+            || string.IsNullOrEmpty(apiId)
+            || seasonNumber == null)
+        {
+            return "";
+        }
+
+        return (INFO_API)apiType switch
+        {
+            INFO_API.TMDB_API => $"{TMDbURL}{TMDBApiPaths.TV}{apiId}/season/{seasonNumber}",
             INFO_API.OMDB_API => "",
             _ => throw new NotImplementedException(),
         };

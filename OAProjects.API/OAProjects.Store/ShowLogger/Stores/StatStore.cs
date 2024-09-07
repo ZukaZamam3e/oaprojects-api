@@ -173,7 +173,7 @@ public class StatStore : IStatStore
 
         if (currentEpisode != null)
         {
-            List<SL_TV_EPISODE_INFO> episodes = episodesList.Where(m => m.TV_INFO_ID == currentEpisode.TV_INFO_ID).ToList();
+            List<SL_TV_EPISODE_INFO> episodes = episodesList.Where(m => m.TV_INFO_ID == currentEpisode.TV_INFO_ID && m.AIR_DATE != null && m.AIR_DATE.Value <= DateTime.Now.Date).ToList();
             List<SL_TV_EPISODE_ORDER> orders = episodeOrders.Where(m => m.TV_INFO_ID == currentEpisode.TV_INFO_ID).ToList();
 
             if (episodes != null)
@@ -453,7 +453,7 @@ public class StatStore : IStatStore
                 WatchCount = m.WATCH_COUNT,
                 InfoBackdropUrl = _apisConfig.GetImageUrl(m.API_TYPE, m.BACKDROP_URL),
                 InfoUrl = m.SHOW_TYPE_ID == (int)CodeValueIds.TV ? _apisConfig.GetTvInfoUrl(m.API_TYPE, m.API_ID) : _apisConfig.GetMovieInfoUrl(m.API_TYPE, m.API_ID),
-            }) ;
+            });
 
         return query;
     }
@@ -480,5 +480,22 @@ public class StatStore : IStatStore
                                                };
 
         return model;
+    }
+
+    public IEnumerable<BookYearStatDataModel> GetBookYearStatData(YearBookStatDataParameters[] parameters)
+    {
+        IEnumerable<BookYearStatDataModel> query = _context.SL_BOOK.AsEnumerable()
+            .Where(m => m.START_DATE != null && m.END_DATE != null && parameters.Any(n => n.UserId == m.USER_ID && n.Year == m.START_DATE.Value.Year))
+            .Select(m => new BookYearStatDataModel
+            {
+                UserId = m.USER_ID,
+                StartDate = m.START_DATE.Value,
+                EndDate = m.END_DATE.Value,
+                BookName = m.BOOK_NAME,
+                Chapters = m.CHAPTERS,
+                Pages = m.PAGES
+            });
+
+        return query;
     }
 }

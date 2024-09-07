@@ -28,6 +28,8 @@ public class AddWatchFromSearchModel
 
     public bool RestartBinge { get; set; }
 
+    public bool Watchlist { get; set; }
+
     public IEnumerable<ShowTransactionModel>? Transactions { get; set; }
 
 }

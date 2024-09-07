@@ -26,4 +26,10 @@ public class BookYearStatModel
     public decimal PageAvg => (decimal)PageCnt / BookCnt;
 
     public string PageAvgZ => $"{Math.Round(PageAvg, 2):0.##}";
+
+    public decimal MonthAvg { get; set; }
+
+    public string MonthAvgZ => $"{Math.Round(MonthAvg, 2):0.##}";
+
+    public IEnumerable<BookYearStatDataModel> Data { get; set; }
 }
