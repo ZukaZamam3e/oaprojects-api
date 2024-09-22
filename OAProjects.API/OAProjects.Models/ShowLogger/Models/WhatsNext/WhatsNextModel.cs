@@ -57,6 +57,8 @@ public class WhatsNextShowModel
 
     public string? Status { get; set; }
 
+    public int DaysLeft { get; set; }
+
     public IEnumerable<WhatsNextEpisodeModel> Episodes { get; set; }
 }
 

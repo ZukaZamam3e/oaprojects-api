@@ -96,6 +96,7 @@ public class WhatsNextStore : IWhatsNextStore
                                               BackdropUrl = !string.IsNullOrEmpty(grp.Key.ti.BACKDROP_URL) ? $"{_apisConfig.TMDbURL}{TMDBApiPaths.Image}{grp.Key.ti.BACKDROP_URL}" : "",
                                               InfoUrl = _apisConfig.GetTvInfoUrl(grp.Key.ti.API_TYPE, grp.Key.ti.API_ID),
                                               SeasonUrl = _apisConfig.GetTvInfoSeasonUrl(grp.Key.ti.API_TYPE, grp.Key.ti.API_ID, grp.Key.SEASON_NUMBER),
+                                              DaysLeft = grp.Min(episode => episode.AIR_DATE) > today ? (int)(grp.Min(episode => episode.AIR_DATE) - today).Value.TotalDays : 0,
                                               Episodes = grp.Select(episode => new WhatsNextEpisodeModel
                                               {
                                                   TvEpisodeInfoId = episode.TV_EPISODE_INFO_ID,

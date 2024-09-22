@@ -46,9 +46,11 @@ public class BatchController : BaseController
         {
             int userId = await GetUserId();
 
+            string[] statuses = ["Returning Series", "In Production"];
+
             response.Model = new ReturningSeriesResponse
             {
-                ReturningSeries = _infoStore.GetTvInfos(m => m.Status == "Returning Series").Select(m => new ReturningSeriesModel
+                ReturningSeries = _infoStore.GetTvInfos(m => statuses.Contains(m.Status)).Select(m => new ReturningSeriesModel
                 {
                     LastRefreshDate = m.LastDataRefresh,
                     SeriesName = m.ShowName,
