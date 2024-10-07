@@ -42,7 +42,7 @@ public class WhatsNextStore : IWhatsNextStore
 
         int[] episodeIds = episodes.Select(m => m.TV_EPISODE_INFO_ID).ToArray();
         int[] watchedEpisodes = _context.SL_SHOW.Where(m => m.USER_ID == userId && m.INFO_ID != null && episodeIds.Contains(m.INFO_ID.Value)).Select(m => m.INFO_ID.Value).ToArray();
-        int[] missingEpisodes = episodeIds.Where(m => !watchedEpisodes.Contains(m)).ToArray();
+        //int[] missingEpisodes = episodeIds.Where(m => !watchedEpisodes.Contains(m)).ToArray();
 
         //List<WhatsNextShowModel> query = episodes
         //    .Where(m => m.AIR_DATE != null && subscriptions.Any(n => n.TV_INFO_ID == m.TV_INFO_ID && n.SUBSCRIBE_DATE <= m.AIR_DATE) && missingEpisodes.Contains(m.TV_EPISODE_INFO_ID))
@@ -78,7 +78,7 @@ public class WhatsNextStore : IWhatsNextStore
                                           join e in episodes on s.TV_INFO_ID equals e.TV_INFO_ID
                                           join ti in _context.SL_TV_INFO on e.TV_INFO_ID equals ti.TV_INFO_ID
                                           where s.SUBSCRIBE_DATE <= e.AIR_DATE
-                                             && missingEpisodes.Contains(e.TV_EPISODE_INFO_ID)
+                                             && episodeIds.Contains(e.TV_EPISODE_INFO_ID)
                                           group e by new { s, ti, e.TV_INFO.SHOW_NAME, e.SEASON_NUMBER, e.SEASON_NAME } into grp
                                           select new WhatsNextShowModel
                                           {
@@ -96,8 +96,10 @@ public class WhatsNextStore : IWhatsNextStore
                                               BackdropUrl = !string.IsNullOrEmpty(grp.Key.ti.BACKDROP_URL) ? $"{_apisConfig.TMDbURL}{TMDBApiPaths.Image}{grp.Key.ti.BACKDROP_URL}" : "",
                                               InfoUrl = _apisConfig.GetTvInfoUrl(grp.Key.ti.API_TYPE, grp.Key.ti.API_ID),
                                               SeasonUrl = _apisConfig.GetTvInfoSeasonUrl(grp.Key.ti.API_TYPE, grp.Key.ti.API_ID, grp.Key.SEASON_NUMBER),
-                                              DaysLeft = grp.Min(episode => episode.AIR_DATE) > today ? (int)(grp.Min(episode => episode.AIR_DATE) - today).Value.TotalDays : 0,
-                                              Episodes = grp.Select(episode => new WhatsNextEpisodeModel
+                                              NextAirDate = grp.Where(m => !watchedEpisodes.Contains(m.TV_EPISODE_INFO_ID)).Min(episode => episode.AIR_DATE) > today ? 
+                                                grp.Where(m => !watchedEpisodes.Contains(m.TV_EPISODE_INFO_ID)).Min(episode => episode.AIR_DATE) 
+                                                : null,
+                                              Episodes = grp.Where(m => !watchedEpisodes.Contains(m.TV_EPISODE_INFO_ID)).Select(episode => new WhatsNextEpisodeModel
                                               {
                                                   TvEpisodeInfoId = episode.TV_EPISODE_INFO_ID,
                                                   AirDate = episode.AIR_DATE.Value,
@@ -110,6 +112,8 @@ public class WhatsNextStore : IWhatsNextStore
                                                   Runtime = episode.RUNTIME
                                               }).OrderBy(m => m.AirDate)
                                           }).ToList();
+
+        query = query.Where(m => m.Episodes.Any()).ToList();
 
         if (predicate != null)
         {
