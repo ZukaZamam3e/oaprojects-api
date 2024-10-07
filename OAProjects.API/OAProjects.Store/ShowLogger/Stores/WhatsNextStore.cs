@@ -209,7 +209,7 @@ public class WhatsNextStore : IWhatsNextStore
                 USER_ID = userId,
                 SHOW_TYPE_ID = (int)CodeValueIds.TV,
                 SHOW_NAME = episodeInfo.TV_INFO.SHOW_NAME,
-                DATE_WATCHED = dateWatched,
+                DATE_WATCHED = dateWatched.Date,
                 SEASON_NUMBER = episodeInfo.SEASON_NUMBER,
                 EPISODE_NUMBER = episodeInfo.EPISODE_NUMBER,
                 INFO_ID = tvEpisodeInfoId
