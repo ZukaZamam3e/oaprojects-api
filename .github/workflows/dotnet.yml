@@ -56,7 +56,7 @@ jobs:
     - name: Batch App Settings Variable Substitution
       uses: microsoft/variable-substitution@v1
       with:
-        files: ./OAProjects.API/Release-API/appsettings.json
+        files: ./OAProjects.API/Release-Batch/appsettings.json
       env:
         Auth0API.Auth0Url: ${{ secrets.BATCH_AUTH0API_AUTH0URL }}
         Auth0API.Auth0ClientId: ${{ secrets.BATCH_AUTH0API_AUTH0CLIENTID }}
