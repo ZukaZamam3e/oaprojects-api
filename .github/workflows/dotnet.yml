@@ -53,12 +53,12 @@ jobs:
     - name: SFTP Deploy
       uses: wlixcc/SFTP-Deploy-Action@v1.2.4
       with:
-        username: ${{ secrets.SSH_USER }}
-        server: ${{ secrets.SSH_IP_ADDRESS }}
+        username: '${{ secrets.SSH_USER }}'
+        server: '${{ secrets.SSH_IP_ADDRESS }}'
         port: 22
-        ssh_private_key: ${{ secrets.SSH_PRIVATE_KEY }}
-        local_path: ./OAProjects.API/Release/*
-        remote_path: /oaprojects/oaprojects-api 
+        ssh_private_key: '${{ secrets.SSH_PRIVATE_KEY }}'
+        local_path: './OAProjects.API/Release/*'
+        remote_path: '/oaprojects/oaprojects-api'
 
     - name: Restart OAProjects-API
       uses: appleboy/ssh-action@v1.0.3
