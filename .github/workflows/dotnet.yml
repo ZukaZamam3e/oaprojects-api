@@ -1,0 +1,72 @@
+name: OAProjects-API Deployment
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+    
+defaults:
+  run:
+    working-directory: OAProjects.API
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET  
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 8.0.x
+        
+    - name: Restore dependencies
+      run: dotnet restore
+      
+    - name: Build
+      run: dotnet build --no-restore
+      
+    - name: Publish
+      run: dotnet publish -c Release --output ./Release
+ 
+    - name: App Settings Variable Substitution
+      uses: microsoft/variable-substitution@v1
+      with:
+        files: ./OAProjects.API/Release/appsettings.json
+      env:
+        ConnectionStrings.ShowLoggerConnection: ${{ secrets.SHOW_LOGGER_DB }}
+        ConnectionStrings.OAIdentityConnection: ${{ secrets.OA_IDENTITY_DB }}
+        ListeningPort: ${{ secrets.LISTENING_PORT }}
+        Auth0.Domain: ${{ secrets.AUTH0_DOMAIN }}
+        Auth0.Audience: ${{ secrets.AUTH0_AUDIENCE }}
+        Auth0.Url: ${{ secrets.AUTH0_URL }}
+        Auth0.Auth0ClientId: ${{ secrets.AUTH0_AUTH0CLIENTID }}
+        Auth0.Auth0ClientSecret: ${{ secrets.AUTH0_CLIENTSECRET }}
+        Auth0.Auth0Audience: ${{ secrets.AUTH0_AUDIENCE }}
+        Auth0.AUth0GrantType: ${{ secrets.AUTH0_GRANTTYPE }}
+        Auth0.Auth0Scopes: ${{ secrets.AUT0_SCOPES }}
+        Apis.TMDbAPIKey: ${{ secrets.APIS_TMDBAPIKEY }}
+        ShowLoggerSettings.LatestReleaseDate: ${{ env.ReleaseDate }}
+        
+    - name: SFTP Deploy
+      uses: wlixcc/SFTP-Deploy-Action@v1.2.2
+      with:
+        username: ${{ secrets.SSH_USER }}
+        server: ${{ secrets.SSH_IP_ADDRESS }}
+        port: 22
+        ssh_private_key: ${{ secrets.SSH_PRIVATE_KEY }}
+        local_path: ./OAProjects.API/Release/*
+        remote_path: /oaprojects/oaprojects-api 
+
+    - name: Restart OAProjects-API
+      uses: appleboy/ssh-actions@v1.0.3
+      with:
+        username: ${{ secrets.SSH_USER }}
+        server: ${{ secrets.SSH_USER }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        port: 22
+        script: |
+          ${{ secrets.SSH_RESTART_OAPROJECTS }}
+  
