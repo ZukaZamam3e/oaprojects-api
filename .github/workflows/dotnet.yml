@@ -61,7 +61,7 @@ jobs:
         remote_path: /oaprojects/oaprojects-api 
 
     - name: Restart OAProjects-API
-      uses: appleboy/ssh-actions@v1.0.3
+      uses: appleboy/ssh-action@v1.0.3
       with:
         username: ${{ secrets.SSH_USER }}
         server: ${{ secrets.SSH_USER }}
