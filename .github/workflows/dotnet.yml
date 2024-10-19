@@ -32,7 +32,7 @@ jobs:
       run: dotnet publish ./OAProjects.API/OAProjects.API.csproj -c Release --output ./Release-API
 
     - name: Batch Publish
-      run: dotnet publish ./OAProjects.API/OAProjects.Batch.csproj -c Release --output ./Release-Batch    
+      run: dotnet publish ./OAProjects.Batch/OAProjects.Batch.csproj -c Release --output ./Release-Batch    
  
     - name: API App Settings Variable Substitution
       uses: microsoft/variable-substitution@v1
