@@ -44,7 +44,7 @@ jobs:
         Auth0.Url: ${{ secrets.AUTH0_URL }}
         Auth0.Auth0ClientId: ${{ secrets.AUTH0_AUTH0CLIENTID }}
         Auth0.Auth0ClientSecret: ${{ secrets.AUTH0_CLIENTSECRET }}
-        Auth0.Auth0Audience: ${{ secrets.AUTH0_AUDIENCE }}
+        Auth0.Auth0Audience: ${{ secrets.AUTH0_AUTH0AUDIENCE }}
         Auth0.AUth0GrantType: ${{ secrets.AUTH0_GRANTTYPE }}
         Auth0.Auth0Scopes: ${{ secrets.AUT0_SCOPES }}
         Apis.TMDbAPIKey: ${{ secrets.APIS_TMDBAPIKEY }}
@@ -64,7 +64,7 @@ jobs:
       uses: appleboy/ssh-action@v1.0.3
       with:
         username: ${{ secrets.SSH_USER }}
-        server: ${{ secrets.SSH_IP_ADDRESS }}
+        host: ${{ secrets.SSH_IP_ADDRESS }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         port: 22
         script: |
