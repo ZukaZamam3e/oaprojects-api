@@ -29,7 +29,7 @@ jobs:
       run: dotnet build --no-restore
       
     - name: Publish
-      run: dotnet publish -c Release --output ./Release
+      run: dotnet publish ./OAProjects.API/OAProjects.API.csproj -c Release --output ./Release
  
     - name: App Settings Variable Substitution
       uses: microsoft/variable-substitution@v1
@@ -64,7 +64,7 @@ jobs:
       uses: appleboy/ssh-action@v1.0.3
       with:
         username: ${{ secrets.SSH_USER }}
-        server: ${{ secrets.SSH_USER }}
+        server: ${{ secrets.SSH_IP_ADDRESS }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         port: 22
         script: |
