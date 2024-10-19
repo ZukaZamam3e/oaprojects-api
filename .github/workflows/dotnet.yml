@@ -28,13 +28,16 @@ jobs:
     - name: Build
       run: dotnet build --no-restore
       
-    - name: Publish
-      run: dotnet publish ./OAProjects.API/OAProjects.API.csproj -c Release --output ./Release
+    - name: API Publish
+      run: dotnet publish ./OAProjects.API/OAProjects.API.csproj -c Release --output ./Release-API
+
+    - name: Batch Publish
+      run: dotnet publish ./OAProjects.API/OAProjects.Batch.csproj -c Release --output ./Release-Batch    
  
-    - name: App Settings Variable Substitution
+    - name: API App Settings Variable Substitution
       uses: microsoft/variable-substitution@v1
       with:
-        files: ./OAProjects.API/Release/appsettings.json
+        files: ./OAProjects.API/Release-API/appsettings.json
       env:
         ConnectionStrings.ShowLoggerConnection: ${{ secrets.SHOW_LOGGER_DB }}
         ConnectionStrings.OAIdentityConnection: ${{ secrets.OA_IDENTITY_DB }}
@@ -49,15 +52,29 @@ jobs:
         Auth0.Auth0Scopes: ${{ secrets.AUT0_SCOPES }}
         Apis.TMDbAPIKey: ${{ secrets.APIS_TMDBAPIKEY }}
         ShowLoggerSettings.LatestReleaseDate: ${{ env.ReleaseDate }}
+
+    - name: Batch App Settings Variable Substitution
+      uses: microsoft/variable-substitution@v1
+      with:
+        files: ./OAProjects.API/Release-API/appsettings.json
+      env:
+        Auth0API.Auth0Url: ${{ secrets.BATCH_AUTH0API_AUTH0URL }}
+        Auth0API.Auth0ClientId: ${{ secrets.BATCH_AUTH0API_AUTH0CLIENTID }}
+        Auth0API.Auth0ClientSecret: ${{ secrets.BATCH_AUTH0API_AUTH0CLIENTSECRET }}
+        Auth0API.Auth0Audience: ${{ secrets.BATCH_AUTH0API_AUTH0AUDIENCE }}
+        Auth0API.Auth0GrantType: ${{ secrets.BATCH_AUTH0API_AUTH0GRANTTYPE }}
+        Auth0API.Auth0Scopes: ${{ secrets.BATCH_AUTH0API_AUTH0SCOPES }}
+        OAProjectsAPI: ${{ secrets.BATCH_OAPROJECTSAPI }}
+        LogFolderPath: ${{ secrets.BATCH_LOGFOLDERPATH }}   
         
-    - name: SFTP Deploy
+    - name: API SFTP Deploy
       uses: wlixcc/SFTP-Deploy-Action@v1.2.4
       with:
         username: '${{ secrets.SSH_USER }}'
         server: '${{ secrets.SSH_IP_ADDRESS }}'
         port: 22
         ssh_private_key: '${{ secrets.SSH_PRIVATE_KEY }}'
-        local_path: './OAProjects.API/Release/*'
+        local_path: './OAProjects.API/Release-API/*'
         remote_path: '/oaprojects/oaprojects-api'
 
     - name: Restart OAProjects-API
@@ -68,5 +85,15 @@ jobs:
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         port: 22
         script: |
-          ${{ secrets.SSH_RESTART_OAPROJECTS }}
+          ${{ secrets.SSH_RESTART_OAPROJECTS }}        
+
+    - name: Batch SFTP Deploy
+      uses: wlixcc/SFTP-Deploy-Action@v1.2.4
+      with:
+        username: '${{ secrets.SSH_USER }}'
+        server: '${{ secrets.SSH_IP_ADDRESS }}'
+        port: 22
+        ssh_private_key: '${{ secrets.SSH_PRIVATE_KEY }}'
+        local_path: './OAProjects.API/Release-Batch/*'
+        remote_path: '/oaprojects/oaprojects-batch'        
   
