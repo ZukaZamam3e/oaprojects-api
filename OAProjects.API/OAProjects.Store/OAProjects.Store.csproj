@@ -22,4 +22,8 @@
     <ProjectReference Include="..\OAProjects.Models\OAProjects.Models.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="FinanceTracker\" />
+  </ItemGroup>
+
 </Project>

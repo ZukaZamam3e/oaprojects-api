@@ -27,6 +27,7 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddOAIdentityDb(builder.Configuration);
 builder.Services.AddShowLoggerDb(builder.Configuration);
+builder.Services.AddFinanceTrackerDb(builder.Configuration);
 
 ApisConfig apisConfig = new ApisConfig();
 builder.Configuration.GetSection("Apis").Bind(apisConfig);
