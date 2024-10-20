@@ -146,8 +146,7 @@ public class ShowStore : IShowStore
             entity.SEASON_NUMBER = model.SeasonNumber;
             entity.SHOW_NAME = model.ShowName;
             entity.SHOW_NOTES = model.ShowNotes;
-
-            
+            entity.RESTART_BINGE = model.RestartBinge;
 
             result = _context.SaveChanges();
 

@@ -106,7 +106,7 @@ public class FriendHistoryController : BaseController
 
             response.Model.BookFriendHistory = GetBookData(userId, search);
             response.Model.Count = response.Model.BookFriendHistory.Count();
-            response.Model.BookFriendHistory = response.Model.BookFriendHistory.OrderByDescending(m => m.Book.EndDate == null).ThenByDescending(m => m.Book.EndDate).ThenByDescending(m => m.Book.StartDate).Skip(offset).Take(take).ToArray();
+            response.Model.BookFriendHistory = response.Model.BookFriendHistory.OrderByDescending(m => m.Book.EndDate).ThenByDescending(m => m.Book.StartDate).Skip(offset).Take(take).ToArray();
         }
         catch (Exception ex)
         {
@@ -129,8 +129,8 @@ public class FriendHistoryController : BaseController
         {
             if (DateTime.TryParse(search, out dateSearch))
             {
-                predicate = m => (m.Book.StartDate != null ? m.Book.StartDate.Value.Date == dateSearch.Date : true)
-                    || (m.Book.EndDate != null ? m.Book.EndDate.Value.Date == dateSearch.Date : true);
+                predicate = m => (m.Book.StartDate == null || m.Book.StartDate.Value.Date == dateSearch.Date)
+                    || (m.Book.EndDate == null || m.Book.EndDate.Value.Date == dateSearch.Date);
             }
             else
             {

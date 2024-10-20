@@ -56,8 +56,10 @@ public class WhatsNextShowModel
     public string? SeasonUrl { get; set; }
 
     public string? Status { get; set; }
+    public DateTime? NextAirDate { get; set; }
 
-    public int DaysLeft { get; set; }
+    public string? NextAirDateDay => NextAirDate?.DayOfWeek.ToString();
+    public int NextAirDateCount => (int)(NextAirDate != null ? (NextAirDate.Value - DateTime.Now.Date).TotalDays : 0);
 
     public IEnumerable<WhatsNextEpisodeModel> Episodes { get; set; }
 }
