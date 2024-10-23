@@ -2,7 +2,7 @@
 using System.Linq.Expressions;
 
 namespace OAProjects.Store.FinanceTracker.Stores.Interfaces;
-internal interface IFTCodeValueStore
+public interface IFTCodeValueStore
 {
     IEnumerable<FTCodeValueModel> GetCodeValues(Expression<Func<FTCodeValueModel, bool>>? predicate = null);
 }

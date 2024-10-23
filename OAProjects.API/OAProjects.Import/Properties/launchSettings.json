@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "OAProjects.Import": {
+      "commandName": "Project",
+      "commandLineArgs": "p2"
+    }
+  }
+}

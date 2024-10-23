@@ -5,7 +5,7 @@ public class AccountModel
 
     public int UserId { get; set; }
 
-    public string AccoutnName { get; set; }
+    public string AccountName { get; set; }
 
     public bool DefaultIndc { get; set; }
 }

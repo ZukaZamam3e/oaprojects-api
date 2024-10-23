@@ -10,6 +10,6 @@ public class FT_ACCOUNT
 
     public string ACCOUNT_NAME { get; set; }
 
-    public bool IS_DEFAULT { get; set; }
+    public bool DEFAULT_INDC { get; set; }
 
 }

@@ -12,4 +12,6 @@ public class DataConfig
     public string ShowLoggerDbName { get; set; }
 
     public string OAIdentityDbName { get; set; }
+
+    public string FinanceDataFolderPath { get; set; }
 }

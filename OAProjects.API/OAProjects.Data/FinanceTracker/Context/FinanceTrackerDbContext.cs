@@ -9,6 +9,7 @@ public class FinanceTrackerDbContext(DbContextOptions<FinanceTrackerDbContext> o
     public DbSet<FT_ACCOUNT> FT_ACCOUNT { get; set; }
     public DbSet<FT_TRANSACTION> FT_TRANSACTION { get; set; }
     public DbSet<FT_TRANSACTION_OFFSET> FT_TRANSACTION_OFFSET { get; set; }
+    public DbSet<FT_ID_XREF> FT_ID_XREF { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -18,6 +19,7 @@ public class FinanceTrackerDbContext(DbContextOptions<FinanceTrackerDbContext> o
         modelBuilder.Entity<FT_TRANSACTION>().HasKey(m => m.TRANSACTION_ID);
         modelBuilder.Entity<FT_TRANSACTION_OFFSET>().HasKey(m => m.TRANSACTION_OFFSET_ID);
         modelBuilder.Entity<FT_CODE_VALUE>().HasKey(m => m.CODE_VALUE_ID);
+        modelBuilder.Entity<FT_ID_XREF>().HasKey(m => m.ID_XREF_ID);
 
         modelBuilder.Entity<FT_CODE_VALUE>().HasData(
             new FT_CODE_VALUE { CODE_TABLE_ID = (int)FT_CodeTableIds.FREQUENCY_TYPES, CODE_VALUE_ID = (int)FT_CodeValueIds.HARDSET, DECODE_TXT = "Hardset" },
@@ -58,7 +60,7 @@ public class FinanceTrackerDbContext(DbContextOptions<FinanceTrackerDbContext> o
             entity.Property(e => e.ACCOUNT_NAME)
                 .HasMaxLength(30);
 
-            entity.Property(e => e.IS_DEFAULT)
+            entity.Property(e => e.DEFAULT_INDC)
                 .IsRequired();
         });
 
@@ -68,6 +70,9 @@ public class FinanceTrackerDbContext(DbContextOptions<FinanceTrackerDbContext> o
                 .ValueGeneratedOnAdd();
 
             entity.Property(e => e.ACCOUNT_ID)
+                .IsRequired();
+
+            entity.Property(e => e.USER_ID)
                 .IsRequired();
 
             entity.Property(e => e.TRANSACTION_NAME)
@@ -95,6 +100,12 @@ public class FinanceTrackerDbContext(DbContextOptions<FinanceTrackerDbContext> o
             entity.Property(e => e.TRANSACTION_OFFSET_ID)
                 .ValueGeneratedOnAdd();
 
+            entity.Property(e => e.ACCOUNT_ID)
+                .IsRequired();
+
+            entity.Property(e => e.USER_ID)
+                .IsRequired();
+
             entity.Property(e => e.TRANSACTION_ID)
                 .IsRequired();
 
@@ -102,6 +113,21 @@ public class FinanceTrackerDbContext(DbContextOptions<FinanceTrackerDbContext> o
                 .IsRequired();
 
             entity.Property(e => e.OFFSET_DATE)
+                .IsRequired();
+        });
+
+        modelBuilder.Entity<FT_ID_XREF>(entity =>
+        {
+            entity.Property(e => e.ID_XREF_ID)
+                .ValueGeneratedOnAdd();
+
+            entity.Property(e => e.OLD_ID)
+                .IsRequired();
+
+            entity.Property(e => e.TABLE_ID)
+                .IsRequired();
+
+            entity.Property(e => e.NEW_ID)
                 .IsRequired();
         });
     }

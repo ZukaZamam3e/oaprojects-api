@@ -8,6 +8,8 @@ public class FT_TRANSACTION
 
     public int ACCOUNT_ID { get; set; }
 
+    public int USER_ID { get; set; }
+
     public string TRANSACTION_NAME { get; set; }
 
     public DateTime START_DATE { get; set; }
