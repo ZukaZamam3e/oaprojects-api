@@ -11,4 +11,9 @@ public class DayModel
 
     public List<TransactionModel> Transactions { get; set; }
     public List<TransactionOffsetModel> Offsets { get; set; }
+
+    public override string ToString()
+    {
+        return Date.ToString("MM/dd/yyyy");
+    }
 }

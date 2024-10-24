@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using OAProjects.API.Controllers.ShowLogger;
+using OAProjects.Models.Common;
 using OAProjects.Models.Common.Responses;
 using OAProjects.Models.FinanceTracker.Models;
 using OAProjects.Models.FinanceTracker.Responses.Calendar;
@@ -31,9 +32,15 @@ public class CalendarController(
 
         try
         {
+            int userId = await GetUserId();
             AccountManager accountManager = new AccountManager();
 
+            IEnumerable<TransactionModel> transactions = _ftTransactionStore.GetTransactions(accountId: accountId);
+            IEnumerable<TransactionOffsetModel> offsets = _ftTransactionOffsetStore.GetTransactionOffsets(accountId: accountId);
+            DateTime beginningOfWeek = new DateTime(selectedDate.Year, selectedDate.Month, 1).StartOfWeek(DayOfWeek.Sunday);
+            DateTime endDate = beginningOfWeek.AddDays(41);
 
+            accountManager.Calculate(userId, accountId, beginningOfWeek, endDate, transactions, offsets);
 
             //accountManager.Calculate(1000, 1000, new DateTime(2024, 10, 01), new DateTime(2024, 10, 01))
         }

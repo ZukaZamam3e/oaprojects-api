@@ -24,6 +24,8 @@ public class TransactionModel
 
     public string? TransactionUrl { get; set; }
 
+    public int? Interval { get; set; }
+
     //public DateTime? OffsetDate { get; set; }
 
     //public decimal? OffsetAmount { get; set; }

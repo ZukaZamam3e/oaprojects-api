@@ -22,7 +22,7 @@ public class FTTransactionStore(FinanceTrackerDbContext _context) : IFTTransacti
         }
 
         Dictionary<int, string> frequencyTypeIds = _context.FT_CODE_VALUE
-            .Where(m => m.CODE_TABLE_ID == (int)CodeTableIds.TRANSACTION_TYPE_ID)
+            .Where(m => m.CODE_TABLE_ID == (int)FT_CodeTableIds.FREQUENCY_TYPES)
             .ToDictionary(m => m.CODE_VALUE_ID, m => m.DECODE_TXT);
 
         FT_TRANSACTION[] transactionEntities = [.. _context.FT_TRANSACTION.Where(predicate)];

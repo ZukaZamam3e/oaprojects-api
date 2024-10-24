@@ -30,7 +30,10 @@ public class FinanceTrackerDbContext(DbContextOptions<FinanceTrackerDbContext> o
             new FT_CODE_VALUE { CODE_TABLE_ID = (int)FT_CodeTableIds.FREQUENCY_TYPES, CODE_VALUE_ID = (int)FT_CodeValueIds.EVERFOURWEEKS, DECODE_TXT = "Every Four Weeks" },
             new FT_CODE_VALUE { CODE_TABLE_ID = (int)FT_CodeTableIds.FREQUENCY_TYPES, CODE_VALUE_ID = (int)FT_CodeValueIds.MONTHLY, DECODE_TXT = "Monthly" },
             new FT_CODE_VALUE { CODE_TABLE_ID = (int)FT_CodeTableIds.FREQUENCY_TYPES, CODE_VALUE_ID = (int)FT_CodeValueIds.QUARTERLY, DECODE_TXT = "Quarterly" },
-            new FT_CODE_VALUE { CODE_TABLE_ID = (int)FT_CodeTableIds.FREQUENCY_TYPES, CODE_VALUE_ID = (int)FT_CodeValueIds.YEARLY, DECODE_TXT = "Yearly" }
+            new FT_CODE_VALUE { CODE_TABLE_ID = (int)FT_CodeTableIds.FREQUENCY_TYPES, CODE_VALUE_ID = (int)FT_CodeValueIds.YEARLY, DECODE_TXT = "Yearly" },
+            new FT_CODE_VALUE { CODE_TABLE_ID = (int)FT_CodeTableIds.FREQUENCY_TYPES, CODE_VALUE_ID = (int)FT_CodeValueIds.EVERY_N_DAYS, DECODE_TXT = "Every N Days" },
+            new FT_CODE_VALUE { CODE_TABLE_ID = (int)FT_CodeTableIds.FREQUENCY_TYPES, CODE_VALUE_ID = (int)FT_CodeValueIds.EVERY_N_WEEKS, DECODE_TXT = "Every N Weeks" },
+            new FT_CODE_VALUE { CODE_TABLE_ID = (int)FT_CodeTableIds.FREQUENCY_TYPES, CODE_VALUE_ID = (int)FT_CodeValueIds.EVERY_N_MONTHS, DECODE_TXT = "Every N Months" }
         );
 
         modelBuilder.Entity<FT_CODE_VALUE>(entity =>

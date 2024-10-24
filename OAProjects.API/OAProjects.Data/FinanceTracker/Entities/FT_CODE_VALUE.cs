@@ -26,4 +26,7 @@ public enum FT_CodeValueIds
     MONTHLY = 1006,
     QUARTERLY = 1007,
     YEARLY = 1008,
+    EVERY_N_DAYS = 1009,
+    EVERY_N_WEEKS = 1010,
+    EVERY_N_MONTHS = 1011
 }

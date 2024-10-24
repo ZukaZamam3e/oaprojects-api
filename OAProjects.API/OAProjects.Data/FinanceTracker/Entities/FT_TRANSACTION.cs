@@ -20,6 +20,8 @@ public class FT_TRANSACTION
 
     public int FREQUENCY_TYPE_ID { get; set; }
 
+    public int? INTERVAL { get; set; }
+
     public string? TRANSACTION_NOTES { get; set; }
 
     public string? TRANSACTION_URL { get; set; }
