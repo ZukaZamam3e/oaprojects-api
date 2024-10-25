@@ -77,6 +77,8 @@ builder.Services.AddHttpClient("Auth0", httpClient =>
     httpClient.BaseAddress = new Uri(builder.Configuration["Auth0:Url"]);
 });
 
+builder.Services.AddMemoryCache();
+
 var app = builder.Build();
 
 

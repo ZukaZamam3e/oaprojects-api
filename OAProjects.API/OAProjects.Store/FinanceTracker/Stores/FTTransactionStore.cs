@@ -8,17 +8,17 @@ using System.Linq.Expressions;
 namespace OAProjects.Store.FinanceTracker.Stores;
 public class FTTransactionStore(FinanceTrackerDbContext _context) : IFTTransactionStore
 {
-    public IEnumerable<TransactionModel> GetTransactions(int? transactionId = null, int? accountId = null)
+    public IEnumerable<TransactionModel> GetTransactions(int userId, int? transactionId = null, int? accountId = null)
     {
         Expression<Func<FT_TRANSACTION, bool>>? predicate = m => true;
 
         if (transactionId != null)
         {
-            predicate = m => m.TRANSACTION_ID == transactionId;
+            predicate = m => m.TRANSACTION_ID == transactionId && m.USER_ID == userId;
         }
         else if (accountId != null)
         {
-            predicate = m => m.ACCOUNT_ID == accountId;
+            predicate = m => m.ACCOUNT_ID == accountId && m.USER_ID == userId;
         }
 
         Dictionary<int, string> frequencyTypeIds = _context.FT_CODE_VALUE

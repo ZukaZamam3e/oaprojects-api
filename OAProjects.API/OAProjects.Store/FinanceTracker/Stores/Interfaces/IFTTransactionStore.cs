@@ -4,7 +4,7 @@ using OAProjects.Store.Stores.Interfaces;
 namespace OAProjects.Store.FinanceTracker.Stores.Interfaces;
 public interface IFTTransactionStore : IStore
 {
-    IEnumerable<TransactionModel> GetTransactions(int? transactionId = null, int? accountId = null);
+    IEnumerable<TransactionModel> GetTransactions(int userId, int? transactionId = null, int? accountId = null);
 
     int CreateTransaction(int userId, int accountId, TransactionModel transaction);
 

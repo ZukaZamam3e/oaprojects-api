@@ -17,5 +17,7 @@ public class GetFinancesResponse
 
     public decimal MonthExpenses { get; set; }
 
+    public DayModel LowestDay { get; set; }
+
     public IEnumerable<DayModel> Days { get; set; }
 }
