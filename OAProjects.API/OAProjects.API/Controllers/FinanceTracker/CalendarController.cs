@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Identity.Client;
 using OAProjects.Models.Common;
 using OAProjects.Models.Common.Responses;
 using OAProjects.Models.FinanceTracker.Models;
@@ -35,6 +36,9 @@ public class CalendarController(
 
         try
         {
+            DateTime beginningOfWeek = new DateTime(selectedDate.Year, selectedDate.Month, 1).StartOfWeek(DayOfWeek.Sunday);
+            DateTime endDate = beginningOfWeek.AddDays(41);
+
             int userId = await GetUserId();
             int accountId;
             IEnumerable<AccountModel> accounts = _ftAccountStore.GetAccounts(userId).ToList();
@@ -46,7 +50,7 @@ public class CalendarController(
                     DefaultIndc = true,
                 });
 
-                SetUpCalendar(userId, accountId);
+                SetUpCalendar(userId, accountId, null, endDate);
 
                 accounts = _ftAccountStore.GetAccounts(userId).ToList();
             }
@@ -58,7 +62,7 @@ public class CalendarController(
 
                 foreach (AccountModel account in accounts)
                 {
-                    SetUpCalendar(userId, account.AccountId);
+                    SetUpCalendar(userId, account.AccountId, null, endDate);
                 }
             }
 
@@ -66,8 +70,7 @@ public class CalendarController(
 
             if (calendar is not null)
             {
-                DateTime beginningOfWeek = new DateTime(selectedDate.Year, selectedDate.Month, 1).StartOfWeek(DayOfWeek.Sunday);
-                DateTime endDate = beginningOfWeek.AddDays(41);
+                
 
                 response.Model = new LoadResponse
                 {
@@ -217,10 +220,11 @@ public class CalendarController(
                     };
 
                     _ftTransactionOffsetStore.CreateTransactionOffset(userId, model.AccountId, offset);
-
-
-                    response.Model = _ftTransactionStore.GetTransactions(userId, transactionId: transactionId).First();
                 }
+
+                response.Model = _ftTransactionStore.GetTransactions(userId, transactionId: transactionId).First();
+
+                SetUpCalendar(userId, model.AccountId);
             }
         }
         catch (Exception ex)
@@ -231,21 +235,36 @@ public class CalendarController(
         return Ok(response);
     }
 
-    private void SetUpCalendar(int userId, int accountId)
+    private void SetUpCalendar(int userId, int accountId, DateTime? startDate = null, DateTime? endDate = null)
     {
+        CalendarModel calendar = GetCalendarFromCache(userId, accountId);
+
         IEnumerable<TransactionModel> transactions = _ftTransactionStore.GetTransactions(userId, accountId: accountId).ToList();
         IEnumerable<TransactionOffsetModel> offsets = _ftTransactionOffsetStore.GetTransactionOffsets(userId, accountId: accountId).ToList();
 
-        CalendarModel calendar = new CalendarModel
-        (
-            userId,
-            accountId,
-            transactions.Min(m => m.StartDate),
-            transactions.ToList(),
-            offsets.ToList()
-        );
+        if (calendar is null)
+        {
+            calendar = new CalendarModel
+            (
+                userId,
+                accountId,
+                transactions.Min(m => m.StartDate),
+                transactions.ToList(),
+                offsets.ToList()
+            );
+        }
 
-        calendar.Calculate(calendar.StartDate, DateTime.Now.AddMonths(2));
+        if(startDate == null)
+        {
+            startDate = calendar.StartDate;
+        }
+
+        if (endDate == null)
+        {
+            endDate = calendar.EndDate;
+        }
+
+        calendar.Calculate(startDate.Value, endDate.Value);
 
         CacheCalendar(calendar);
     }

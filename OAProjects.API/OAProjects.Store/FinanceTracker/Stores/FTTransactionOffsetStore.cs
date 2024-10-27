@@ -30,6 +30,7 @@ public class FTTransactionOffsetStore(FinanceTrackerDbContext _context) : IFTTra
 
         IEnumerable<TransactionOffsetModel> query = offsetEntities.Select(m => new TransactionOffsetModel
         {
+            TransactionOffsetId = m.TRANSACTION_OFFSET_ID,
             TransactionId = m.TRANSACTION_ID,
             AccountId = m.ACCOUNT_ID,
             UserId = m.USER_ID,
@@ -82,13 +83,16 @@ public class FTTransactionOffsetStore(FinanceTrackerDbContext _context) : IFTTra
 
         if (entity != null)
         {
-            IEnumerable<FT_TRANSACTION_OFFSET> offsetEntities = _context.FT_TRANSACTION_OFFSET.Where(m => m.TRANSACTION_ID == offsetId);
+            FT_TRANSACTION_OFFSET? offsetEntity = _context.FT_TRANSACTION_OFFSET.FirstOrDefault(m => m.TRANSACTION_OFFSET_ID == offsetId);
 
-            _context.FT_TRANSACTION_OFFSET.RemoveRange(offsetEntities);
+            if(offsetEntity is not null)
+            {
+                _context.FT_TRANSACTION_OFFSET.Remove(offsetEntity);
 
-            _context.SaveChanges();
+                _context.SaveChanges();
 
-            result = true;
+                result = true;
+            }
         }
 
         return result;
