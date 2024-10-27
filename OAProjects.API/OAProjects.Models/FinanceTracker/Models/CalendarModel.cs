@@ -145,5 +145,3 @@ public class CalendarModel(int userId, int accountId, DateTime startDate, IEnume
         };
     }
 }
-
-// response object will have the low day

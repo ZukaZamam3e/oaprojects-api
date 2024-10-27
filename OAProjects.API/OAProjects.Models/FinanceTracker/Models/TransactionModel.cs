@@ -26,9 +26,7 @@ public class TransactionModel
 
     public int? Interval { get; set; }
 
-    //public DateTime? OffsetDate { get; set; }
+    public DateTime? OffsetDate { get; set; }
 
-    //public decimal? OffsetAmount { get; set; }
-
-    //public Dictionary<DateTime, decimal> OffsetAmounts { get; set; } = new Dictionary<DateTime, decimal>();
+    public decimal? OffsetAmount { get; set; }
 }

@@ -1,19 +1,16 @@
-﻿using Azure;
-using FluentValidation.Validators;
+﻿using FluentValidation;
+using FluentValidation.Results;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Identity.Client;
-using OAProjects.API.Controllers.ShowLogger;
 using OAProjects.Models.Common;
 using OAProjects.Models.Common.Responses;
 using OAProjects.Models.FinanceTracker.Models;
+using OAProjects.Models.FinanceTracker.Requests.Calendar;
 using OAProjects.Models.FinanceTracker.Responses.Calendar;
-using OAProjects.Models.ShowLogger.Responses.Show;
 using OAProjects.Store.FinanceTracker.Stores.Interfaces;
 using OAProjects.Store.OAIdentity.Stores.Interfaces;
-using System.Globalization;
 
 namespace OAProjects.API.Controllers.FinanceTracker;
 
@@ -34,7 +31,7 @@ public class CalendarController(
     [HttpGet("Load")]
     public async Task<IActionResult> Load(DateTime selectedDate)
     {
-        GetResponse<GetFinancesResponse> response = new GetResponse<GetFinancesResponse>();
+        GetResponse<LoadResponse> response = new GetResponse<LoadResponse>();
 
         try
         {
@@ -51,7 +48,7 @@ public class CalendarController(
 
                 SetUpCalendar(userId, accountId);
 
-                
+                accounts = _ftAccountStore.GetAccounts(userId).ToList();
             }
             else
             {
@@ -67,12 +64,12 @@ public class CalendarController(
 
             CalendarModel? calendar = GetCalendarFromCache(userId, accountId);
 
-            if(calendar is not null)
+            if (calendar is not null)
             {
                 DateTime beginningOfWeek = new DateTime(selectedDate.Year, selectedDate.Month, 1).StartOfWeek(DayOfWeek.Sunday);
                 DateTime endDate = beginningOfWeek.AddDays(41);
 
-                response.Model = new GetFinancesResponse
+                response.Model = new LoadResponse
                 {
                     AccountId = accountId,
                     CanGoBack = true,
@@ -80,6 +77,7 @@ public class CalendarController(
                     Days = calendar.Days.Where(m => m.Date >= beginningOfWeek && m.Date <= endDate).OrderBy(m => m.Date),
                     Month = selectedDate.Month,
                     MonthYear = selectedDate.ToString("MMM yyyy"),
+                    Accounts = accounts
                 };
 
                 IEnumerable<DayModel> monthDays = response.Model.Days.Where(m => m.Date.Month == selectedDate.Month).AsEnumerable();
@@ -121,8 +119,8 @@ public class CalendarController(
                 response.Model = new GetFinancesResponse
                 {
                     AccountId = accountId,
-                    CanGoBack = true, 
-                    CanGoFurther = true, 
+                    CanGoBack = true,
+                    CanGoFurther = true,
                     Days = calendar.Days.Where(m => m.Date >= beginningOfWeek && m.Date <= endDate).OrderBy(m => m.Date),
                     Month = selectedDate.Month,
                     MonthYear = selectedDate.ToString("MMM yyyy"),
@@ -133,8 +131,96 @@ public class CalendarController(
                 response.Model.LowestDay = monthDays.OrderBy(m => m.Total).First();
                 response.Model.MonthIncome = monthDays.Sum(m => m.Income);
                 response.Model.MonthExpenses = monthDays.Sum(m => m.Expenses);
+            }
+        }
+        catch (Exception ex)
+        {
+            response.Errors = new List<string>() { ex.Message };
+        }
+
+        return Ok(response);
+    }
+
+    [HttpGet("GetFinancesOnDay")]
+    public async Task<IActionResult> GetFinancesOnDay(int accountId, DateTime selectedDate)
+    {
+        GetResponse<DayModel> response = new GetResponse<DayModel>();
+
+        try
+        {
+            int userId = await GetUserId();
+            CalendarModel calendar = GetCalendarFromCache(userId, accountId);
+
+            response.Model = calendar.Days.First(m => m.Date == selectedDate.Date);
+
+        }
+        catch (Exception ex)
+        {
+            response.Errors = new List<string>() { ex.Message };
+        }
+
+        return Ok(response);
+    }
+
+    [HttpPost("SaveTransaction")]
+    public async Task<IActionResult> SaveTransaction(SaveTransactionRequest model,
+        [FromServices] IValidator<TransactionModel> validator)
+    {
+        PostResponse<TransactionModel> response = new PostResponse<TransactionModel>();
+
+        try
+        {
+            int userId = await GetUserId();
+            ValidationResult result = await validator.ValidateAsync(model.Transaction);
+
+            if (!result.IsValid)
+            {
+                response.Errors = result.Errors.Select(m => m.ErrorMessage);
+            }
+            else
+            {
+                int transactionId = model.Transaction.TransactionId;
+
+                if (transactionId <= 0)
+                {
+                    transactionId = _ftTransactionStore.CreateTransaction(userId, model.AccountId, model.Transaction);
+                }
+                else
+                {
+                    _ftTransactionStore.UpdateTransaction(userId, model.AccountId, model.Transaction);
+                }
+
+                TransactionOffsetModel? offset = _ftTransactionOffsetStore.GetTransactionOffsets(userId, model.Transaction.TransactionId).Where(m => m.OffsetDate == model.SelectedDate).FirstOrDefault();
+
+                if (offset != null)
+                {
+                    if (model.Transaction.OffsetAmount is not null && model.Transaction.OffsetDate is not null)
+                    {
+                        offset.OffsetAmount = model.Transaction.OffsetAmount.Value;
+                        _ftTransactionOffsetStore.UpdateTransactionOffset(userId, model.AccountId, offset);
+                    }
+                    else
+                    {
+                        _ftTransactionOffsetStore.DeleteTransactionOffset(userId, model.AccountId, offset.TransactionOffsetId);
+                    }
+
+                }
+                else if (model.Transaction.OffsetDate is not null && model.Transaction.OffsetAmount is not null)
+                {
+                    offset = new TransactionOffsetModel
+                    {
+                        AccountId = model.AccountId,
+                        OffsetAmount = model.Transaction.OffsetAmount.Value,
+                        OffsetDate = model.Transaction.OffsetDate.Value,
+                        TransactionId = transactionId,
+                        UserId = userId
+                    };
+
+                    _ftTransactionOffsetStore.CreateTransactionOffset(userId, model.AccountId, offset);
 
 
+                    response.Model = _ftTransactionStore.GetTransactions(userId, transactionId: transactionId).First();
+                }
             }
         }
         catch (Exception ex)
@@ -169,7 +255,7 @@ public class CalendarController(
         _memoryCache.Set(calendar.CalendarId, calendar);
     }
 
-    private CalendarModel? GetCalendarFromCache(int userId, int accountId)
+    private CalendarModel GetCalendarFromCache(int userId, int accountId)
     {
         return _memoryCache.Get($"{userId}_{accountId}") as CalendarModel;
     }

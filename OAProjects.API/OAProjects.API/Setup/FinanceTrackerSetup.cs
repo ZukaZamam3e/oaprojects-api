@@ -1,10 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using OAProjects.Data.FinanceTracker.Context;
-using OAProjects.Data.ShowLogger.Context;
-using OAProjects.Store.ShowLogger.Stores.Interfaces;
-using OAProjects.Store.ShowLogger.Stores;
 using OAProjects.Store.FinanceTracker.Stores;
 using OAProjects.Store.FinanceTracker.Stores.Interfaces;
+using FluentValidation;
+using OAProjects.Models.FinanceTracker.Models;
+using OAProjects.API.Validators.FinanceTracker.Calendar;
 
 namespace OAProjects.API.Setup;
 
@@ -19,6 +19,8 @@ public static class FinanceTrackerSetup
         services.AddTransient<IFTCodeValueStore, FTCodeValueStore>();
         services.AddTransient<IFTTransactionOffsetStore, FTTransactionOffsetStore>();
         services.AddTransient<IFTTransactionStore, FTTransactionStore>();
+
+        services.AddScoped<IValidator<TransactionModel>, TransactionValidator>();
 
         return services;
     }
