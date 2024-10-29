@@ -5,6 +5,9 @@ using OAProjects.Store.FinanceTracker.Stores.Interfaces;
 using FluentValidation;
 using OAProjects.Models.FinanceTracker.Models;
 using OAProjects.API.Validators.FinanceTracker.Calendar;
+using OAProjects.Models.FinanceTracker.Requests.Calendar;
+using OAProjects.API.Validators.FinanceTracker.Account;
+using OAProjects.Models.FinanceTracker.Requests.Account;
 
 namespace OAProjects.API.Setup;
 
@@ -20,7 +23,10 @@ public static class FinanceTrackerSetup
         services.AddTransient<IFTTransactionOffsetStore, FTTransactionOffsetStore>();
         services.AddTransient<IFTTransactionStore, FTTransactionStore>();
 
-        services.AddScoped<IValidator<TransactionModel>, TransactionValidator>();
+        services.AddScoped<IValidator<FTTransactionModel>, TransactionValidator>();
+        services.AddScoped<IValidator<DeleteTransactionRequest>, DeleteTransactionValidator>();
+        services.AddScoped<IValidator<AccountModel>, AccountValidator>();
+        services.AddScoped<IValidator<AccountIdRequest>, AccountIdValidator>();
 
         return services;
     }

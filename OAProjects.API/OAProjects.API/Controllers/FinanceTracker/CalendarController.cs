@@ -3,8 +3,8 @@ using FluentValidation.Results;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Identity.Client;
 using OAProjects.Models.Common;
 using OAProjects.Models.Common.Responses;
 using OAProjects.Models.FinanceTracker.Models;
@@ -167,9 +167,9 @@ public class CalendarController(
 
     [HttpPost("SaveTransaction")]
     public async Task<IActionResult> SaveTransaction(SaveTransactionRequest model,
-        [FromServices] IValidator<TransactionModel> validator)
+        [FromServices] IValidator<FTTransactionModel> validator)
     {
-        PostResponse<TransactionModel> response = new PostResponse<TransactionModel>();
+        PostResponse<FTTransactionModel> response = new PostResponse<FTTransactionModel>();
 
         try
         {
@@ -184,12 +184,21 @@ public class CalendarController(
             {
                 int transactionId = model.Transaction.TransactionId;
 
+                DateTime? updateDate = null;
+
                 if (transactionId <= 0)
                 {
                     transactionId = _ftTransactionStore.CreateTransaction(userId, model.AccountId, model.Transaction);
                 }
                 else
                 {
+                    FTTransactionModel oldTransaction = _ftTransactionStore.GetTransactions(userId, transactionId: transactionId).First();
+
+                    if(oldTransaction.Amount != model.Transaction.Amount)
+                    {
+                        updateDate = model.Transaction.StartDate;
+                    }
+
                     _ftTransactionStore.UpdateTransaction(userId, model.AccountId, model.Transaction);
                 }
 
@@ -197,10 +206,13 @@ public class CalendarController(
 
                 if (offset != null)
                 {
-                    if (model.Transaction.OffsetAmount is not null && model.Transaction.OffsetDate is not null)
+                    if (model.Transaction.OffsetAmount is not null && model.Transaction.OffsetDate is not null
+                        && model.Transaction.OffsetAmount != offset.OffsetAmount && model.Transaction.OffsetAmount != 0)
                     {
                         offset.OffsetAmount = model.Transaction.OffsetAmount.Value;
                         _ftTransactionOffsetStore.UpdateTransactionOffset(userId, model.AccountId, offset);
+
+                        updateDate ??= model.SelectedDate;
                     }
                     else
                     {
@@ -208,7 +220,7 @@ public class CalendarController(
                     }
 
                 }
-                else if (model.Transaction.OffsetDate is not null && model.Transaction.OffsetAmount is not null)
+                else if (model.Transaction.OffsetDate is not null && model.Transaction.OffsetAmount is not null && model.Transaction.OffsetAmount != 0)
                 {
                     offset = new TransactionOffsetModel
                     {
@@ -224,7 +236,38 @@ public class CalendarController(
 
                 response.Model = _ftTransactionStore.GetTransactions(userId, transactionId: transactionId).First();
 
-                SetUpCalendar(userId, model.AccountId);
+                SetUpCalendar(userId, model.AccountId, updateDate);
+            }
+        }
+        catch (Exception ex)
+        {
+            response.Errors = new List<string>() { ex.Message };
+        }
+
+        return Ok(response);
+    }
+
+    [HttpPost("DeleteTransaction")]
+    public async Task<IActionResult> DeleteTransaction(DeleteTransactionRequest request,
+        [FromServices] IValidator<DeleteTransactionRequest> validator)
+    {
+        PostResponse<bool> response = new PostResponse<bool>();
+
+        try
+        {
+            int userId = await GetUserId();
+            ValidationResult result = await validator.ValidateAsync(request);
+
+            if (!result.IsValid)
+            {
+                response.Errors = result.Errors.Select(m => m.ErrorMessage);
+            }
+            else
+            {
+                FTTransactionModel oldTransaction = _ftTransactionStore.GetTransactions(userId, transactionId: request.TransactionId).First();
+                response.Model = _ftTransactionStore.DeleteTransaction(userId, request.AccountId, request.TransactionId);
+                SetUpCalendar(userId, request.AccountId, oldTransaction.StartDate);
+
             }
         }
         catch (Exception ex)
@@ -239,8 +282,16 @@ public class CalendarController(
     {
         CalendarModel calendar = GetCalendarFromCache(userId, accountId);
 
-        IEnumerable<TransactionModel> transactions = _ftTransactionStore.GetTransactions(userId, accountId: accountId).ToList();
-        IEnumerable<TransactionOffsetModel> offsets = _ftTransactionOffsetStore.GetTransactionOffsets(userId, accountId: accountId).ToList();
+        IEnumerable<FTTransactionModel> transactions = _ftTransactionStore.GetTransactions(userId, accountId: accountId).ToList() ?? [];
+        IEnumerable<TransactionOffsetModel> offsets = _ftTransactionOffsetStore.GetTransactionOffsets(userId, accountId: accountId).ToList() ?? [];
+
+        DateTime minDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1).StartOfWeek(DayOfWeek.Sunday);
+
+        if (transactions.Any())
+        {
+            minDate = transactions.Min(m => m.StartDate);
+        }
+
 
         if (calendar is null)
         {
@@ -248,10 +299,15 @@ public class CalendarController(
             (
                 userId,
                 accountId,
-                transactions.Min(m => m.StartDate),
+                minDate,
                 transactions.ToList(),
                 offsets.ToList()
             );
+        }
+        else
+        {
+            calendar.Transactions = transactions.ToList();
+            calendar.Offsets = offsets.ToList();
         }
 
         if(startDate == null)

@@ -7,5 +7,5 @@ public class SaveTransactionRequest
 
     public DateTime SelectedDate { get; set; }
 
-    public TransactionModel Transaction { get; set; }
+    public FTTransactionModel Transaction { get; set; }
 }

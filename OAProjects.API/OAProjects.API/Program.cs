@@ -6,6 +6,7 @@ using Microsoft.Net.Http.Headers;
 using OAProjects.API.Requirements;
 using OAProjects.API.Setup;
 using OAProjects.Models.ShowLogger.Models.Config;
+using Scalar.AspNetCore;
 using System.Diagnostics;
 using System.Security.Claims;
 
@@ -85,8 +86,19 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwagger(options =>
+    {
+        options.RouteTemplate = "openapi/{documentName}.json";
+    });
+    //app.UseSwaggerUI();
+
+    app.MapScalarApiReference(options =>
+    {
+        options
+            .WithTitle("OA Projects API")
+            .WithTheme(ScalarTheme.DeepSpace)
+            .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient);
+    });
 }
 
 app.UseHttpsRedirection();

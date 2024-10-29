@@ -2,6 +2,7 @@
 using OAProjects.Data.FinanceTracker.Entities;
 using OAProjects.Models.FinanceTracker.Models;
 using OAProjects.Store.FinanceTracker.Stores.Interfaces;
+using System.Linq.Expressions;
 
 namespace OAProjects.Store.FinanceTracker.Stores;
 public class FTAccountStore(FinanceTrackerDbContext _context) : IFTAccountStore
@@ -11,9 +12,28 @@ public class FTAccountStore(FinanceTrackerDbContext _context) : IFTAccountStore
         IEnumerable<AccountModel> query = _context.FT_ACCOUNT.Where(m => m.USER_ID == userId).Select(m => new AccountModel
         {
             AccountId = m.ACCOUNT_ID,
+            UserId = m.USER_ID,
             AccountName = m.ACCOUNT_NAME,
             DefaultIndc = m.DEFAULT_INDC
         });
+
+        return query;
+    }
+
+    public IEnumerable<AccountModel> GetAccounts(Expression<Func<AccountModel, bool>>? predicate = null)
+    {
+        IEnumerable<AccountModel> query = _context.FT_ACCOUNT.Select(m => new AccountModel
+        {
+            AccountId = m.ACCOUNT_ID,
+            UserId = m.USER_ID,
+            AccountName = m.ACCOUNT_NAME,
+            DefaultIndc = m.DEFAULT_INDC
+        });
+
+        if (predicate != null)
+        {
+            query = query.AsQueryable().Where(predicate);
+        }
 
         return query;
     }

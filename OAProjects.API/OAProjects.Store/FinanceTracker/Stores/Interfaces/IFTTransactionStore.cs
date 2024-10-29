@@ -4,11 +4,11 @@ using OAProjects.Store.Stores.Interfaces;
 namespace OAProjects.Store.FinanceTracker.Stores.Interfaces;
 public interface IFTTransactionStore : IStore
 {
-    IEnumerable<TransactionModel> GetTransactions(int userId, int? transactionId = null, int? accountId = null);
+    IEnumerable<FTTransactionModel> GetTransactions(int userId, int? transactionId = null, int? accountId = null);
 
-    int CreateTransaction(int userId, int accountId, TransactionModel transaction);
+    int CreateTransaction(int userId, int accountId, FTTransactionModel transaction);
 
-    int UpdateTransaction(int userId, int accountId, TransactionModel transaction);
+    int UpdateTransaction(int userId, int accountId, FTTransactionModel transaction);
 
     bool DeleteTransaction(int userId, int accountId, int transactionId);
 }

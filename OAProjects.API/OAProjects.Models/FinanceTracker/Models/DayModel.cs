@@ -9,7 +9,7 @@ public class DayModel
 
     public decimal Income { get; set; }
 
-    public List<TransactionModel> Transactions { get; set; }
+    public List<FTTransactionModel> Transactions { get; set; }
 
     public List<TransactionOffsetModel> Offsets { get; set; }
 

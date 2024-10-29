@@ -1,5 +1,5 @@
 ﻿namespace OAProjects.Models.FinanceTracker.Models;
-public class CalendarModel(int userId, int accountId, DateTime startDate, IEnumerable<TransactionModel> transactions, IEnumerable<TransactionOffsetModel> offsets)
+public class CalendarModel(int userId, int accountId, DateTime startDate, IEnumerable<FTTransactionModel> transactions, IEnumerable<TransactionOffsetModel> offsets)
 {
     public int AccountId { get; set; } = accountId;
 
@@ -15,7 +15,7 @@ public class CalendarModel(int userId, int accountId, DateTime startDate, IEnume
 
     public List<DayModel> Days { get; set; } = [];
 
-    public List<TransactionModel> Transactions { get; set; } = transactions.ToList();
+    public List<FTTransactionModel> Transactions { get; set; } = transactions.ToList();
 
     public List<TransactionOffsetModel> Offsets { get; set; } = offsets.ToList();
 
@@ -68,14 +68,14 @@ public class CalendarModel(int userId, int accountId, DateTime startDate, IEnume
                 Days.Add(day);
             }
 
-            TransactionModel? hardset = Transactions.FirstOrDefault(m => m.StartDate == iterDate && m.FrequencyTypeId == HARDSET);
+            FTTransactionModel? hardset = Transactions.FirstOrDefault(m => m.StartDate == iterDate && m.FrequencyTypeId == HARDSET);
 
             if (hardset != null)
             {
                 currentTotal = GetTransactionAmount(day, hardset, Offsets);
             }
 
-            foreach (TransactionModel transaction in Transactions.Where(m => m.StartDate <= iterDate && m.FrequencyTypeId != HARDSET))
+            foreach (FTTransactionModel transaction in Transactions.Where(m => m.StartDate <= iterDate && m.FrequencyTypeId != HARDSET))
             {
                 if (DoesDateIntersect(transaction.StartDate, transaction.EndDate, iterDate, transaction.FrequencyTypeId, transaction.Interval))
                 {
@@ -101,7 +101,7 @@ public class CalendarModel(int userId, int accountId, DateTime startDate, IEnume
         return updated;
     }
 
-    private static decimal GetTransactionAmount(DayModel day, TransactionModel transaction, IEnumerable<TransactionOffsetModel> offsets)
+    private static decimal GetTransactionAmount(DayModel day, FTTransactionModel transaction, IEnumerable<TransactionOffsetModel> offsets)
     {
         TransactionOffsetModel? offset = offsets.FirstOrDefault(m => m.TransactionId == transaction.TransactionId && m.OffsetDate == day.Date);
 

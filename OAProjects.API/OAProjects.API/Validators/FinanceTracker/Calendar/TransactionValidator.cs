@@ -5,7 +5,7 @@ using OAProjects.Models.ShowLogger.Models.Show;
 
 namespace OAProjects.API.Validators.FinanceTracker.Calendar;
 
-public class TransactionValidator : AbstractValidator<TransactionModel>
+public class TransactionValidator : AbstractValidator<FTTransactionModel>
 {
     public TransactionValidator()
     {
@@ -18,8 +18,8 @@ public class TransactionValidator : AbstractValidator<TransactionModel>
 
         RuleFor(m => m.FrequencyTypeId).GreaterThan(0);
 
-        RuleFor(m => m.OffsetDate).GreaterThan(m => m.StartDate);
-        RuleFor(m => m.OffsetDate).LessThan(m => m.EndDate).When(m => m.EndDate.HasValue);
+        RuleFor(m => m.OffsetDate).GreaterThanOrEqualTo(m => m.StartDate);
+        RuleFor(m => m.OffsetDate).LessThanOrEqualTo(m => m.EndDate).When(m => m.EndDate.HasValue);
 
         RuleFor(m => m.OffsetAmount).NotNull().When(m => m.OffsetDate.HasValue);
 

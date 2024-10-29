@@ -1,6 +1,6 @@
 ﻿namespace OAProjects.Models.FinanceTracker.Models;
 
-public class TransactionModel
+public class FTTransactionModel
 {
     public int TransactionId { get; set; }
 

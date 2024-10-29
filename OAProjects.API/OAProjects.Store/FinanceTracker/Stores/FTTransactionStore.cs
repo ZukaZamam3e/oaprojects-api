@@ -8,7 +8,7 @@ using System.Linq.Expressions;
 namespace OAProjects.Store.FinanceTracker.Stores;
 public class FTTransactionStore(FinanceTrackerDbContext _context) : IFTTransactionStore
 {
-    public IEnumerable<TransactionModel> GetTransactions(int userId, int? transactionId = null, int? accountId = null)
+    public IEnumerable<FTTransactionModel> GetTransactions(int userId, int? transactionId = null, int? accountId = null)
     {
         Expression<Func<FT_TRANSACTION, bool>>? predicate = m => true;
 
@@ -27,10 +27,11 @@ public class FTTransactionStore(FinanceTrackerDbContext _context) : IFTTransacti
 
         FT_TRANSACTION[] transactionEntities = [.. _context.FT_TRANSACTION.Where(predicate)];
 
-        IEnumerable<TransactionModel> query = transactionEntities.Select(m => new TransactionModel
+        IEnumerable<FTTransactionModel> query = transactionEntities.Select(m => new FTTransactionModel
         {
             TransactionId = m.TRANSACTION_ID,
             AccountId = m.ACCOUNT_ID,
+            UserId = m.USER_ID,
             Name = m.TRANSACTION_NAME,
             Amount = m.TRANSACTION_AMOUNT,
             StartDate = m.START_DATE,
@@ -44,7 +45,7 @@ public class FTTransactionStore(FinanceTrackerDbContext _context) : IFTTransacti
         return query;
     }
 
-    public int CreateTransaction(int userId, int accountId, TransactionModel transaction)
+    public int CreateTransaction(int userId, int accountId, FTTransactionModel transaction)
     {
         FT_TRANSACTION entity = new FT_TRANSACTION
         {
@@ -66,7 +67,7 @@ public class FTTransactionStore(FinanceTrackerDbContext _context) : IFTTransacti
         return id;
     }
 
-    public int UpdateTransaction(int userId, int accountId, TransactionModel transaction)
+    public int UpdateTransaction(int userId, int accountId, FTTransactionModel transaction)
     {
         int result = 0;
         FT_TRANSACTION? entity = _context.FT_TRANSACTION.FirstOrDefault(m => m.TRANSACTION_ID == transaction.TransactionId && m.ACCOUNT_ID == accountId && m.USER_ID == userId);
