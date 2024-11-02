@@ -536,12 +536,14 @@ public class ShowStore : IShowStore
     {
         IEnumerable<TransactionItemModel> query = _context.SL_TRANSACTION
             .Where(m => m.USER_ID == userId && m.TRANSACTION_TYPE_ID == (int)CodeValueIds.PURCHASE)
-            .GroupBy(m => m.ITEM)
+            .OrderByDescending(m => m.TRANSACTION_DATE)
+            .GroupBy(m => new { m.ITEM, m.QUANTITY })
             .Select(m => new TransactionItemModel
             {
-                Item = m.Key,
-                Quantity = m.OrderByDescending(m => m.TRANSACTION_DATE).Last().QUANTITY,
-                CostAmt = m.OrderByDescending(m => m.TRANSACTION_DATE).Last().COST_AMT
+                Item = m.Key.ITEM,
+                Quantity = m.Key.QUANTITY,
+                LastTransactionDate = m.Max(n => n.TRANSACTION_DATE),
+                CostAmt = m.OrderByDescending(n => n.TRANSACTION_DATE).First().COST_AMT
             });
 
         return query;

@@ -16,4 +16,6 @@ public class TransactionItemModel
     public decimal CostAmt { get; set; }
 
     public int Quantity { get; set; }
+
+    public DateTime LastTransactionDate { get; set; }
 }
