@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.Extensions.Caching.Memory;
+using OAProjects.Data.FinanceTracker.Entities;
 using OAProjects.Models.Common;
 using OAProjects.Models.Common.Responses;
 using OAProjects.Models.FinanceTracker.Models;
@@ -70,8 +71,6 @@ public class CalendarController(
 
             if (calendar is not null)
             {
-                
-
                 response.Model = new LoadResponse
                 {
                     AccountId = accountId,
@@ -278,6 +277,56 @@ public class CalendarController(
         return Ok(response);
     }
 
+    [HttpPost("SaveHardset")]
+    public async Task<IActionResult> SaveHardset(SaveHardsetRequest request,
+        [FromServices] IValidator<SaveHardsetRequest> validator)
+    {
+        PostResponse<bool> response = new PostResponse<bool>();
+
+        try
+        {
+            int userId = await GetUserId();
+            ValidationResult result = await validator.ValidateAsync(request);
+
+            if (!result.IsValid)
+            {
+                response.Errors = result.Errors.Select(m => m.ErrorMessage);
+            }
+            else
+            {
+                int transactionId = 0;
+                FTTransactionModel? hardset = _ftTransactionStore.GetTransactions(userId, accountId: request.AccountId).FirstOrDefault(m => m.FrequencyTypeId == (int)FT_CodeValueIds.HARDSET && m.StartDate == request.Date);
+
+                if (hardset is null)
+                {
+                    transactionId = _ftTransactionStore.CreateTransaction(userId, request.AccountId, new FTTransactionModel
+                    {
+                        Name = "Hardset",
+                        StartDate = request.Date,
+                        AccountId = request.AccountId,
+                        FrequencyTypeId = (int)FT_CodeValueIds.HARDSET,
+                        Amount = request.Amount,
+                    });
+                }
+                else
+                {
+                    hardset.Amount = request.Amount;
+
+                    _ftTransactionStore.UpdateTransaction(userId, request.AccountId, hardset);
+                }
+
+                response.Model = transactionId > 0;
+                SetUpCalendar(userId, request.AccountId, request.Date);
+            }
+        }
+        catch (Exception ex)
+        {
+            response.Errors = new List<string>() { ex.Message };
+        }
+
+        return Ok(response);
+    }
+
     private void SetUpCalendar(int userId, int accountId, DateTime? startDate = null, DateTime? endDate = null)
     {
         CalendarModel calendar = GetCalendarFromCache(userId, accountId);
@@ -291,7 +340,6 @@ public class CalendarController(
         {
             minDate = transactions.Min(m => m.StartDate);
         }
-
 
         if (calendar is null)
         {

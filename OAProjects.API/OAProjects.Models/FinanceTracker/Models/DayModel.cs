@@ -3,6 +3,8 @@ public class DayModel
 {
     public DateTime Date { get; set; }
 
+    public string DateZ => Date.ToString("MM/dd/yyyy");
+
     public decimal Total { get; set; }
 
     public decimal Expenses { get; set; }
@@ -12,9 +14,4 @@ public class DayModel
     public List<FTTransactionModel> Transactions { get; set; }
 
     public List<TransactionOffsetModel> Offsets { get; set; }
-
-    public override string ToString()
-    {
-        return Date.ToString("MM/dd/yyyy");
-    }
 }

@@ -126,6 +126,7 @@ public class FTAccountStore(FinanceTrackerDbContext _context) : IFTAccountStore
                 new Tuple<FT_TRANSACTION, FT_TRANSACTION>(m, new FT_TRANSACTION
                 {
                     ACCOUNT_ID = result,
+                    USER_ID = userId,
                     TRANSACTION_NAME = m.TRANSACTION_NAME,
                     FREQUENCY_TYPE_ID = m.FREQUENCY_TYPE_ID,
                     TRANSACTION_AMOUNT = m.TRANSACTION_AMOUNT,

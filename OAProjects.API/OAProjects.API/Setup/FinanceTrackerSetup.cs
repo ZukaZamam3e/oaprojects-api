@@ -27,6 +27,7 @@ public static class FinanceTrackerSetup
         services.AddScoped<IValidator<DeleteTransactionRequest>, DeleteTransactionValidator>();
         services.AddScoped<IValidator<AccountModel>, AccountValidator>();
         services.AddScoped<IValidator<AccountIdRequest>, AccountIdValidator>();
+        services.AddScoped<IValidator<SaveHardsetRequest>, SaveHardsetValidator>();
 
         return services;
     }
