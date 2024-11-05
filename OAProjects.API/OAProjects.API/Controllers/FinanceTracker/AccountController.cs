@@ -38,7 +38,7 @@ public class AccountController(
                 Accounts = GetAccounts(userId)
             };
             response.Model.Count = response.Model.Accounts.Count();
-            response.Model.Accounts = response.Model.Accounts.OrderByDescending(m => m.AccountName).Take(take);
+            response.Model.Accounts = response.Model.Accounts.Take(take);
         }
         catch (Exception ex)
         {
@@ -62,7 +62,7 @@ public class AccountController(
                 Accounts = GetAccounts(userId, search)
             };
             response.Model.Count = response.Model.Accounts.Count();
-            response.Model.Accounts = response.Model.Accounts.OrderByDescending(m => m.AccountName).Skip(offset).Take(take);
+            response.Model.Accounts = response.Model.Accounts.Skip(offset).Take(take);
         }
         catch (Exception ex)
         {

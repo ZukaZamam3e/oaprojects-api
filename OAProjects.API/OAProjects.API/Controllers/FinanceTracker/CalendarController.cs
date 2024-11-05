@@ -193,7 +193,7 @@ public class CalendarController(
                 {
                     FTTransactionModel oldTransaction = _ftTransactionStore.GetTransactions(userId, transactionId: transactionId).First();
 
-                    if(oldTransaction.Amount != model.Transaction.Amount)
+                    if (oldTransaction.Amount != model.Transaction.Amount)
                     {
                         updateDate = model.Transaction.StartDate;
                     }
@@ -295,24 +295,35 @@ public class CalendarController(
             else
             {
                 int transactionId = 0;
-                FTTransactionModel? hardset = _ftTransactionStore.GetTransactions(userId, accountId: request.AccountId).FirstOrDefault(m => m.FrequencyTypeId == (int)FT_CodeValueIds.HARDSET && m.StartDate == request.Date);
+                FTTransactionModel? hardset = _ftTransactionStore.GetTransactions(userId, accountId: request.AccountId).FirstOrDefault(m => m.FrequencyTypeId == (int)FT_CodeValueIds.HARDSET && m.StartDate == request.Date.Date);
 
                 if (hardset is null)
                 {
-                    transactionId = _ftTransactionStore.CreateTransaction(userId, request.AccountId, new FTTransactionModel
+                    if (request.Amount != 0)
                     {
-                        Name = "Hardset",
-                        StartDate = request.Date,
-                        AccountId = request.AccountId,
-                        FrequencyTypeId = (int)FT_CodeValueIds.HARDSET,
-                        Amount = request.Amount,
-                    });
+                        transactionId = _ftTransactionStore.CreateTransaction(userId, request.AccountId, new FTTransactionModel
+                        {
+                            Name = "Hardset",
+                            StartDate = request.Date.Date,
+                            AccountId = request.AccountId,
+                            FrequencyTypeId = (int)FT_CodeValueIds.HARDSET,
+                            Amount = request.Amount,
+                        });
+                    }
                 }
                 else
                 {
-                    hardset.Amount = request.Amount;
+                    if (request.Amount == 0)
+                    {
+                        _ftTransactionStore.DeleteTransaction(userId, request.AccountId, hardset.TransactionId);
+                        transactionId = 1;
+                    }
+                    else
+                    {
+                        hardset.Amount = request.Amount;
 
-                    _ftTransactionStore.UpdateTransaction(userId, request.AccountId, hardset);
+                        _ftTransactionStore.UpdateTransaction(userId, request.AccountId, hardset);
+                    }
                 }
 
                 response.Model = transactionId > 0;
@@ -358,7 +369,7 @@ public class CalendarController(
             calendar.Offsets = offsets.ToList();
         }
 
-        if(startDate == null)
+        if (startDate == null)
         {
             startDate = calendar.StartDate;
         }
