@@ -40,6 +40,7 @@ public class FTTransactionStore(FinanceTrackerDbContext _context) : IFTTransacti
             FrequencyTypeIdZ = frequencyTypeIds[m.FREQUENCY_TYPE_ID],
             TransactionUrl = m.TRANSACTION_URL,
             TransactionNotes = m.TRANSACTION_NOTES,
+            Categories = m.CATEGORIES
         });
 
         return query;
@@ -57,7 +58,8 @@ public class FTTransactionStore(FinanceTrackerDbContext _context) : IFTTransacti
             END_DATE = transaction.EndDate,
             FREQUENCY_TYPE_ID = transaction.FrequencyTypeId,
             TRANSACTION_URL = transaction.TransactionUrl,
-            TRANSACTION_NOTES = transaction.TransactionNotes
+            TRANSACTION_NOTES = transaction.TransactionNotes, 
+            CATEGORIES = transaction.Categories
         };
 
         _context.FT_TRANSACTION.Add(entity);
@@ -81,6 +83,7 @@ public class FTTransactionStore(FinanceTrackerDbContext _context) : IFTTransacti
             entity.FREQUENCY_TYPE_ID = transaction.FrequencyTypeId;
             entity.TRANSACTION_URL = transaction.TransactionUrl;
             entity.TRANSACTION_NOTES = transaction.TransactionNotes;
+            entity.CATEGORIES = transaction.Categories;
 
             result = _context.SaveChanges();
         }

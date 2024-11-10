@@ -1,4 +1,7 @@
-﻿namespace OAProjects.Models.FinanceTracker.Models;
+﻿using OAProjects.Models.ShowLogger.Models.Transaction;
+using System.Reflection;
+
+namespace OAProjects.Models.FinanceTracker.Models;
 public class CalendarModel(int userId, int accountId, DateTime startDate, IEnumerable<FTTransactionModel> transactions, IEnumerable<TransactionOffsetModel> offsets)
 {
     public int AccountId { get; set; } = accountId;
@@ -38,7 +41,7 @@ public class CalendarModel(int userId, int accountId, DateTime startDate, IEnume
 
         decimal currentTotal = 0;
 
-        if(Days.Count > 0)
+        if (Days.Count > 0)
         {
             Days = Days.Where(m => m.Date < startDate).ToList();
             currentTotal = Days.LastOrDefault()?.Total ?? 0;
@@ -101,6 +104,144 @@ public class CalendarModel(int userId, int accountId, DateTime startDate, IEnume
         return updated;
     }
 
+    public IEnumerable<MonthlyTransactionModel> GetMonthlyTransactions(DateTime day)
+    {
+        List<MonthlyTransactionModel> monthTransactions = new List<MonthlyTransactionModel>();
+        IEnumerable<DayModel> monthDays = Days.Where(m => m.Date.Month == day.Month && m.Date.Year == day.Year);
+
+        //foreach (FTTransactionModel transaction in transactions)
+        //{
+        //    FTTransactionModel model = transaction;
+
+        //    IEnumerable<DateTime> all = transaction.Dates.Where(m => m.Month == day.Month && m.Year == day.Year);
+
+        //    foreach (DateTime date in all)
+        //    {
+        //        FTTransactionModel m = model.Clone();
+
+        //        m.StartDate = date;
+        //        lst.Add(m);
+        //    }
+        //}
+
+        // Loop through each day of the month
+        // Sort by amounts greatest -> lowest
+        // First one shows the date, rest do not
+        // Hardset -> Income -> Expenses
+        // Last one shows the end of day balance
+
+        DateTime endOfLastMonth = new DateTime(day.Year, day.Month, 1).AddDays(-1);
+
+        decimal endOfDayBalance = Days.FirstOrDefault(m => m.Date == endOfLastMonth)?.Total ?? 0;
+
+        foreach (DayModel monthDay in monthDays)
+        {
+            IEnumerable<FTTransactionModel> dailyTransactions = monthDay.Transactions
+                .Select(m => m.Clone(monthDay.Date))
+                .OrderByDescending(m => GetAmount(monthDay.Date, m, Offsets))
+                .ThenBy(m => m.FrequencyTypeId);
+
+            if (dailyTransactions.Any())
+            {
+                foreach (FTTransactionModel transaction in dailyTransactions)
+                {
+                    MonthlyTransactionModel model = new MonthlyTransactionModel();
+
+                    if (dailyTransactions.First().TransactionId == transaction.TransactionId)
+                    {
+                        model.TransactionDate = transaction.StartDate;
+                    }
+
+                    if (dailyTransactions.Last().TransactionId == transaction.TransactionId)
+                    {
+                        model.EndOfDayBalance = endOfDayBalance = monthDay.Total;
+                    }
+
+                    if (transaction.FrequencyTypeId == HARDSET)
+                    {
+                        model.EndOfDayBalance = endOfDayBalance = GetAmount(monthDay.Date, transaction, Offsets);
+                    }
+
+                    model.TransactionName = transaction.Name;
+                    model.TransactionId = transaction.TransactionId;
+                    model.FrequencyTypeIdZ = transaction.FrequencyTypeIdZ;
+
+                    decimal amount = GetAmount(monthDay.Date, transaction, Offsets);
+                    if (transaction.FrequencyTypeId != HARDSET)
+                    {
+                        if (amount >= 0)
+                        {
+                            model.Income = amount;
+                        }
+                        else
+                        {
+                            model.Expenses = amount;
+                        }
+                    }
+
+                    monthTransactions.Add(model);
+                }
+            }
+            else
+            {
+                monthTransactions.Add(new MonthlyTransactionModel
+                {
+                    TransactionName = "No Transactions",
+                    TransactionDate = monthDay.Date,
+                    EndOfDayBalance = endOfDayBalance,
+                });
+
+            }
+        }
+
+        return monthTransactions;
+    }
+
+    public IEnumerable<CategoryModel> GetCategories(DateTime day)
+    {
+        List<CategoryModel> result = new List<CategoryModel>();
+        IEnumerable<DayModel> monthDays = Days.Where(m => m.Date.Month == day.Month && m.Date.Year == day.Year);
+
+        IEnumerable<string?> categories = monthDays.SelectMany(m => m.Transactions.Select(m => m.Categories));
+        List<string> allCategories = new List<string>();
+
+        foreach (string? category in categories)
+        {
+            if (!string.IsNullOrEmpty(category))
+            {
+                string[] split = category.ToLower().Split(',');
+                allCategories.AddRange(split);
+            }
+        }
+
+        foreach (string? category in allCategories.Distinct())
+        {
+            if (!string.IsNullOrEmpty(category))
+            {
+                IEnumerable<FTTransactionModel> transactions = monthDays.SelectMany(m => m.Transactions.Where(n => !string.IsNullOrEmpty(n.Categories) && n.Categories.Contains(category, StringComparison.CurrentCultureIgnoreCase)));
+
+                result.Add(new CategoryModel
+                {
+                    Category = category,
+                    Transactions = transactions
+                });
+            }
+        }
+
+        IEnumerable<FTTransactionModel> uncategorized = monthDays.SelectMany(m => m.Transactions.Where(m => string.IsNullOrEmpty(m.Categories)));
+
+        if(uncategorized.Any())
+        {
+            result.Add(new CategoryModel
+            {
+                Category = "uncategorized",
+                Transactions = uncategorized
+            });
+        }
+
+        return result;
+    }
+
     private static decimal GetTransactionAmount(DayModel day, FTTransactionModel transaction, IEnumerable<TransactionOffsetModel> offsets)
     {
         TransactionOffsetModel? offset = offsets.FirstOrDefault(m => m.TransactionId == transaction.TransactionId && m.OffsetDate == day.Date);
@@ -113,6 +254,20 @@ public class CalendarModel(int userId, int accountId, DateTime startDate, IEnume
         {
             amount += offset.OffsetAmount;
             day.Offsets.Add(offset);
+        }
+
+        return amount;
+    }
+
+    private static decimal GetAmount(DateTime day, FTTransactionModel transaction, IEnumerable<TransactionOffsetModel> offsets)
+    {
+        TransactionOffsetModel? offset = offsets.FirstOrDefault(m => m.TransactionId == transaction.TransactionId && m.OffsetDate == day.Date);
+
+        decimal amount = transaction.Amount;
+
+        if (offset is not null)
+        {
+            amount += offset.OffsetAmount;
         }
 
         return amount;

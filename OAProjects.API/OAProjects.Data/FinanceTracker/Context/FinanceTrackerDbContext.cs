@@ -96,6 +96,9 @@ public class FinanceTrackerDbContext(DbContextOptions<FinanceTrackerDbContext> o
 
             entity.Property(e => e.TRANSACTION_URL)
                 .HasMaxLength(250);
+
+            entity.Property(e => e.CATEGORIES)
+                .HasMaxLength(250);
         });
 
         modelBuilder.Entity<FT_TRANSACTION_OFFSET>(entity =>

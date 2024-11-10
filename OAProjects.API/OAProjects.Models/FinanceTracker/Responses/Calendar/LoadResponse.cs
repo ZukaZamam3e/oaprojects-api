@@ -22,4 +22,6 @@ public class LoadResponse
     public IEnumerable<DayModel> Days { get; set; }
 
     public IEnumerable<AccountModel> Accounts { get; set; }
+
+    public IEnumerable<FTCodeValueModel> FrequencyTypeIds { get; set; }
 }

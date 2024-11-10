@@ -11,8 +11,10 @@ using OAProjects.Models.Common.Responses;
 using OAProjects.Models.FinanceTracker.Models;
 using OAProjects.Models.FinanceTracker.Requests.Calendar;
 using OAProjects.Models.FinanceTracker.Responses.Calendar;
+using OAProjects.Models.ShowLogger.Models.CodeValue;
 using OAProjects.Store.FinanceTracker.Stores.Interfaces;
 using OAProjects.Store.OAIdentity.Stores.Interfaces;
+using System.Transactions;
 
 namespace OAProjects.API.Controllers.FinanceTracker;
 
@@ -25,6 +27,7 @@ public class CalendarController(
         IUserStore userStore,
         IHttpClientFactory httpClientFactory,
         IMemoryCache _memoryCache,
+        IFTCodeValueStore _fTCodeValueStore,
         IFTAccountStore _ftAccountStore,
         IFTTransactionStore _ftTransactionStore,
         IFTTransactionOffsetStore _ftTransactionOffsetStore
@@ -87,6 +90,9 @@ public class CalendarController(
                 response.Model.LowestDay = monthDays.OrderBy(m => m.Total).First();
                 response.Model.MonthIncome = monthDays.Sum(m => m.Income);
                 response.Model.MonthExpenses = monthDays.Sum(m => m.Expenses);
+
+                response.Model.FrequencyTypeIds = _fTCodeValueStore.GetCodeValues(m => m.CodeTableId == (int)FT_CodeTableIds.FREQUENCY_TYPES).Select(m => new FTCodeValueModel { CodeValueId = m.CodeValueId, DecodeTxt = m.DecodeTxt });
+
             }
         }
         catch (Exception ex)
@@ -329,6 +335,48 @@ public class CalendarController(
                 response.Model = transactionId > 0;
                 SetUpCalendar(userId, request.AccountId, request.Date);
             }
+        }
+        catch (Exception ex)
+        {
+            response.Errors = new List<string>() { ex.Message };
+        }
+
+        return Ok(response);
+    }
+
+    [HttpGet("GetMonthlyTransactions")]
+    public async Task<IActionResult> GetMonthlyTransactions(int accountId, DateTime selectedDate)
+    {
+        GetResponse<IEnumerable<MonthlyTransactionModel>> response = new GetResponse<IEnumerable<MonthlyTransactionModel>>();
+
+        try
+        {
+            int userId = await GetUserId();
+            CalendarModel calendar = GetCalendarFromCache(userId, accountId);
+
+            response.Model = calendar.GetMonthlyTransactions(selectedDate.Date);
+
+        }
+        catch (Exception ex)
+        {
+            response.Errors = new List<string>() { ex.Message };
+        }
+
+        return Ok(response);
+    }
+
+    [HttpGet("GetCategories")]
+    public async Task<IActionResult> GetCategories(int accountId, DateTime selectedDate)
+    {
+        GetResponse<IEnumerable<CategoryModel>> response = new GetResponse<IEnumerable<CategoryModel>>();
+
+        try
+        {
+            int userId = await GetUserId();
+            CalendarModel calendar = GetCalendarFromCache(userId, accountId);
+
+            response.Model = calendar.GetCategories(selectedDate.Date);
+
         }
         catch (Exception ex)
         {

@@ -1,4 +1,6 @@
-﻿namespace OAProjects.Models.FinanceTracker.Models;
+﻿using OAProjects.Models.ShowLogger.Models.Transaction;
+
+namespace OAProjects.Models.FinanceTracker.Models;
 
 public class FTTransactionModel
 {
@@ -29,4 +31,26 @@ public class FTTransactionModel
     public DateTime? OffsetDate { get; set; }
 
     public decimal? OffsetAmount { get; set; }
+
+    public string? Categories { get; set; }
+
+    public FTTransactionModel Clone(DateTime date)
+    {
+        return new FTTransactionModel
+        {
+            AccountId = AccountId,
+            UserId = UserId,
+            TransactionId = TransactionId,
+            StartDate = date,
+            EndDate = EndDate,
+            Amount = Amount,
+            Name = Name,
+            FrequencyTypeId = FrequencyTypeId,
+            FrequencyTypeIdZ = FrequencyTypeIdZ,
+            TransactionNotes = TransactionNotes,
+            TransactionUrl = TransactionUrl,
+            Interval = Interval,
+            Categories = Categories,
+        };
+    }
 }

@@ -25,4 +25,6 @@ public class FT_TRANSACTION
     public string? TRANSACTION_NOTES { get; set; }
 
     public string? TRANSACTION_URL { get; set; }
+
+    public string? CATEGORIES { get; set; }
 }
