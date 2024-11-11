@@ -3,8 +3,6 @@ name: OAProjects-API Deployment
 on:
   push:
     branches: [ main ]
-  pull_request:
-    branches: [ main ]
     
 defaults:
   run:
@@ -40,6 +38,7 @@ jobs:
         files: ./OAProjects.API/Release-API/appsettings.json
       env:
         ConnectionStrings.ShowLoggerConnection: ${{ secrets.SHOW_LOGGER_DB }}
+        ConnectionStrings.FinanceTrackerConnection: ${{ secrets.OA_IDENTITY_DB }}
         ConnectionStrings.OAIdentityConnection: ${{ secrets.OA_IDENTITY_DB }}
         ListeningPort: ${{ secrets.LISTENING_PORT }}
         Auth0.Domain: ${{ secrets.AUTH0_DOMAIN }}

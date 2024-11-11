@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using OAProjects.Data.FinanceTracker.Context;
 using OAProjects.Data.OAIdentity.Context;
 using OAProjects.Data.ShowLogger.Context;
 using OAProjects.Import;
@@ -25,8 +26,13 @@ if (Debugger.IsAttached)
 
 IConfiguration config = configBuilder.Build();
 
+
+
 string? showLoggerConnectionString = config.GetConnectionString("ShowLoggerConnection");
-builder.Services.AddDbContext<ShowLoggerDbContext>(m => m.UseMySql(showLoggerConnectionString, ServerVersion.AutoDetect(showLoggerConnectionString), m => m.MigrationsHistoryTable("__SL_EFMigrationsHistory")), ServiceLifetime.Transient);
+//builder.Services.AddDbContext<ShowLoggerDbContext>(m => m.UseMySql(showLoggerConnectionString, ServerVersion.AutoDetect(showLoggerConnectionString), m => m.MigrationsHistoryTable("__SL_EFMigrationsHistory")), ServiceLifetime.Transient);
+
+string? financeTrackerConnectionString = config.GetConnectionString("FinanceConnection");
+builder.Services.AddDbContext<FinanceTrackerDbContext>(m => m.UseMySql(financeTrackerConnectionString, ServerVersion.AutoDetect(financeTrackerConnectionString), m => m.MigrationsHistoryTable("__FT_EFMigrationsHistory")), ServiceLifetime.Transient);
 
 string? oaIdentityConnectionString = config.GetConnectionString("OAIdentityConnection");
 builder.Services.AddDbContext<OAIdentityDbContext>(m => m.UseMySql(oaIdentityConnectionString, ServerVersion.AutoDetect(oaIdentityConnectionString), m => m.MigrationsHistoryTable("__OA_EFMigrationsHistory")), ServiceLifetime.Transient);
@@ -48,6 +54,11 @@ builder.Services.AddTransient<IFriendImport, FriendImport>();
 builder.Services.AddTransient<IUserPrefImport, UserPrefImport>();
 builder.Services.AddTransient<IWatchListImport, WatchListImport>();
 builder.Services.AddTransient<IBookImport, BookImport>();
+builder.Services.AddTransient<IBookImport, BookImport>();
+builder.Services.AddTransient<IFTRestartImport, FTRestartImport>();
+builder.Services.AddTransient<IFTAccountImport, FTAccountImport>();
+builder.Services.AddTransient<IFTTransactionImport, FTTransactionImport>();
+builder.Services.AddTransient<IFTTransactionOffsetImport, FTTransactionOffsetImport>();
 builder.Services.AddTransient<App>();
 
 using IHost host = builder.Build();

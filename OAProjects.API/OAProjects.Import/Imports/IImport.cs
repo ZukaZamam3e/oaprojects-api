@@ -21,6 +21,11 @@ public static class ImportFiles
     public const string sl_tv_episode_order = "sl_tv_episode_order.json";
 
     public const string oa_users = "oa_users.json";
+
+    public const string ft_account = "ft_account.json";
+    public const string ft_transaction = "ft_transaction.json";
+    public const string ft_transaction_offset = "ft_transaction_offset.json";
+
 }
 
 public interface IImport

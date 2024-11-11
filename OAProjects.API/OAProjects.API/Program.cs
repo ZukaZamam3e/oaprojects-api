@@ -6,6 +6,7 @@ using Microsoft.Net.Http.Headers;
 using OAProjects.API.Requirements;
 using OAProjects.API.Setup;
 using OAProjects.Models.ShowLogger.Models.Config;
+using Scalar.AspNetCore;
 using System.Diagnostics;
 using System.Security.Claims;
 
@@ -27,6 +28,7 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddOAIdentityDb(builder.Configuration);
 builder.Services.AddShowLoggerDb(builder.Configuration);
+builder.Services.AddFinanceTrackerDb(builder.Configuration);
 
 ApisConfig apisConfig = new ApisConfig();
 builder.Configuration.GetSection("Apis").Bind(apisConfig);
@@ -76,14 +78,27 @@ builder.Services.AddHttpClient("Auth0", httpClient =>
     httpClient.BaseAddress = new Uri(builder.Configuration["Auth0:Url"]);
 });
 
+builder.Services.AddMemoryCache();
+
 var app = builder.Build();
 
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwagger(options =>
+    {
+        options.RouteTemplate = "openapi/{documentName}.json";
+    });
+    //app.UseSwaggerUI();
+
+    app.MapScalarApiReference(options =>
+    {
+        options
+            .WithTitle("OA Projects API")
+            .WithTheme(ScalarTheme.DeepSpace)
+            .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient);
+    });
 }
 
 app.UseHttpsRedirection();
