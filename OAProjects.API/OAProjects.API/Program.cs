@@ -67,7 +67,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy(name: MyAllowSpecificOrigins,
         builder =>
         {
-            builder.WithOrigins("https://show-logger.oaprojects.net", "https://oaprojects.net", "http://localhost:5173")
+            builder.WithOrigins("https://show-logger.oaprojects.net", "https://finance-tracker.oaprojects.net", "https://oaprojects.net", "http://localhost:5173")
                 .AllowAnyMethod()
                 .AllowAnyHeader();
         });
