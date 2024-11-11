@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using OAProjects.Data.FinanceTracker.Entities;
-using OAProjects.Data.ShowLogger.Entities;
 
 namespace OAProjects.Data.FinanceTracker.Context;
 public class FinanceTrackerDbContext(DbContextOptions<FinanceTrackerDbContext> options) : DbContext(options)
