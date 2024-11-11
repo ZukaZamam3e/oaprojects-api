@@ -27,7 +27,7 @@ internal class FTTransactionImport(
 
         Dictionary<int, int> dictAccountIds = _financeTrackerContext.FT_ID_XREF.Where(m => m.TABLE_ID == (int)FTTableIds.FT_ACCOUNT && oldAccountIds.Contains(m.OLD_ID)).ToDictionary(m => m.OLD_ID, m => m.NEW_ID);
         Dictionary<int, int> dictRevAccountIds = _financeTrackerContext.FT_ID_XREF.Where(m => m.TABLE_ID == (int)FTTableIds.FT_ACCOUNT && oldAccountIds.Contains(m.OLD_ID)).ToDictionary(m => m.NEW_ID, m => m.OLD_ID);
-        Dictionary<int, int> dictUserIds = _financeTrackerContext.FT_ACCOUNT.ToDictionary(m => dictRevAccountIds[m.ACCOUNT_ID], m => m.USER_ID);
+        Dictionary<int, int> dictUserIds = _financeTrackerContext.FT_ACCOUNT.Where(m => m.USER_ID != 1009).ToDictionary(m => dictRevAccountIds[m.ACCOUNT_ID], m => m.USER_ID);
 
         int count = data.Count();
         Console.WriteLine($"Items to be imported: {count}");

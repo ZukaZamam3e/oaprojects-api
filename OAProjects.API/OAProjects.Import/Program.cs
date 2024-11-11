@@ -20,8 +20,8 @@ var configBuilder = new ConfigurationBuilder()
 
 if (Debugger.IsAttached)
 {
-    configBuilder.AddJsonFile("appsettings.local.json");
-    //configBuilder.AddJsonFile("appsettings.development.json");
+    //configBuilder.AddJsonFile("appsettings.local.json");
+    configBuilder.AddJsonFile("appsettings.development.json");
 }
 
 IConfiguration config = configBuilder.Build();
@@ -29,7 +29,7 @@ IConfiguration config = configBuilder.Build();
 
 
 string? showLoggerConnectionString = config.GetConnectionString("ShowLoggerConnection");
-builder.Services.AddDbContext<ShowLoggerDbContext>(m => m.UseMySql(showLoggerConnectionString, ServerVersion.AutoDetect(showLoggerConnectionString), m => m.MigrationsHistoryTable("__SL_EFMigrationsHistory")), ServiceLifetime.Transient);
+//builder.Services.AddDbContext<ShowLoggerDbContext>(m => m.UseMySql(showLoggerConnectionString, ServerVersion.AutoDetect(showLoggerConnectionString), m => m.MigrationsHistoryTable("__SL_EFMigrationsHistory")), ServiceLifetime.Transient);
 
 string? financeTrackerConnectionString = config.GetConnectionString("FinanceConnection");
 builder.Services.AddDbContext<FinanceTrackerDbContext>(m => m.UseMySql(financeTrackerConnectionString, ServerVersion.AutoDetect(financeTrackerConnectionString), m => m.MigrationsHistoryTable("__FT_EFMigrationsHistory")), ServiceLifetime.Transient);

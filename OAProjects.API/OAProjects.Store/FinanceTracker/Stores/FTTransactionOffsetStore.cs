@@ -41,6 +41,27 @@ public class FTTransactionOffsetStore(FinanceTrackerDbContext _context) : IFTTra
         return query;
     }
 
+    public IEnumerable<TransactionOffsetModel> GetTransactionOffsets(int userId, int accountId, int[] transactionIds)
+    {
+        Dictionary<int, string> frequencyTypeIds = _context.FT_CODE_VALUE
+            .Where(m => m.CODE_TABLE_ID == (int)CodeTableIds.TRANSACTION_TYPE_ID)
+            .ToDictionary(m => m.CODE_VALUE_ID, m => m.DECODE_TXT);
+
+        FT_TRANSACTION_OFFSET[] offsetEntities = _context.FT_TRANSACTION_OFFSET.Where(m => m.ACCOUNT_ID == accountId && m.USER_ID == userId && transactionIds.Contains(m.TRANSACTION_ID)).ToArray();
+
+        IEnumerable<TransactionOffsetModel> query = offsetEntities.Select(m => new TransactionOffsetModel
+        {
+            TransactionOffsetId = m.TRANSACTION_OFFSET_ID,
+            TransactionId = m.TRANSACTION_ID,
+            AccountId = m.ACCOUNT_ID,
+            UserId = m.USER_ID,
+            OffsetAmount = m.OFFSET_AMOUNT,
+            OffsetDate = m.OFFSET_DATE,
+        });
+
+        return query;
+    }
+
     public int CreateTransactionOffset(int userId, int accountId, TransactionOffsetModel offset)
     {
         FT_TRANSACTION_OFFSET entity = new FT_TRANSACTION_OFFSET

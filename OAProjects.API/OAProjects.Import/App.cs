@@ -7,15 +7,16 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace OAProjects.Import;
-public class App(IRestartImport _restartImport,
-        IUserImport _userImport,
-        IInfoImport _infoImport,
-        IShowImport _showImport,
-        ITransactionImport _transactionImport,
-        IFriendImport _friendImport,
-        IUserPrefImport _userPrefImport,
-        IWatchListImport _watchListImport,
-        IBookImport _bookImport,
+public class App(
+        //IRestartImport _restartImport,
+        //IUserImport _userImport,
+        //IInfoImport _infoImport,
+        //IShowImport _showImport,
+        //ITransactionImport _transactionImport,
+        //IFriendImport _friendImport,
+        //IUserPrefImport _userPrefImport,
+        //IWatchListImport _watchListImport,
+        //IBookImport _bookImport,
         IFTAccountImport _accountImport,
         IFTTransactionImport _ftTransactionImport,
         IFTTransactionOffsetImport _fTTransactionOffsetImport,
@@ -30,15 +31,15 @@ public class App(IRestartImport _restartImport,
 
         if (runProcess1)
         {
-            _restartImport.RunImport();
-            _userImport.RunImport();
-            _infoImport.RunImport();
-            _showImport.RunImport();
-            _transactionImport.RunImport();
-            _friendImport.RunImport();
-            _userPrefImport.RunImport();
-            _watchListImport.RunImport();
-            _bookImport.RunImport();
+            //_restartImport.RunImport();
+            //_userImport.RunImport();
+            //_infoImport.RunImport();
+            //_showImport.RunImport();
+            //_transactionImport.RunImport();
+            //_friendImport.RunImport();
+            //_userPrefImport.RunImport();
+            //_watchListImport.RunImport();
+            //_bookImport.RunImport();
         }
         else if (runProcess2)
         {
