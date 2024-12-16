@@ -20,3 +20,16 @@ public class CL_GROUP_USER
 
     public CL_GROUP GROUP { get; set; }
 }
+
+public enum CL_RoleIds
+{
+    ADMIN = 1000,
+    EDIT = 1001,
+    READ = 1002
+}
+
+public enum CL_Status
+{
+    PENDING = 0,
+    APPROVED = 1,
+}

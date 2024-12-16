@@ -1,4 +1,4 @@
-﻿namespace OAProjects.Models.CatanLogger;
+﻿namespace OAProjects.Models.CatanLogger.Models;
 public class DiceRollModel
 {
     public int DiceRollId { get; set; }

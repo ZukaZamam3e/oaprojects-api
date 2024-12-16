@@ -25,10 +25,25 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+//builder.Services.AddSwaggerGen(options =>
+//{
+//    options.SwaggerDoc("catan-logger", new Microsoft.OpenApi.Models.OpenApiInfo
+//    {
+//        Title = "catan-logger",
+//        Version = "v1"
+//    });
+
+//    options.DocInclusionPredicate((docName, apiDesc) =>
+//    {
+//        return apiDesc.GroupName == docName;
+//    });
+//});
+
 
 builder.Services.AddOAIdentityDb(builder.Configuration);
 builder.Services.AddShowLoggerDb(builder.Configuration);
 builder.Services.AddFinanceTrackerDb(builder.Configuration);
+builder.Services.AddCatanLoggerDb(builder.Configuration);
 
 ApisConfig apisConfig = new ApisConfig();
 builder.Configuration.GetSection("Apis").Bind(apisConfig);
@@ -90,7 +105,11 @@ if (app.Environment.IsDevelopment())
     {
         options.RouteTemplate = "openapi/{documentName}.json";
     });
-    //app.UseSwaggerUI();
+
+    //app.UseSwaggerUI(options =>
+    //{
+    //    options.SwaggerEndpoint("/swagger/catan-logger/swagger.json", "catan-logger");
+    //});
 
     app.MapScalarApiReference(options =>
     {
@@ -98,6 +117,7 @@ if (app.Environment.IsDevelopment())
             .WithTitle("OA Projects API")
             .WithTheme(ScalarTheme.DeepSpace)
             .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient);
+
     });
 }
 

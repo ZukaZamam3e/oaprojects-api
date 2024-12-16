@@ -1,19 +1,14 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using OAProjects.Data.CatanLogger.Context;
 using OAProjects.Data.CatanLogger.Entities;
-using OAProjects.Data.FinanceTracker.Context;
-using OAProjects.Models.CatanLogger;
+using OAProjects.Models.CatanLogger.Models;
 using OAProjects.Store.CatanLogger.Stores.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Linq.Expressions;
 
 namespace OAProjects.Store.CatanLogger.Stores;
 public class GameStore(CatanLoggerDbContext _context) : IGameStore
 {
-    public IEnumerable<GameModel> GetGames(int groupId)
+    public IEnumerable<GameModel> GetGames(int groupId, Expression<Func<GameModel, bool>>? predicate = null)
     {
         char[] separators = new char[] { ',' };
 
@@ -25,6 +20,7 @@ public class GameStore(CatanLoggerDbContext _context) : IGameStore
             .Select(m => new GameModel
             {
                 GameId = m.GAME_ID,
+                GroupId = m.GROUP_ID,
                 Date = m.DATE_PLAYED,
                 WinnerName = m.PLAYERS.FirstOrDefault(p => p.WINNER)?.PLAYER_NAME,
                 WinnerColor = m.PLAYERS.FirstOrDefault(p => p.WINNER)?.PLAYER_COLOR,
@@ -50,11 +46,21 @@ public class GameStore(CatanLoggerDbContext _context) : IGameStore
                 TotalDiceRolls = m.DICE_ROLLS.Sum(d => d.DICE_ROLLS)
             });
 
+        if (predicate != null)
+        {
+            query = query.AsQueryable().Where(predicate);
+        }
+
         return query;
     }
 
-    public GameModel? SaveGame(int groupId, GameModel model)
+    public GameModel? SaveGame(int groupId, int userId, GameModel model)
     {
+        if (!CanEdit(groupId, userId))
+        {
+            return null;
+        }
+
         CL_GAME? gameEntity;
         if (model.GameId == -1)
         {
@@ -130,11 +136,14 @@ public class GameStore(CatanLoggerDbContext _context) : IGameStore
         return GetGames(groupId).First(m => m.GameId == gameEntity.GAME_ID);
     }
 
-    public bool DeleteGame(int groupId, int gameId)
+    public bool DeleteGame(int groupId, int userId, int gameId)
     {
-        CL_GAME? entity = _context.CL_GAME.FirstOrDefault(m => m.GAME_ID == gameId
-        //&& m.GROUP_ID == groupId
-            );
+        if (!CanEdit(groupId, userId))
+        {
+            return false;
+        }
+
+        CL_GAME? entity = _context.CL_GAME.FirstOrDefault(m => m.GAME_ID == gameId && m.GROUP_ID == groupId);
 
         if (entity == null)
             return false;
@@ -144,5 +153,12 @@ public class GameStore(CatanLoggerDbContext _context) : IGameStore
         _context.SaveChanges();
 
         return true;
+    }
+
+    private bool CanEdit(int groupId, int userId)
+    {
+        int[] editableRoles = [(int)CL_RoleIds.EDIT, (int)CL_RoleIds.ADMIN];
+        bool canEdit = _context.CL_GROUP_USER.Any(m => m.GROUP_ID == groupId && m.USER_ID == userId && editableRoles.Contains(m.ROLE_ID));
+        return canEdit;
     }
 }

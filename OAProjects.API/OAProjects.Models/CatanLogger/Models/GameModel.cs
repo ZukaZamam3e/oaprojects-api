@@ -4,10 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OAProjects.Models.CatanLogger;
+namespace OAProjects.Models.CatanLogger.Models;
 public class GameModel
 {
     public int GameId { get; set; }
+
+    public int GroupId { get; set; }
 
     public DateTime Date { get; set; }
 

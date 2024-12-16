@@ -11,5 +11,6 @@ public class CL_GROUP
     public DateTime DATE_ADDED { get; set; }
 
     public ICollection<CL_GAME> GAMES { get; set; }
+
     public ICollection<CL_GROUP_USER> GROUP_USERS { get; set; }
 }

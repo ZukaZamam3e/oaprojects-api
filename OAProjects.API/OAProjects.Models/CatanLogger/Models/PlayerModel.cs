@@ -1,4 +1,4 @@
-﻿namespace OAProjects.Models.CatanLogger;
+﻿namespace OAProjects.Models.CatanLogger.Models;
 public class PlayerModel
 {
     public int PlayerId { get; set; }

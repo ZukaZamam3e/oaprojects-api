@@ -1,4 +1,4 @@
-﻿namespace OAProjects.Models.CatanLogger;
+﻿namespace OAProjects.Models.CatanLogger.Models;
 public class TurnOrderModel
 {
     public int Order { get; set; }

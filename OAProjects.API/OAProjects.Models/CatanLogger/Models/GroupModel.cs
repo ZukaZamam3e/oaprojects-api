@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OAProjects.Models.CatanLogger;
+namespace OAProjects.Models.CatanLogger.Models;
 public class GroupModel
 {
     public int GroupId { get; set; }

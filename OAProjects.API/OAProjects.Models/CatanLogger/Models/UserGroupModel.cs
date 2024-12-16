@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OAProjects.Models.CatanLogger;
+namespace OAProjects.Models.CatanLogger.Models;
 public class UserGroupModel
 {
-    public int UserGroupId { get; set; }
+    public int GroupUserId { get; set; }
 
     public int GroupId { get; set; }
 
