@@ -26,6 +26,8 @@ public class TvInfoModel
 
     public string? Status { get; set; }
 
+    public string? Keywords { get; set; }
+
     public IEnumerable<TvInfoSeasonModel> Seasons { get; set; }
 
     [Display(Name = "Episodes")]

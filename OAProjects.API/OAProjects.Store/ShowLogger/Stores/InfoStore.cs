@@ -146,7 +146,7 @@ public class InfoStore : IInfoStore
             {
                 case INFO_TYPE.TV:
                     {
-                        TvShow show = await client.GetTvShowAsync(int.Parse(downloadInfo.Id));
+                        TvShow show = await client.GetTvShowAsync(int.Parse(downloadInfo.Id), TvShowMethods.Keywords);
                         TvInfoModel info = new TvInfoModel();
 
                         info.ShowName = show.Name;
@@ -156,10 +156,10 @@ public class InfoStore : IInfoStore
                         info.PosterUrl = show.PosterPath;
                         info.BackdropUrl = show.BackdropPath;
                         info.Status = show.Status;
+                        info.Keywords = string.Join(",", show.Keywords.Results.Select(m => m.Name.Replace("'", "''")));
 
                         List<TvEpisodeInfoModel> episodes = new List<TvEpisodeInfoModel>();
 
-                        int requestCount = 1;
                         Stopwatch requestTimer = Stopwatch.StartNew();
 
                         List<Task<TvSeason>> tasks = new List<Task<TvSeason>>();
@@ -182,7 +182,6 @@ public class InfoStore : IInfoStore
 
                         foreach (Task<TvSeason> task in tasks)
                         {
-                            //requestCount++;
                             TvSeason? seasonData = task.Result;
 
                             if (seasonData != null)
@@ -198,20 +197,9 @@ public class InfoStore : IInfoStore
                                     EpisodeOverview = m.Overview.Substring(0, m.Overview.Length > 4000 ? 4000 : m.Overview.Length),
                                     Runtime = m.Runtime,
                                     AirDate = m.AirDate,
-                                    ImageUrl = m.StillPath
+                                    ImageUrl = m.StillPath,
                                 }));
                             }
-
-                            //if (requestCount >= 30)
-                            //{
-                            //    if (requestTimer.Elapsed.Seconds < 1)
-                            //    {
-                            //        Thread.Sleep(1000);
-                            //    }
-
-                            //    requestCount = 0;
-                            //    requestTimer.Restart();
-                            //}
                         }
 
                         info.Episodes = episodes;
@@ -222,12 +210,11 @@ public class InfoStore : IInfoStore
                         downloadResult.UpdatedEpisodeCount = result.UpdatedEpisodeCount;
                         downloadResult.ShowName = show.Name;
                         break;
-
                     }
 
                 case INFO_TYPE.MOVIE:
                     {
-                        Movie movie = await client.GetMovieAsync(int.Parse(downloadInfo.Id));
+                        Movie movie = await client.GetMovieAsync(int.Parse(downloadInfo.Id), MovieMethods.Keywords);
                         MovieInfoModel info = new MovieInfoModel
                         {
                             MovieName = movie.Title,
@@ -238,6 +225,7 @@ public class InfoStore : IInfoStore
                             AirDate = movie.ReleaseDate,
                             PosterUrl = movie.PosterPath,
                             BackdropUrl = movie.BackdropPath,
+                            Keywords = string.Join(",", movie.Keywords.Keywords.Select(m => m.Name.Replace("'", "''")))
                         };
 
                         downloadResult.Id = UpdateMovieInfo(info);
@@ -343,6 +331,7 @@ public class InfoStore : IInfoStore
         entity.POSTER_URL = model.PosterUrl;
         entity.BACKDROP_URL = model.BackdropUrl;
         entity.STATUS = model.Status;
+        entity.KEYWORDS = model.Keywords;
 
         entity.LAST_DATA_REFRESH = DateTime.Now;
         entity.LAST_UPDATED = DateTime.Now;
@@ -512,6 +501,7 @@ public class InfoStore : IInfoStore
 
         entity.POSTER_URL = model.PosterUrl;
         entity.BACKDROP_URL = model.BackdropUrl;
+        entity.KEYWORDS = model.Keywords;
 
         entity.LAST_DATA_REFRESH = DateTime.Now;
         entity.LAST_UPDATED = DateTime.Now;

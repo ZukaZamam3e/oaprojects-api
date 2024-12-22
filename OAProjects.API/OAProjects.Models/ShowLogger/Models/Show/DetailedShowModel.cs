@@ -19,6 +19,10 @@ public class DetailedShowModel : ShowModel
 
     public string? InfoUrl { get; set; }
 
+    public bool HasMidCreditsScene { get; set; }
+
+    public bool HasEndCreditsScene { get; set; }
+
     public decimal TotalPurchases { get; set; }
 
     public string SeasonEpisode => SeasonNumber != null && EpisodeNumber != null ? $"s{SeasonNumber.Value.ToString().PadLeft(2, '0')}e{EpisodeNumber.Value.ToString().PadLeft(2, '0')}" : "";
