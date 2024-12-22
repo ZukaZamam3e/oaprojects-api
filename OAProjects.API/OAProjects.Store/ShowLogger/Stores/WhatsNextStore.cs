@@ -35,50 +35,19 @@ public class WhatsNextStore : IWhatsNextStore
         // get subscriptions
         SL_WHATS_NEXT_SUB[] subscriptions = _context.SL_WHATS_NEXT_SUB.Where(m => m.USER_ID == userId).ToArray();
 
-
         int[] tvInfoIds = subscriptions.Select(m => m.TV_INFO_ID).ToArray();
 
         SL_TV_EPISODE_INFO[] episodes = _context.SL_TV_EPISODE_INFO.Include(m => m.TV_INFO).Where(m => tvInfoIds.Contains(m.TV_INFO_ID)).ToArray();
 
         int[] episodeIds = episodes.Select(m => m.TV_EPISODE_INFO_ID).ToArray();
         int[] watchedEpisodes = _context.SL_SHOW.Where(m => m.USER_ID == userId && m.INFO_ID != null && episodeIds.Contains(m.INFO_ID.Value)).Select(m => m.INFO_ID.Value).ToArray();
-        //int[] missingEpisodes = episodeIds.Where(m => !watchedEpisodes.Contains(m)).ToArray();
-
-        //List<WhatsNextShowModel> query = episodes
-        //    .Where(m => m.AIR_DATE != null && subscriptions.Any(n => n.TV_INFO_ID == m.TV_INFO_ID && n.SUBSCRIBE_DATE <= m.AIR_DATE) && missingEpisodes.Contains(m.TV_EPISODE_INFO_ID))
-        //    .GroupBy(m => new
-        //    {
-        //        m.TV_INFO_ID,
-        //        m.TV_INFO.SHOW_NAME,
-        //        m.SEASON_NUMBER,
-        //        m.SEASON_NAME
-        //    })
-        //    .Select(grp => new WhatsNextShowModel
-        //    {
-        //        TvInfoId = grp.Key.TV_INFO_ID,
-        //        ShowName = grp.Key.SHOW_NAME,
-        //        SeasonNumber = grp.Key.SEASON_NUMBER,
-        //        SeasonName = grp.Key.SEASON_NAME,
-        //        AirDate = grp.Min(m => m.AIR_DATE.Value),
-        //        Status = grp.Min(episode => episode.AIR_DATE) > today ? "Coming Soon" :
-        //                    grp.Max(episode => episode.AIR_DATE) > today ? "Currently Airing" :
-        //                    grp.Max(episode => episode.AIR_DATE) <= today ? "Season Ended" : "",
-        //        Episodes = grp.Select(episode => new WhatsNextEpisodeModel
-        //        {
-        //            TvEpisodeInfoId = episode.TV_EPISODE_INFO_ID,
-        //            AirDate = episode.AIR_DATE.Value,
-        //            SeasonNumber = episode.SEASON_NUMBER,
-        //            SeasonName = episode.SEASON_NAME,
-        //            EpisodeNumber = episode.EPISODE_NUMBER,
-        //            EpisodeName = episode.EPISODE_NAME
-        //        }).OrderBy(m => m.AirDate)
-        //    }).ToList();
 
         List<WhatsNextShowModel> query = (from s in subscriptions
                                           join e in episodes on s.TV_INFO_ID equals e.TV_INFO_ID
                                           join ti in _context.SL_TV_INFO on e.TV_INFO_ID equals ti.TV_INFO_ID
                                           where s.SUBSCRIBE_DATE <= e.AIR_DATE
                                              && episodeIds.Contains(e.TV_EPISODE_INFO_ID)
+                                             && (!s.INCLUDE_SPECIALS && e.SEASON_NUMBER != 0)
                                           group e by new { s, ti, e.TV_INFO.SHOW_NAME, e.SEASON_NUMBER, e.SEASON_NAME } into grp
                                           select new WhatsNextShowModel
                                           {

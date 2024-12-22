@@ -19,4 +19,6 @@ public class ApiSearchResultModel
 
     public string ImageUrl { get; set; }
 
+    
+
 }

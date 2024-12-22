@@ -176,6 +176,9 @@ public class ShowLoggerDbContext : DbContext
 
             entity.Property(e => e.STATUS)
                 .HasMaxLength(25);
+
+            entity.Property(e => e.KEYWORDS)
+                .HasMaxLength(4000);
         });
 
         modelBuilder.Entity<SL_TV_EPISODE_INFO>(entity =>
@@ -217,6 +220,9 @@ public class ShowLoggerDbContext : DbContext
 
             entity.Property(e => e.LAST_UPDATED)
                 .IsRequired();
+
+            entity.Property(e => e.KEYWORDS)
+                .HasMaxLength(4000);
         });
 
         modelBuilder.Entity<SL_TRANSACTION>(entity =>

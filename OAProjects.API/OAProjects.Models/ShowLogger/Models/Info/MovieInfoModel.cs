@@ -24,4 +24,6 @@ public class MovieInfoModel
     public string? BackdropUrl { get; set; }
 
     public string? InfoUrl { get; set; }
+
+    public string? Keywords { get; set; }
 }

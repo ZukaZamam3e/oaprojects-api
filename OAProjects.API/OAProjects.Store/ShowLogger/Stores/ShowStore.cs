@@ -7,6 +7,7 @@ using OAProjects.Models.ShowLogger.Models.Config;
 using OAProjects.Models.ShowLogger.Models.Info;
 using OAProjects.Models.ShowLogger.Models.Show;
 using OAProjects.Store.ShowLogger.Stores.Interfaces;
+using System.Linq;
 using System.Linq.Expressions;
 
 namespace OAProjects.Store.ShowLogger.Stores;
@@ -67,7 +68,12 @@ public class ShowStore : IShowStore
                                                    Runtime = s.SHOW_TYPE_ID == (int)CodeValueIds.TV ? (t != null ? t.RUNTIME : null) : (m != null ? m.RUNTIME : null),
                                                    EpisodeName = s.SHOW_TYPE_ID == (int)CodeValueIds.TV ? (t != null ? t.EPISODE_NAME : null) : "",
                                                    InfoId = s.INFO_ID,
-
+                                                   HasMidCreditsScene = s.SHOW_TYPE_ID == (int)CodeValueIds.TV ? 
+                                                    (ti != null && !string.IsNullOrEmpty(ti.KEYWORDS) && ti.KEYWORDS.Contains("duringcreditsstinger")) : 
+                                                    (m != null && !string.IsNullOrEmpty(m.KEYWORDS) && m.KEYWORDS.Contains("duringcreditsstinger")),
+                                                   HasEndCreditsScene = s.SHOW_TYPE_ID == (int)CodeValueIds.TV ? 
+                                                    (ti != null && !string.IsNullOrEmpty(ti.KEYWORDS) && ti.KEYWORDS.Contains("aftercreditsstinger")) : 
+                                                    (m != null && !string.IsNullOrEmpty(m.KEYWORDS) && m.KEYWORDS.Contains("aftercreditsstinger")),
                                                    InfoApiType = s.SHOW_TYPE_ID == (int)CodeValueIds.TV ? (t != null ? t.API_TYPE : null) : (m != null ? m.API_TYPE : null),
                                                    InfoApiId = s.SHOW_TYPE_ID == (int)CodeValueIds.TV ? (t != null ? ti.API_ID : null) : (m != null ? m.API_ID : null),
                                                    InfoSeasonNumber = s.SHOW_TYPE_ID == (int)CodeValueIds.TV ? (t != null ? t.SEASON_NUMBER : null) : null,

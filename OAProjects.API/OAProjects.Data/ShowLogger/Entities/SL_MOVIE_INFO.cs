@@ -25,4 +25,6 @@ public class SL_MOVIE_INFO
     public string? POSTER_URL { get; set; }
 
     public string? BACKDROP_URL { get; set; }
+
+    public string? KEYWORDS { get; set; }
 }
