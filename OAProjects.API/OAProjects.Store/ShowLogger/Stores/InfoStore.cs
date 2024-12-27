@@ -401,6 +401,17 @@ public class InfoStore : IInfoStore
             episodeEntity.IMAGE_URL = episode.ImageUrl;
         }
 
+        List<Tuple<SL_TV_EPISODE_INFO, TvEpisodeInfoModel>> removedEpisodes = (from e in episodes 
+                                                                               join m in model.Episodes on new { ApiId = e.API_ID, ApiType = e.API_TYPE } equals new { m.ApiId, m.ApiType } into ms
+                                                                               from m in ms.DefaultIfEmpty()
+                                                                               where m == null
+                                                                               select new Tuple<SL_TV_EPISODE_INFO, TvEpisodeInfoModel>(e, m)).ToList();
+
+        if (removedEpisodes.Count > 0)
+        {
+            _context.SL_TV_EPISODE_INFO.RemoveRange(removedEpisodes.Select(m => m.Item1));
+        }
+
         entity.LAST_DATA_REFRESH = DateTime.Now;
         entity.LAST_UPDATED = DateTime.Now;
         _context.SaveChanges();

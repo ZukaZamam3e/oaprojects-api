@@ -1,4 +1,4 @@
-CREATE VIEW sl_year_stats_data_vw
+CREATE OR REPLACE VIEW sl_year_stats_data_vw
 AS
 SELECT x.user_id
 	  ,x.show_name
