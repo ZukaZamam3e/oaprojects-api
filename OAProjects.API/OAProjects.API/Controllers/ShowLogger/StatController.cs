@@ -217,7 +217,11 @@ public class StatController : BaseController
             foreach (BookYearStatModel year in response.Model.BookYearStats)
             {
                 year.Data = data.Where(m => m.UserId == year.UserId && m.Year == year.Year).OrderBy(m => m.Month);
-                year.MonthAvg = year.Data.Count() / year.Data.Select(m => m.StartDate.Month).Distinct().Count();
+
+                if (year.Data.Any())
+                {
+                    year.MonthAvg = year.Data.Count() / year.Data.Select(m => m.StartDate.Month).Distinct().Count();
+                }
             }
         }
         catch (Exception ex)
