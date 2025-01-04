@@ -467,7 +467,7 @@ public class StatStore : IStatStore
 
         IEnumerable<BookYearStatModel> model = from x in books
                                                where x.END_DATE != null && x.START_DATE != null && (x.USER_ID == userId || friends.Contains(x.USER_ID))
-                                               group new { x } by new { x.USER_ID, x.END_DATE.Value.Year } into g
+                                               group new { x } by new { x.USER_ID, x.START_DATE.Value.Year } into g
                                                select new BookYearStatModel
                                                {
                                                    UserId = g.Key.USER_ID,
