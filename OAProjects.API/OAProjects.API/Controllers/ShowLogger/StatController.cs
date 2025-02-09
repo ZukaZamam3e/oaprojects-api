@@ -47,7 +47,7 @@ public class StatController : BaseController
 
             response.Model.TvStats = GetTvStatsData(userId, search);
             response.Model.Count = response.Model.TvStats.Count();
-            response.Model.TvStats = response.Model.TvStats.OrderByDescending(m => m.ShowId).ThenByDescending(m => m.LastWatched).ThenByDescending(m => m.ShowName).Skip(offset).Take(take).ToArray();
+            response.Model.TvStats = response.Model.TvStats.OrderByDescending(m => m.LastWatched).ThenByDescending(m => m.ShowId).ThenByDescending(m => m.ShowName).Skip(offset).Take(take).ToArray();
         }
         catch (Exception ex)
         {
