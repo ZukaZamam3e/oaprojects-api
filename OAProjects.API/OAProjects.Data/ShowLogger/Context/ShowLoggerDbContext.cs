@@ -26,6 +26,7 @@ public class ShowLoggerDbContext : DbContext
     public DbSet<SL_BOOK> SL_BOOK { get; set; }
     public DbSet<SL_TV_EPISODE_ORDER> SL_TV_EPISODE_ORDER { get; set; }
     public DbSet<SL_WHATS_NEXT_SUB> SL_WHATS_NEXT_SUB { get; set; }
+    public DbSet<SL_WATCHED> SL_WATCHED { get; set; }
 
     public DbSet<SL_YEAR_STATS_DATA_VW> SL_YEAR_STATS_DATA_VW { get; set; }
 
@@ -49,6 +50,7 @@ public class ShowLoggerDbContext : DbContext
         modelBuilder.Entity<SL_BOOK>().HasKey(m => m.BOOK_ID);
         modelBuilder.Entity<SL_TV_EPISODE_ORDER>().HasKey(m => m.TV_EPISODE_ORDER_ID);
         modelBuilder.Entity<SL_WHATS_NEXT_SUB>().HasKey(m => m.WHATS_NEXT_SUB_ID);
+        modelBuilder.Entity<SL_WATCHED>().HasKey(m => m.WATCHED_ID);
 
         modelBuilder.Entity<SL_TV_INFO>().HasMany(m => m.EPISODE_INFOS)
             .WithOne(m => m.TV_INFO)
@@ -307,6 +309,21 @@ public class ShowLoggerDbContext : DbContext
                 .IsRequired();
 
             entity.Property(e => e.SUBSCRIBE_DATE)
+                .IsRequired();
+        });
+
+        modelBuilder.Entity<SL_WATCHED>(entity =>
+        {
+            entity.Property(e => e.WATCHED_ID)
+                .ValueGeneratedOnAdd();
+
+            entity.Property(e => e.USER_ID)
+               .IsRequired();
+
+            entity.Property(e => e.INFO_TYPE)
+                .IsRequired();
+
+            entity.Property(e => e.INFO_ID)
                 .IsRequired();
         });
 
