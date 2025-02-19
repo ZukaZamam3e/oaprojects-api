@@ -1,23 +1,13 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
-using OAProjects.Data.ShowLogger.Context;
+﻿using OAProjects.Data.ShowLogger.Context;
 using OAProjects.Data.ShowLogger.Entities;
 using OAProjects.Models.ShowLogger.Models.Config;
 using OAProjects.Models.ShowLogger.Models.Info;
-using OAProjects.Models.ShowLogger.Models.UnlinkedShow;
 using OAProjects.Store.ShowLogger.Stores.Interfaces;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 using TMDbLib.Client;
 using TMDbLib.Objects.General;
 using TMDbLib.Objects.Movies;
-using TMDbLib.Objects.People;
 using TMDbLib.Objects.Search;
 using TMDbLib.Objects.TvShows;
 

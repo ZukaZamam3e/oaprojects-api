@@ -1,5 +1,4 @@
 ﻿using FluentValidation;
-using OAProjects.Models.ShowLogger.Models.WatchList;
 using OAProjects.Models.ShowLogger.Models.WhatsNext;
 
 namespace OAProjects.API.Validators.ShowLogger.WhatsNext;

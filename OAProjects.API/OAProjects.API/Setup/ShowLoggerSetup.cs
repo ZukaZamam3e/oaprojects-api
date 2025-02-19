@@ -29,6 +29,9 @@ using OAProjects.API.Validators.ShowLogger.Login;
 using OAProjects.Models.ShowLogger.Models.WhatsNext;
 using OAProjects.Models.ShowLogger.Requests.WhatsNext;
 using OAProjects.API.Validators.ShowLogger.WhatsNext;
+using OAProjects.API.Validators.ShowLogger.Watched;
+using OAProjects.Models.ShowLogger.Models.Watched;
+using OAProjects.Models.ShowLogger.Requests.Watched;
 
 namespace OAProjects.API.Setup;
 
@@ -51,6 +54,7 @@ public static class ShowLoggerSetup
         services.AddTransient<IFriendHistoryStore, FriendHistoryStore>();
         services.AddTransient<ILoginStore, LoginStore>();
         services.AddTransient<IWhatsNextStore, WhatsNextStore>();
+        services.AddTransient<IWatchedStore, WatchedStore>();
 
         services.AddScoped<IValidator<ShowModel>, ShowValidator>();
         services.AddScoped<IValidator<ShowTransactionModel>, ShowTransactionValidator>();
@@ -88,6 +92,10 @@ public static class ShowLoggerSetup
         services.AddScoped<IValidator<WhatsNextSubIdRequest>, WhatsNextSubIdValidator>();
         services.AddScoped<IValidator<CreateSubscriptionModel>, CreateSubscriptionValidator>();
         services.AddScoped<IValidator<WhatsNextWatchEpisodeRequest>, WhatsNextWatchEpisodeValidator>();
+
+        services.AddScoped<IValidator<CreateWatchedModel>, CreateWatchedValidator>();
+        services.AddScoped<IValidator<WatchedIdRequest>, WatchedIdValidator>();
+        services.AddScoped<IValidator<WatchedModel>, WatchedValidator>();
 
         return services;
     }
