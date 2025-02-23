@@ -27,4 +27,9 @@ public class FT_TRANSACTION
     public string? TRANSACTION_URL { get; set; }
 
     public string? CATEGORIES { get; set; }
+
+    public int? CONDITIONAL { get; set; }
+
+    public decimal? CONDITIONAL_AMOUNT { get; set; }
+
 }

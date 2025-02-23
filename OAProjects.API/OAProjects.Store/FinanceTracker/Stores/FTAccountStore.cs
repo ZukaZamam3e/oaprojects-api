@@ -133,7 +133,11 @@ public class FTAccountStore(FinanceTrackerDbContext _context) : IFTAccountStore
                     START_DATE = m.START_DATE,
                     END_DATE = m.END_DATE,
                     TRANSACTION_NOTES = m.TRANSACTION_NOTES,
-                    TRANSACTION_URL = m.TRANSACTION_URL
+                    TRANSACTION_URL = m.TRANSACTION_URL,
+                    INTERVAL = m.INTERVAL,
+                    CATEGORIES = m.CATEGORIES,
+                    CONDITIONAL =  m.CONDITIONAL,
+                    CONDITIONAL_AMOUNT = m.CONDITIONAL_AMOUNT,
                 }));
 
             _context.FT_TRANSACTION.AddRange(clonedTransactionEntities.Select(m => m.Item2));

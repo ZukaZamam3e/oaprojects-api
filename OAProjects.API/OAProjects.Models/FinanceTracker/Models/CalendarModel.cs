@@ -34,6 +34,7 @@ public class CalendarModel(int userId, int accountId, DateTime startDate, IEnume
     private const int EVERY_N_DAYS = 1009;
     private const int EVERY_N_WEEKS = 1010;
     private const int EVERY_N_MONTHS = 1011;
+    private const int OCCURS_THREE_MONTH = 2000;
 
     public bool Calculate(DateTime startDate, DateTime endDate)
     {
@@ -256,6 +257,14 @@ public class CalendarModel(int userId, int accountId, DateTime startDate, IEnume
             day.Offsets.Add(offset);
         }
 
+        if(transaction.Conditional is not null && transaction.Conditional == OCCURS_THREE_MONTH)
+        {
+            if(DoesDateOccurThreeMonth(day.Date, transaction.FrequencyTypeId, transaction.Interval))
+            {
+                amount += transaction.ConditionalAmount ?? 0;
+            }
+        }
+
         return amount;
     }
 
@@ -268,6 +277,14 @@ public class CalendarModel(int userId, int accountId, DateTime startDate, IEnume
         if (offset is not null)
         {
             amount += offset.OffsetAmount;
+        }
+
+        if (transaction.Conditional is not null && transaction.Conditional == OCCURS_THREE_MONTH)
+        {
+            if (DoesDateOccurThreeMonth(day.Date, transaction.FrequencyTypeId, transaction.Interval))
+            {
+                amount += transaction.ConditionalAmount ?? 0;
+            }
         }
 
         return amount;
@@ -298,5 +315,41 @@ public class CalendarModel(int userId, int accountId, DateTime startDate, IEnume
             EVERY_N_MONTHS => checkDate.Month - startDate.Month % interval == 0,
             _ => false
         };
+    }
+
+    private static bool DoesDateOccurThreeMonth(DateTime date, int frequencyType, int? interval)
+    {
+        int counter = 1;
+
+        for (int i = 1; i <= 2; ++i)
+        {
+            counter += frequencyType switch
+            {
+                DAILY => 1,
+                WEEKLY => DoesDateHaveSameMonth(date, 7 * i),
+                BIWEEKLY => DoesDateHaveSameMonth(date, 14 * i),
+                EVERY_N_DAYS => DoesDateHaveSameMonth(date, (interval ?? 0) * i),
+                EVERY_N_WEEKS => DoesDateHaveSameMonth(date, (interval ?? 0) * 7 * i),
+                _ => 0
+            };
+
+            counter += frequencyType switch
+            {
+                DAILY => 1,
+                WEEKLY => DoesDateHaveSameMonth(date, -7 * i),
+                BIWEEKLY => DoesDateHaveSameMonth(date, -14 * i),
+                EVERY_N_DAYS => DoesDateHaveSameMonth(date, (interval ?? 0) * i * -1),
+                EVERY_N_WEEKS => DoesDateHaveSameMonth(date, (interval ?? 0) * 7 * i * -1),
+                _ => 0
+            };
+
+        }
+
+        return counter >= 3;
+    }
+
+    public static int DoesDateHaveSameMonth(DateTime date, int days)
+    {
+        return date.AddDays(days).Month == date.Month ? 1 : 0;
     }
 }
