@@ -13,6 +13,7 @@ public class FT_CODE_VALUE
 public enum FT_CodeTableIds
 {
     FREQUENCY_TYPES = 1,
+    CONDITIONAL = 2,
 }
 
 public enum FT_CodeValueIds
@@ -28,5 +29,7 @@ public enum FT_CodeValueIds
     YEARLY = 1008,
     EVERY_N_DAYS = 1009,
     EVERY_N_WEEKS = 1010,
-    EVERY_N_MONTHS = 1011
+    EVERY_N_MONTHS = 1011,
+    OCCURS_THREE_MONTH = 2000
+
 }

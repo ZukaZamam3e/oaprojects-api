@@ -25,6 +25,10 @@ public class FTTransactionStore(FinanceTrackerDbContext _context) : IFTTransacti
             .Where(m => m.CODE_TABLE_ID == (int)FT_CodeTableIds.FREQUENCY_TYPES)
             .ToDictionary(m => m.CODE_VALUE_ID, m => m.DECODE_TXT);
 
+        Dictionary<int, string> conditionals = _context.FT_CODE_VALUE
+            .Where(m => m.CODE_TABLE_ID == (int)FT_CodeTableIds.CONDITIONAL)
+            .ToDictionary(m => m.CODE_VALUE_ID, m => m.DECODE_TXT);
+
         FT_TRANSACTION[] transactionEntities = [.. _context.FT_TRANSACTION.Where(predicate)];
 
         IEnumerable<FTTransactionModel> query = transactionEntities.Select(m => new FTTransactionModel
@@ -40,7 +44,11 @@ public class FTTransactionStore(FinanceTrackerDbContext _context) : IFTTransacti
             FrequencyTypeIdZ = frequencyTypeIds[m.FREQUENCY_TYPE_ID],
             TransactionUrl = m.TRANSACTION_URL,
             TransactionNotes = m.TRANSACTION_NOTES,
-            Categories = m.CATEGORIES
+            Categories = m.CATEGORIES,
+            Conditional = m.CONDITIONAL,
+            ConditionalZ = m.CONDITIONAL is not null ? conditionals[(int)m.CONDITIONAL] : "",
+            ConditionalAmount = m.CONDITIONAL_AMOUNT,
+            Interval = m.INTERVAL,
         });
 
         return query;
@@ -59,7 +67,10 @@ public class FTTransactionStore(FinanceTrackerDbContext _context) : IFTTransacti
             FREQUENCY_TYPE_ID = transaction.FrequencyTypeId,
             TRANSACTION_URL = transaction.TransactionUrl,
             TRANSACTION_NOTES = transaction.TransactionNotes, 
-            CATEGORIES = transaction.Categories
+            INTERVAL = transaction.Interval,
+            CATEGORIES = transaction.Categories,
+            CONDITIONAL = transaction.Conditional,
+            CONDITIONAL_AMOUNT = transaction.ConditionalAmount,
         };
 
         _context.FT_TRANSACTION.Add(entity);
@@ -83,7 +94,10 @@ public class FTTransactionStore(FinanceTrackerDbContext _context) : IFTTransacti
             entity.FREQUENCY_TYPE_ID = transaction.FrequencyTypeId;
             entity.TRANSACTION_URL = transaction.TransactionUrl;
             entity.TRANSACTION_NOTES = transaction.TransactionNotes;
+            entity.INTERVAL = transaction.Interval;
             entity.CATEGORIES = transaction.Categories;
+            entity.CONDITIONAL = transaction.Conditional;
+            entity.CONDITIONAL_AMOUNT = transaction.ConditionalAmount;
 
             result = _context.SaveChanges();
         }

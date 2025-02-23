@@ -92,6 +92,7 @@ public class CalendarController(
                 response.Model.MonthExpenses = monthDays.Sum(m => m.Expenses);
 
                 response.Model.FrequencyTypeIds = _fTCodeValueStore.GetCodeValues(m => m.CodeTableId == (int)FT_CodeTableIds.FREQUENCY_TYPES).Select(m => new FTCodeValueModel { CodeValueId = m.CodeValueId, DecodeTxt = m.DecodeTxt });
+                response.Model.Conditionals = _fTCodeValueStore.GetCodeValues(m => m.CodeTableId == (int)FT_CodeTableIds.CONDITIONAL).Select(m => new FTCodeValueModel { CodeValueId = m.CodeValueId, DecodeTxt = m.DecodeTxt });
 
             }
         }

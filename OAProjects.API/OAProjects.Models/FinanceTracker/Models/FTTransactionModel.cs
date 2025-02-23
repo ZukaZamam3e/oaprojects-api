@@ -34,6 +34,13 @@ public class FTTransactionModel
 
     public string? Categories { get; set; }
 
+    public int? Conditional { get; set; }
+
+    public string? ConditionalZ { get; set; }
+
+    public decimal? ConditionalAmount { get; set; }
+
+
     public FTTransactionModel Clone(DateTime date)
     {
         return new FTTransactionModel
@@ -51,6 +58,9 @@ public class FTTransactionModel
             TransactionUrl = TransactionUrl,
             Interval = Interval,
             Categories = Categories,
+            Conditional = Conditional,
+            ConditionalZ = ConditionalZ,
+            ConditionalAmount = ConditionalAmount,
         };
     }
 }

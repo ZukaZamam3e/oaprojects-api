@@ -24,4 +24,6 @@ public class LoadResponse
     public IEnumerable<AccountModel> Accounts { get; set; }
 
     public IEnumerable<FTCodeValueModel> FrequencyTypeIds { get; set; }
+
+    public IEnumerable<FTCodeValueModel> Conditionals { get; set; }
 }
