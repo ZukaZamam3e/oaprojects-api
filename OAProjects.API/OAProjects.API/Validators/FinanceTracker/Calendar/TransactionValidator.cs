@@ -21,11 +21,15 @@ public class TransactionValidator : AbstractValidator<FTTransactionModel>
         RuleFor(m => m.OffsetDate).GreaterThanOrEqualTo(m => m.StartDate);
         RuleFor(m => m.OffsetDate).LessThanOrEqualTo(m => m.EndDate).When(m => m.EndDate.HasValue);
 
-        //RuleFor(m => m.OffsetAmount).NotNull().When(m => m.OffsetDate.HasValue);
-
         RuleFor(m => m.Interval).NotNull()
             .When(m => m.FrequencyTypeId == (int)FT_CodeValueIds.EVERY_N_DAYS
                 || m.FrequencyTypeId == (int)FT_CodeValueIds.EVERY_N_WEEKS
                 || m.FrequencyTypeId == (int)FT_CodeValueIds.EVERY_N_MONTHS);
+
+        RuleFor(m => m.ConditionalAmount).NotNull()
+            .When(m => m.Conditional != null);
+
+        RuleFor(m => m.Conditional).NotNull()
+            .When(m => m.ConditionalAmount != null);
     }
 }
