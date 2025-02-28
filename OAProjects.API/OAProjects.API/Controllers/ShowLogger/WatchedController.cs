@@ -15,6 +15,7 @@ using OAProjects.Store.OAIdentity.Stores;
 using OAProjects.Store.OAIdentity.Stores.Interfaces;
 using OAProjects.Store.ShowLogger.Stores;
 using OAProjects.Store.ShowLogger.Stores.Interfaces;
+using System.Linq;
 using System.Linq.Expressions;
 
 namespace OAProjects.API.Controllers.ShowLogger;
@@ -47,7 +48,7 @@ public class WatchedController(
 
             response.Model.Items = GetWatchedTV(userId);
             response.Model.Count = response.Model.Items.Count();
-            response.Model.Items = response.Model.Items.OrderBy(m => m.Name).Take(take);
+            response.Model.Items = response.Model.Items.OrderByDescending(m => m.DateWatched != null).ThenByDescending(m => m.DateWatched).Take(take);
         }
         catch (Exception ex)
         {
@@ -69,7 +70,7 @@ public class WatchedController(
             response.Model = new ItemResponse<WatchedModel>();
             response.Model.Items = GetWatchedTV(userId, search);
             response.Model.Count = response.Model.Items.Count();
-            response.Model.Items = response.Model.Items.OrderBy(m => m.Name).Skip(offset).Take(take);
+            response.Model.Items = response.Model.Items.OrderByDescending(m => m.DateWatched != null).ThenByDescending(m => m.DateWatched).Skip(offset).Take(take);
         }
         catch (Exception ex)
         {
@@ -104,7 +105,7 @@ public class WatchedController(
 
             response.Model.Items = GetWatchedMovies(userId);
             response.Model.Count = response.Model.Items.Count();
-            response.Model.Items = response.Model.Items.OrderBy(m => m.Name).Take(take);
+            response.Model.Items = response.Model.Items.OrderByDescending(m => m.DateWatched != null).ThenByDescending(m => m.DateWatched).Take(take);
         }
         catch (Exception ex)
         {
@@ -126,7 +127,7 @@ public class WatchedController(
             response.Model = new ItemResponse<WatchedModel>();
             response.Model.Items = GetWatchedMovies(userId, search);
             response.Model.Count = response.Model.Items.Count();
-            response.Model.Items = response.Model.Items.OrderBy(m => m.Name).Skip(offset).Take(take);
+            response.Model.Items = response.Model.Items.OrderByDescending(m => m.DateWatched != null).ThenByDescending(m => m.DateWatched).Skip(offset).Take(take);
         }
         catch (Exception ex)
         {
