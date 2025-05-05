@@ -69,17 +69,18 @@ builder.Services.AddTransient<App>();
 
 using IHost host = builder.Build();
 
-RunApp(host.Services, args);
+return await RunApp(host.Services, args);
 
-await host.RunAsync();
-
-static void RunApp(IServiceProvider hostProvider, string[] arguments)
+static async Task<int> RunApp(IServiceProvider hostProvider, string[] arguments)
 {
+    int result = 0;
+
     using IServiceScope serviceScope = hostProvider.CreateScope();
     IServiceProvider provider = serviceScope.ServiceProvider;
     App app = provider.GetRequiredService<App>();
 
+    result = await app.Run(arguments);
 
-    app.Run(arguments);
+    return result;
 }
 

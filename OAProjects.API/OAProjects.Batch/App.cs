@@ -17,7 +17,7 @@ public class App
         _logger = logger;
     }
 
-    public async void Run(string[] args)
+    public async Task<int> Run(string[] args)
     {
         _logger.LogInformation($"Starting OAProjects.Batch with args: {string.Join(' ', args)}");
 
@@ -38,5 +38,6 @@ public class App
 
         _logger.LogInformation($"OAProjects.Batch has completed.");
 
+        return 1;
     }
 }
