@@ -322,7 +322,7 @@ public class CalendarModel(int userId, int accountId, DateTime startDate, IEnume
             YEARLY => checkDate.Day == startDate.Day && checkDate.Month == startDate.Month,
             EVERY_N_DAYS => (checkDate - startDate).Days % interval == 0,
             EVERY_N_WEEKS => (checkDate - startDate).Days % (7 * interval) == 0,
-            EVERY_N_MONTHS => checkDate.Month - startDate.Month % interval == 0,
+            EVERY_N_MONTHS => ((checkDate.Month - startDate.Month) % interval == 0) && checkDate.Day == startDate.Day,
             _ => false
         };
     }
