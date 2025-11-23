@@ -176,6 +176,7 @@ public class CalendarModel(int userId, int accountId, DateTime startDate, IEnume
                     model.TransactionName = transaction.Name;
                     model.TransactionId = transaction.TransactionId;
                     model.FrequencyTypeIdZ = transaction.FrequencyTypeIdZ;
+                    model.Url = transaction.TransactionUrl;
 
                     decimal amount = GetAmount(monthDay.Date, transaction, Offsets);
                     if (transaction.FrequencyTypeId != HARDSET)

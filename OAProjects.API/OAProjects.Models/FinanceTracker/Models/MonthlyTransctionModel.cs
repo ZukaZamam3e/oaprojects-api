@@ -15,4 +15,6 @@ public class MonthlyTransactionModel
     public decimal? Expenses { get; set; }
 
     public decimal? EndOfDayBalance { get; set; }
+
+    public string? Url { get; set; }
 }
