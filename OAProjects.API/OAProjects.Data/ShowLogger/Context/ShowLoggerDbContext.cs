@@ -329,6 +329,6 @@ public class ShowLoggerDbContext : DbContext
 
         modelBuilder.Entity<SL_YEAR_STATS_DATA_VW>()
             .ToView(nameof(SL_YEAR_STATS_DATA_VW))
-            .HasKey(e => new { e.USER_ID, e.YEAR, e.SHOW_NAME });
+            .HasKey(e => new { e.USER_ID, e.YEAR, e.SHOW_NAME, e.SHOW_TYPE_ID });
     }
 }

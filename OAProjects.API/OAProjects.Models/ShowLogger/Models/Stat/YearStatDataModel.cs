@@ -23,9 +23,12 @@ public class YearStatDataModel
 
     public string TotalRuntimeZ => ConvertRuntime(TotalRuntime);
 
+    public string? PosterUrl { get; set; }
+
     public string? InfoBackdropUrl { get; set; }
 
     public string? InfoUrl { get; set; }
+
 
     private string ConvertRuntime(int? minutes)
     {

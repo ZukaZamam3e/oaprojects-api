@@ -13,9 +13,6 @@ SELECT x.user_id
 	  ,CASE WHEN x.show_type_id = 1000 THEN ti.api_id
 			ELSE mi.api_id
 	   END api_id
-	  ,CASE WHEN x.show_type_id = 1000 THEN ti.poster_url
-			ELSE mi.poster_url
-	   END poster_url
 	  ,CASE WHEN x.show_type_id = 1000 THEN ti.backdrop_url
 			ELSE mi.backdrop_url
 	   END backdrop_url

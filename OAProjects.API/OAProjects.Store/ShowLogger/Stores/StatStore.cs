@@ -393,6 +393,7 @@ public class StatStore : IStatStore
                                                         ShowTypeIdZ = showTypeIds[(int)CodeValueIds.TV],
                                                         TotalRuntime = g.Sum(m => m.ei.RUNTIME) ?? 0,
                                                         WatchCount = g.Count(),
+                                                        PosterUrl = g.Any(m => m.ei != null) ? _apisConfig.GetImageUrl(dictTvInfos[g.First().ei.TV_EPISODE_INFO_ID].API_TYPE, dictTvInfos[g.First().ei.TV_EPISODE_INFO_ID].POSTER_URL) : null,
                                                         InfoBackdropUrl = g.Any(m => m.ei != null) ? _apisConfig.GetImageUrl(dictTvInfos[g.First().ei.TV_EPISODE_INFO_ID].API_TYPE, dictTvInfos[g.First().ei.TV_EPISODE_INFO_ID].BACKDROP_URL) : null,
                                                         InfoUrl = g.Any(m => m.ei != null) ? _apisConfig.GetTvInfoUrl(dictTvInfos[g.First().ei.TV_EPISODE_INFO_ID].API_TYPE, dictTvInfos[g.First().ei.TV_EPISODE_INFO_ID].API_ID) : null,
                                                     }).ToList();
@@ -410,6 +411,7 @@ public class StatStore : IStatStore
                                                         ShowTypeIdZ = showTypeIds[(int)CodeValueIds.MOVIE],
                                                         TotalRuntime = mi != null ? mi.RUNTIME : null,
                                                         WatchCount = 1,
+                                                        PosterUrl = mi != null ? _apisConfig.GetImageUrl(mi.API_TYPE, mi.POSTER_URL) : null,
                                                         InfoBackdropUrl = mi != null ? _apisConfig.GetImageUrl(mi.API_TYPE, mi.BACKDROP_URL) : null,
                                                         InfoUrl = mi != null ? _apisConfig.GetMovieInfoUrl(mi.API_TYPE, mi.API_ID) : null,
                                                     }).ToList();
@@ -427,6 +429,7 @@ public class StatStore : IStatStore
                                                         ShowTypeIdZ = showTypeIds[(int)CodeValueIds.AMC],
                                                         TotalRuntime = mi != null ? mi.RUNTIME : null,
                                                         WatchCount = 1,
+                                                        PosterUrl = mi != null ? _apisConfig.GetImageUrl(mi.API_TYPE, mi.POSTER_URL) : null,
                                                         InfoBackdropUrl = mi != null ? _apisConfig.GetImageUrl(mi.API_TYPE, mi.BACKDROP_URL) : null,
                                                         InfoUrl = mi != null ? _apisConfig.GetMovieInfoUrl(mi.API_TYPE, mi.API_ID) : null,
                                                     }).ToList();
@@ -451,6 +454,7 @@ public class StatStore : IStatStore
                 ShowTypeIdZ = showTypeIds[m.SHOW_TYPE_ID],
                 TotalRuntime = m.TOTAL_RUNTIME,
                 WatchCount = m.WATCH_COUNT,
+                PosterUrl = _apisConfig.GetImageUrl(m.API_TYPE, m.POSTER_URL),
                 InfoBackdropUrl = _apisConfig.GetImageUrl(m.API_TYPE, m.BACKDROP_URL),
                 InfoUrl = m.SHOW_TYPE_ID == (int)CodeValueIds.TV ? _apisConfig.GetTvInfoUrl(m.API_TYPE, m.API_ID) : _apisConfig.GetMovieInfoUrl(m.API_TYPE, m.API_ID),
             });

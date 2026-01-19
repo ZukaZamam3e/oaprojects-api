@@ -19,6 +19,8 @@ public class SL_YEAR_STATS_DATA_VW
 
     public string? API_ID { get; set; }
 
+    public string? POSTER_URL { get; set; }
+
     public string? BACKDROP_URL { get; set; }
 
     public int? TOTAL_RUNTIME { get; set; }
