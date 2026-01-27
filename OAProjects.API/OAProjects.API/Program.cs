@@ -82,7 +82,10 @@ builder.Services.AddHttpClient("Auth0", httpClient =>
 
 builder.Services.AddMemoryCache();
 
-builder.Services.AddSignalR();
+builder.Services.AddSignalR(options =>
+{
+    options.MaximumReceiveMessageSize = 64 * 1024; // 64 KB (or larger if needed)
+});
 
 var app = builder.Build();
 
@@ -118,6 +121,6 @@ string listeningPort = builder.Configuration.GetValue<string>("ListeningPort");
 
 app.Urls.Add(listeningPort);
 
-app.MapHub<ChatHub>("/chatHub");
+app.MapHub<ShowQuizHub>("/showQuizHub");
 
 app.Run();
