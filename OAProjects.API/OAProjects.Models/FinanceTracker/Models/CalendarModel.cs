@@ -221,7 +221,7 @@ public class CalendarModel(int userId, int accountId, DateTime startDate, IEnume
         {
             if (!string.IsNullOrEmpty(category))
             {
-                string[] split = category.ToLower().Split(',');
+                string[] split = category.Split(',');
                 allCategories.AddRange(split);
             }
         }
