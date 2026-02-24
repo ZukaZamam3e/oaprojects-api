@@ -51,6 +51,7 @@ jobs:
         Auth0.Auth0Scopes: ${{ secrets.AUT0_SCOPES }}
         Apis.TMDbAPIKey: ${{ secrets.APIS_TMDBAPIKEY }}
         ShowLoggerSettings.LatestReleaseDate: ${{ env.ReleaseDate }}
+        LogBaseDirectory: "${{ secrets.LOGS_BASE_DIRECTORY }}"
 
     - name: Batch App Settings Variable Substitution
       uses: microsoft/variable-substitution@v1
