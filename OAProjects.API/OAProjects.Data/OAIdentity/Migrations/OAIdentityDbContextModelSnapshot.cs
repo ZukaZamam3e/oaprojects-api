@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using OAProjects.Data.OAIdentity.Context;
 
@@ -16,14 +17,18 @@ namespace OAProjects.Data.OAIdentity.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.28")
+                .HasAnnotation("ProductVersion", "8.0.8")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
+
+            MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
 
             modelBuilder.Entity("OAProjects.Data.OAIdentity.Entities.OA_ID_XREF", b =>
                 {
                     b.Property<int>("ID_XREF_ID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("ID_XREF_ID"));
 
                     b.Property<int>("NEW_ID")
                         .HasColumnType("int");
@@ -45,6 +50,8 @@ namespace OAProjects.Data.OAIdentity.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("USER_ID"));
+
                     b.Property<DateTime>("DATE_ADDED")
                         .HasColumnType("datetime(6)");
 
@@ -57,7 +64,6 @@ namespace OAProjects.Data.OAIdentity.Migrations
                         .HasColumnType("longtext");
 
                     b.Property<string>("LAST_NAME")
-                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<string>("USER_NAME")
@@ -74,6 +80,8 @@ namespace OAProjects.Data.OAIdentity.Migrations
                     b.Property<int>("USER_TOKEN_ID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("USER_TOKEN_ID"));
 
                     b.Property<DateTime>("EXPIRY_DATE_UTC")
                         .HasColumnType("datetime(6)");
