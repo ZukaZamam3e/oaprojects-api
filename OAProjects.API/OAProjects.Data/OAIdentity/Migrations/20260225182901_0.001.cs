@@ -6,8 +6,10 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace OAProjects.Data.OAIdentity.Migrations
 {
+    /// <inheritdoc />
     public partial class _0001 : Migration
     {
+        /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AlterDatabase()
@@ -72,6 +74,7 @@ namespace OAProjects.Data.OAIdentity.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
         }
 
+        /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
