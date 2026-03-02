@@ -28,6 +28,8 @@ public class TvInfoModel
 
     public string? Keywords { get; set; }
 
+    public string? GroupId { get; set; }
+
     public IEnumerable<TvInfoSeasonModel> Seasons { get; set; }
 
     [Display(Name = "Episodes")]
