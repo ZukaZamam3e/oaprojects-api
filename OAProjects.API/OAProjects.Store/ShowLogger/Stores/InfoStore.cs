@@ -138,6 +138,7 @@ public class InfoStore : IInfoStore
                     {
                         TvShow show = await client.GetTvShowAsync(int.Parse(downloadInfo.Id), TvShowMethods.Keywords);
                         TvInfoModel info = new TvInfoModel();
+                        TvGroupCollection? episodeGroup = null;
 
                         info.ShowName = show.Name;
                         info.ShowOverview = show.Overview.Substring(0, show.Overview.Length > 4000 ? 4000 : show.Overview.Length);
@@ -170,25 +171,76 @@ public class InfoStore : IInfoStore
 
                         await Task.WhenAll(tasks);
 
+                        Dictionary<int, GroupTvEpisode> episodeDict = new Dictionary<int, GroupTvEpisode>();
+
+                        if (!string.IsNullOrEmpty(downloadInfo.GroupId))
+                        {
+                            episodeGroup = await client.GetTvEpisodeGroupsAsync(downloadInfo.GroupId);
+
+                            episodeGroup.Groups.ForEach(m =>
+                            {
+                                for (int i = 0; i < m.Episodes.Count; ++i)
+                                {
+                                    int? episodeId = m.Episodes[i].Id;
+                                    if (episodeId != null)
+                                    {
+                                        if (!episodeDict.ContainsKey(episodeId.Value))
+                                        {
+                                            episodeDict.Add(episodeId.Value, new GroupTvEpisode
+                                            {
+                                                SeasonName = m.Name,
+                                                SeasonNumber = int.Parse(m.Name.Replace("Season ", "")),
+                                                EpisodeNumber = i + 1,
+                                                Id = episodeId.Value
+                                            });
+                                        }
+                                    }
+                                }
+                            });
+                        }
+
                         foreach (Task<TvSeason> task in tasks)
                         {
                             TvSeason? seasonData = task.Result;
 
                             if (seasonData != null)
                             {
-                                episodes.AddRange(seasonData.Episodes.Select(m => new TvEpisodeInfoModel
+                                foreach (TvSeasonEpisode m in seasonData.Episodes)
                                 {
-                                    ApiType = (int)INFO_API.TMDB_API,
-                                    ApiId = m.Id.ToString(),
-                                    SeasonName = dict[m.SeasonNumber].Name,
-                                    EpisodeName = m.Name,
-                                    SeasonNumber = m.SeasonNumber,
-                                    EpisodeNumber = m.EpisodeNumber,
-                                    EpisodeOverview = m.Overview.Substring(0, m.Overview.Length > 4000 ? 4000 : m.Overview.Length),
-                                    Runtime = m.Runtime,
-                                    AirDate = m.AirDate,
-                                    ImageUrl = m.StillPath,
-                                }));
+                                    int seasonNumber = m.SeasonNumber;
+                                    int episodeNumber = m.EpisodeNumber;
+                                    string seasonName = dict[m.SeasonNumber].Name;
+
+                                    GroupTvEpisode? groupTvEpisode;
+
+                                    if (episodeDict.TryGetValue(m.Id, out groupTvEpisode))
+                                    {
+                                        seasonName = groupTvEpisode.SeasonName;
+                                        seasonNumber = groupTvEpisode.SeasonNumber;
+                                        episodeNumber = groupTvEpisode.EpisodeNumber;
+                                    }
+                                    else
+                                    {
+                                        seasonNumber = -1 * seasonNumber;
+                                        episodeNumber = -1 * episodeNumber;
+                                    }
+
+                                    TvEpisodeInfoModel episode = new TvEpisodeInfoModel
+                                    {
+                                        ApiType = (int)INFO_API.TMDB_API,
+                                        ApiId = m.Id.ToString(),
+                                        SeasonName = seasonName,
+                                        EpisodeName = m.Name,
+                                        SeasonNumber = seasonNumber,
+                                        EpisodeNumber = episodeNumber,
+                                        EpisodeOverview = m.Overview.Substring(0, m.Overview.Length > 4000 ? 4000 : m.Overview.Length),
+                                        Runtime = m.Runtime,
+                                        AirDate = m.AirDate,
+                                        ImageUrl = m.StillPath,
+                                    };
+
+                                    episodes.Add(episode);
+                                }
                             }
                         }
 
@@ -247,7 +299,9 @@ public class InfoStore : IInfoStore
             PosterUrl = !string.IsNullOrEmpty(m.POSTER_URL) ? $"{_apisConfig.TMDbURL}{TMDBApiPaths.Image}{m.POSTER_URL}" : "",
             BackdropUrl = !string.IsNullOrEmpty(m.BACKDROP_URL) ? $"{_apisConfig.TMDbURL}{TMDBApiPaths.Image}{m.BACKDROP_URL}" : "",
             InfoUrl = _apisConfig.GetTvInfoUrl(m.API_TYPE, m.API_ID),
-            Status = m.STATUS
+            Status = m.STATUS,
+            GroupId = m.GROUP_ID
+            
         });
 
         if (predicate != null)
@@ -556,7 +610,8 @@ public class InfoStore : IInfoStore
                     {
                         API = (INFO_API)model.ApiType,
                         Type = INFO_TYPE.TV,
-                        Id = model.ApiId
+                        Id = model.ApiId,
+                        GroupId = model.GroupId
                     };
 
                     break;
