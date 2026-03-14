@@ -221,8 +221,11 @@ public class InfoStore : IInfoStore
                                     }
                                     else
                                     {
-                                        seasonNumber = -1 * seasonNumber;
-                                        episodeNumber = -1 * episodeNumber;
+                                        if (!string.IsNullOrEmpty(downloadInfo.GroupId))
+                                        {
+                                            seasonNumber = -1 * seasonNumber;
+                                            episodeNumber = -1 * episodeNumber;
+                                        }
                                     }
 
                                     TvEpisodeInfoModel episode = new TvEpisodeInfoModel
