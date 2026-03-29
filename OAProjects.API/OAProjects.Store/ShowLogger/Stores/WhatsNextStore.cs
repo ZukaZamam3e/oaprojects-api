@@ -71,6 +71,7 @@ public class WhatsNextStore : IWhatsNextStore
                                               Episodes = grp.Where(m => !watchedEpisodes.Contains(m.TV_EPISODE_INFO_ID)).Select(episode => new WhatsNextEpisodeModel
                                               {
                                                   TvEpisodeInfoId = episode.TV_EPISODE_INFO_ID,
+                                                  ShowName = grp.Key.SHOW_NAME,
                                                   AirDate = episode.AIR_DATE.Value,
                                                   SeasonNumber = episode.SEASON_NUMBER,
                                                   SeasonName = episode.SEASON_NAME,
