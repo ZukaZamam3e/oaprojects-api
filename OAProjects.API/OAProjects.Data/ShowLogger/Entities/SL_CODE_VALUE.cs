@@ -29,5 +29,6 @@ public enum CodeValueIds
     ALIST = 2003,
     BENEFITS = 2004,
     REWARDS = 2005,
-    TAX = 2006
+    TAX = 2006,
+    POPCORN_PASS = 2007
 }

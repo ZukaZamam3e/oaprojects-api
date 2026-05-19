@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 namespace OAProjects.Models.ShowLogger.Models.Show;
 public class TransactionItemModel
 {
+    public string Key { get; set; }
+
     public string Item { get; set; }
 
     public int TransactionTypeId { get; set; }

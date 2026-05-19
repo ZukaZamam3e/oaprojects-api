@@ -546,6 +546,7 @@ public class ShowStore : IShowStore
             .GroupBy(m => new { m.ITEM, m.QUANTITY })
             .Select(m => new TransactionItemModel
             {
+                Key = $"{m.Key.ITEM}-{m.Key.QUANTITY}-{m.OrderByDescending(n => n.TRANSACTION_DATE).First().COST_AMT}",
                 Item = m.Key.ITEM,
                 Quantity = m.Key.QUANTITY,
                 LastTransactionDate = m.Max(n => n.TRANSACTION_DATE),
