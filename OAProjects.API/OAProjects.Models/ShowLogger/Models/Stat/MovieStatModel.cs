@@ -23,6 +23,8 @@ public class MovieStatModel
 
     public decimal? RewardsAmt { get; set; }
 
+    public decimal? PopcornPassAmt { get; set; }
+
     public decimal? TotalAmt { get; set; }
 
     public int? InfoId { get; set; }

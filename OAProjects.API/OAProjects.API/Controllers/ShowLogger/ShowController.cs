@@ -128,6 +128,7 @@ public class ShowController : BaseController
                     {
                         (int)CodeValueIds.REWARDS,
                         (int)CodeValueIds.BENEFITS,
+                        (int)CodeValueIds.POPCORN_PASS,
                     };
 
                     show.TotalPurchases = show.Transactions
