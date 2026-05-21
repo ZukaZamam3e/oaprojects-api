@@ -32,6 +32,7 @@ using OAProjects.API.Validators.ShowLogger.WhatsNext;
 using OAProjects.API.Validators.ShowLogger.Watched;
 using OAProjects.Models.ShowLogger.Models.Watched;
 using OAProjects.Models.ShowLogger.Requests.Watched;
+using TMDbLib.Client;
 
 namespace OAProjects.API.Setup;
 
@@ -41,6 +42,16 @@ public static class ShowLoggerSetup
     {
         string? showLoggerConnectionString = configuration.GetConnectionString("ShowLoggerConnection");
         services.AddDbContext<ShowLoggerDbContext>(m => m.UseMySql(showLoggerConnectionString, ServerVersion.AutoDetect(showLoggerConnectionString), m => m.MigrationsHistoryTable("__SL_EFMigrationsHistory")), ServiceLifetime.Transient);
+
+        ApisConfig apisConfig = new ApisConfig();
+        configuration.GetSection("Apis").Bind(apisConfig);
+        services.AddSingleton(apisConfig);
+
+        services.AddSingleton(sp =>
+        {
+            var apisConfig = sp.GetRequiredService<ApisConfig>();
+            return new TMDbClient(apisConfig.TMDbAPIKey);
+        });
         
         services.AddTransient<IShowStore, ShowStore>();
         services.AddTransient<IFriendStore, FriendStore>();
