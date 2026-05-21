@@ -153,7 +153,7 @@ public class InfoStore(ShowLoggerDbContext context,
                         {
                             if ((i + 1) % 35 == 0)
                             {
-                                Thread.Sleep(500);
+                                await Task.Delay(500);
                             }
 
                             dict.Add(show.Seasons[i].SeasonNumber, show.Seasons[i]);
