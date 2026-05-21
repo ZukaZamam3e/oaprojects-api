@@ -12,17 +12,14 @@ using TMDbLib.Objects.Search;
 using TMDbLib.Objects.TvShows;
 
 namespace OAProjects.Store.ShowLogger.Stores;
-public class InfoStore : IInfoStore
-{
-    private readonly ShowLoggerDbContext _context;
-    private readonly ApisConfig _apisConfig;
 
-    public InfoStore(ShowLoggerDbContext context,
-        ApisConfig apisConfig)
-    {
-        _context = context;
-        _apisConfig = apisConfig;
-    }
+public class InfoStore(ShowLoggerDbContext context,
+    ApisConfig apisConfig,
+    TMDbClient tmdbClient) : IInfoStore
+{
+    private readonly ShowLoggerDbContext _context = context;
+    private readonly ApisConfig _apisConfig = apisConfig;
+    private readonly TMDbClient _tmdbClient = tmdbClient;
 
     public async Task<DownloadResultModel> Download(int userId, InfoApiDownloadModel downloadInfo)
     {
@@ -66,16 +63,13 @@ public class InfoStore : IInfoStore
             return model;
         }
 
-
-        if (!string.IsNullOrEmpty(_apisConfig.TMDbAPIKey))
+        if (!string.IsNullOrEmpty(searchInfo.Name))
         {
-            TMDbClient client = new TMDbClient(_apisConfig.TMDbAPIKey);
-
             switch (searchInfo.Type)
             {
                 case INFO_TYPE.TV:
                     {
-                        SearchContainer<SearchTv> searchContainer = await client.SearchTvShowAsync(searchInfo.Name);
+                        SearchContainer<SearchTv> searchContainer = await _tmdbClient.SearchTvShowAsync(searchInfo.Name);
 
                         model.ApiResultContents = searchContainer.Results.Select(m => new ApiSearchResultModel
                         {
@@ -93,7 +87,7 @@ public class InfoStore : IInfoStore
 
                 case INFO_TYPE.MOVIE:
                     {
-                        SearchContainer<SearchMovie> searchContainer = await client.SearchMovieAsync(searchInfo.Name);
+                        SearchContainer<SearchMovie> searchContainer = await _tmdbClient.SearchMovieAsync(searchInfo.Name);
 
                         model.ApiResultContents = searchContainer.Results.Select(m => new ApiSearchResultModel
                         {
@@ -130,13 +124,11 @@ public class InfoStore : IInfoStore
 
         if (!string.IsNullOrEmpty(_apisConfig.TMDbAPIKey))
         {
-            TMDbClient client = new TMDbClient(_apisConfig.TMDbAPIKey);
-
             switch (downloadInfo.Type)
             {
                 case INFO_TYPE.TV:
                     {
-                        TvShow show = await client.GetTvShowAsync(int.Parse(downloadInfo.Id), TvShowMethods.Keywords);
+                        TvShow show = await _tmdbClient.GetTvShowAsync(int.Parse(downloadInfo.Id), TvShowMethods.Keywords);
                         TvInfoModel info = new TvInfoModel();
                         TvGroupCollection? episodeGroup = null;
 
@@ -157,16 +149,16 @@ public class InfoStore : IInfoStore
 
                         Dictionary<int, SearchTvSeason> dict = new Dictionary<int, SearchTvSeason>();
 
-                        for(int i = 0; i < show.Seasons.Count; ++i)
+                        for (int i = 0; i < show.Seasons.Count; ++i)
                         {
-                            if((i+1) % 35 == 0)
+                            if ((i + 1) % 35 == 0)
                             {
                                 Thread.Sleep(500);
                             }
 
                             dict.Add(show.Seasons[i].SeasonNumber, show.Seasons[i]);
 
-                            tasks.Add(client.GetTvSeasonAsync(show.Id, show.Seasons[i].SeasonNumber));
+                            tasks.Add(_tmdbClient.GetTvSeasonAsync(show.Id, show.Seasons[i].SeasonNumber));
                         }
 
                         await Task.WhenAll(tasks);
@@ -175,7 +167,7 @@ public class InfoStore : IInfoStore
 
                         if (!string.IsNullOrEmpty(downloadInfo.GroupId))
                         {
-                            episodeGroup = await client.GetTvEpisodeGroupsAsync(downloadInfo.GroupId);
+                            episodeGroup = await _tmdbClient.GetTvEpisodeGroupsAsync(downloadInfo.GroupId);
 
                             episodeGroup.Groups.ForEach(m =>
                             {
@@ -208,7 +200,7 @@ public class InfoStore : IInfoStore
                                 foreach (TvSeasonEpisode m in seasonData.Episodes)
                                 {
                                     int seasonNumber = m.SeasonNumber;
-                                    int episodeNumber = m.EpisodeNumber;
+                                    int episodeNumber = (int)m.EpisodeNumber;
                                     string seasonName = dict[m.SeasonNumber].Name;
 
                                     GroupTvEpisode? groupTvEpisode;
@@ -259,7 +251,7 @@ public class InfoStore : IInfoStore
 
                 case INFO_TYPE.MOVIE:
                     {
-                        Movie movie = await client.GetMovieAsync(int.Parse(downloadInfo.Id), MovieMethods.Keywords);
+                        Movie movie = await _tmdbClient.GetMovieAsync(int.Parse(downloadInfo.Id), MovieMethods.Keywords);
                         MovieInfoModel info = new MovieInfoModel
                         {
                             MovieName = movie.Title,
@@ -304,7 +296,7 @@ public class InfoStore : IInfoStore
             InfoUrl = _apisConfig.GetTvInfoUrl(m.API_TYPE, m.API_ID),
             Status = m.STATUS,
             GroupId = m.GROUP_ID
-            
+
         });
 
         if (predicate != null)
@@ -448,7 +440,7 @@ public class InfoStore : IInfoStore
             episodeEntity.IMAGE_URL = episode.ImageUrl;
         }
 
-        List<Tuple<SL_TV_EPISODE_INFO, TvEpisodeInfoModel>> removedEpisodes = (from e in episodes 
+        List<Tuple<SL_TV_EPISODE_INFO, TvEpisodeInfoModel>> removedEpisodes = (from e in episodes
                                                                                join m in model.Episodes on new { ApiId = e.API_ID, ApiType = e.API_TYPE } equals new { m.ApiId, m.ApiType } into ms
                                                                                from m in ms.DefaultIfEmpty()
                                                                                where m == null
@@ -623,7 +615,7 @@ public class InfoStore : IInfoStore
             case INFO_TYPE.MOVIE:
                 {
                     MovieInfoModel model = GetMovieInfos(m => m.MovieInfoId == infoId).First();
-                    
+
                     apiDownloadModel = new InfoApiDownloadModel
                     {
                         API = (INFO_API)model.ApiType,
@@ -658,7 +650,7 @@ public class InfoStore : IInfoStore
         DateTime today = DateTime.Today;
         SL_TV_INFO[] tvInfos = _context.SL_TV_INFO.Where(m => m.STATUS == "Returning Series" && m.LAST_DATA_REFRESH < today).ToArray();
 
-        foreach(SL_TV_INFO tvInfo in tvInfos)
+        foreach (SL_TV_INFO tvInfo in tvInfos)
         {
             await DownloadFromTMDb(new InfoApiDownloadModel
             {

@@ -10,8 +10,9 @@ using OAProjects.Models.ShowLogger.Models.Config;
 using Scalar.AspNetCore;
 using Serilog;
 using System.Diagnostics;
-using System.Security.Claims;
 using System.IO;
+using System.Security.Claims;
+using TMDbLib.Client;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -44,9 +45,7 @@ builder.Services.AddOAIdentityDb(builder.Configuration);
 builder.Services.AddShowLoggerDb(builder.Configuration);
 builder.Services.AddFinanceTrackerDb(builder.Configuration);
 
-ApisConfig apisConfig = new ApisConfig();
-builder.Configuration.GetSection("Apis").Bind(apisConfig);
-builder.Services.AddSingleton(apisConfig);
+
 
 Auth0Config auth0APIConfig = new Auth0Config();
 config.GetSection("Auth0").Bind(auth0APIConfig);
