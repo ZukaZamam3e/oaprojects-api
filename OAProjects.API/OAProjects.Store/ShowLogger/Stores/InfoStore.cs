@@ -3,7 +3,6 @@ using OAProjects.Data.ShowLogger.Entities;
 using OAProjects.Models.ShowLogger.Models.Config;
 using OAProjects.Models.ShowLogger.Models.Info;
 using OAProjects.Store.ShowLogger.Stores.Interfaces;
-using System.Diagnostics;
 using System.Linq.Expressions;
 using TMDbLib.Client;
 using TMDbLib.Objects.General;
@@ -142,8 +141,6 @@ public class InfoStore(ShowLoggerDbContext context,
                         info.Keywords = string.Join(",", show.Keywords.Results.Select(m => m.Name.Replace("'", "''")));
 
                         List<TvEpisodeInfoModel> episodes = new List<TvEpisodeInfoModel>();
-
-                        Stopwatch requestTimer = Stopwatch.StartNew();
 
                         List<Task<TvSeason>> tasks = new List<Task<TvSeason>>();
 
@@ -380,9 +377,9 @@ public class InfoStore(ShowLoggerDbContext context,
 
         List<SL_TV_EPISODE_INFO> episodes = _context.SL_TV_EPISODE_INFO.Where(m => m.TV_INFO_ID == id).ToList();
 
-        IEnumerable<TvEpisodeInfoModel> newEpisodes = model.Episodes.Where(m => !episodes.Any(n => n.API_ID == m.ApiId && n.API_TYPE == m.ApiType));
+        List<TvEpisodeInfoModel> newEpisodes = model.Episodes.Where(m => !episodes.Any(n => n.API_ID == m.ApiId && n.API_TYPE == m.ApiType)).ToList();
 
-        if (newEpisodes.Any())
+        if (newEpisodes.Count != 0)
         {
             _context.SL_TV_EPISODE_INFO.AddRange(newEpisodes.Select(m => new SL_TV_EPISODE_INFO
             {
@@ -454,11 +451,12 @@ public class InfoStore(ShowLoggerDbContext context,
         entity.LAST_DATA_REFRESH = DateTime.Now;
         entity.LAST_UPDATED = DateTime.Now;
         _context.SaveChanges();
+        _context.ChangeTracker.Clear();
 
         return new UpdateTvInfoModel
         {
             TvInfoId = id,
-            UpdatedEpisodeCount = newEpisodes.Count() + updatedEpisodes.Count
+            UpdatedEpisodeCount = newEpisodes.Count + updatedEpisodes.Count
         };
     }
 
