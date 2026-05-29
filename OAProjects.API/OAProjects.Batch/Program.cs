@@ -79,8 +79,6 @@ static async Task<int> RunApp(IServiceProvider hostProvider, string[] arguments)
     IServiceProvider provider = serviceScope.ServiceProvider;
     App app = provider.GetRequiredService<App>();
 
-    result = await app.Run(arguments);
-
-    return result;
+    return await app.Run(arguments);
 }
 

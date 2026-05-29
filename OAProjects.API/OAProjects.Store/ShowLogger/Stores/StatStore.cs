@@ -260,8 +260,9 @@ public class StatStore : IStatStore
                     movie.PurchaseAmt = transaction.Where(m => m.TRANSACTION_TYPE_ID == (int)CodeValueIds.PURCHASE).Sum(m => m.COST_AMT);
                     movie.BenefitsAmt = transaction.Where(m => m.TRANSACTION_TYPE_ID == (int)CodeValueIds.BENEFITS).Sum(m => m.COST_AMT);
                     movie.RewardsAmt = transaction.Where(m => m.TRANSACTION_TYPE_ID == (int)CodeValueIds.REWARDS).Sum(m => m.COST_AMT);
+                    movie.PopcornPassAmt = transaction.Where(m => m.TRANSACTION_TYPE_ID == (int)CodeValueIds.POPCORN_PASS).Sum(m => m.COST_AMT);
                     decimal taxAmt = transaction.Where(m => m.TRANSACTION_TYPE_ID == (int)CodeValueIds.TAX).Sum(m => m.COST_AMT);
-                    movie.TotalAmt = movie.PurchaseAmt + taxAmt - movie.BenefitsAmt - movie.RewardsAmt;
+                    movie.TotalAmt = movie.PurchaseAmt + taxAmt - movie.BenefitsAmt - movie.RewardsAmt - movie.PopcornPassAmt;
                 }
             }
         }
@@ -286,8 +287,8 @@ public class StatStore : IStatStore
                                                       AmcCnt = g.Count(m => m.x.SHOW_TYPE_ID == (int)CodeValueIds.AMC),
                                                   }).Where(m => m.UserId == userId || friends.Contains(m.UserId)).ToList();
 
-        int[] purchases = new int[] { (int)CodeValueIds.PURCHASE, (int)CodeValueIds.TAX, (int)CodeValueIds.TICKET };
-        int[] discounts = new int[] { (int)CodeValueIds.BENEFITS, (int)CodeValueIds.REWARDS };
+        int[] purchases = [(int)CodeValueIds.PURCHASE, (int)CodeValueIds.TAX, (int)CodeValueIds.TICKET];
+        int[] discounts = [(int)CodeValueIds.BENEFITS, (int)CodeValueIds.REWARDS, (int)CodeValueIds.POPCORN_PASS];
 
         IEnumerable<YearStatModel> modelTransactions = (from t in _context.SL_TRANSACTION
                                                          group new { t } by new { t.USER_ID, t.TRANSACTION_DATE.Year } into g

@@ -67,6 +67,9 @@ public class WhatsNextShowModel
 public class WhatsNextEpisodeModel
 {
     public int TvEpisodeInfoId { get; set; }
+
+    public string ShowName { get; set; }
+
     public int? SeasonNumber { get; set; }
 
     public string SeasonName { get; set; }

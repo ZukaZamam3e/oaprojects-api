@@ -3,7 +3,6 @@ using OAProjects.Data.ShowLogger.Entities;
 using OAProjects.Models.ShowLogger.Models.Config;
 using OAProjects.Models.ShowLogger.Models.Info;
 using OAProjects.Store.ShowLogger.Stores.Interfaces;
-using System.Diagnostics;
 using System.Linq.Expressions;
 using TMDbLib.Client;
 using TMDbLib.Objects.General;
@@ -12,17 +11,14 @@ using TMDbLib.Objects.Search;
 using TMDbLib.Objects.TvShows;
 
 namespace OAProjects.Store.ShowLogger.Stores;
-public class InfoStore : IInfoStore
-{
-    private readonly ShowLoggerDbContext _context;
-    private readonly ApisConfig _apisConfig;
 
-    public InfoStore(ShowLoggerDbContext context,
-        ApisConfig apisConfig)
-    {
-        _context = context;
-        _apisConfig = apisConfig;
-    }
+public class InfoStore(ShowLoggerDbContext context,
+    ApisConfig apisConfig,
+    TMDbClient tmdbClient) : IInfoStore
+{
+    private readonly ShowLoggerDbContext _context = context;
+    private readonly ApisConfig _apisConfig = apisConfig;
+    private readonly TMDbClient _tmdbClient = tmdbClient;
 
     public async Task<DownloadResultModel> Download(int userId, InfoApiDownloadModel downloadInfo)
     {
@@ -66,16 +62,13 @@ public class InfoStore : IInfoStore
             return model;
         }
 
-
-        if (!string.IsNullOrEmpty(_apisConfig.TMDbAPIKey))
+        if (!string.IsNullOrEmpty(searchInfo.Name))
         {
-            TMDbClient client = new TMDbClient(_apisConfig.TMDbAPIKey);
-
             switch (searchInfo.Type)
             {
                 case INFO_TYPE.TV:
                     {
-                        SearchContainer<SearchTv> searchContainer = await client.SearchTvShowAsync(searchInfo.Name);
+                        SearchContainer<SearchTv> searchContainer = await _tmdbClient.SearchTvShowAsync(searchInfo.Name);
 
                         model.ApiResultContents = searchContainer.Results.Select(m => new ApiSearchResultModel
                         {
@@ -93,7 +86,7 @@ public class InfoStore : IInfoStore
 
                 case INFO_TYPE.MOVIE:
                     {
-                        SearchContainer<SearchMovie> searchContainer = await client.SearchMovieAsync(searchInfo.Name);
+                        SearchContainer<SearchMovie> searchContainer = await _tmdbClient.SearchMovieAsync(searchInfo.Name);
 
                         model.ApiResultContents = searchContainer.Results.Select(m => new ApiSearchResultModel
                         {
@@ -130,14 +123,13 @@ public class InfoStore : IInfoStore
 
         if (!string.IsNullOrEmpty(_apisConfig.TMDbAPIKey))
         {
-            TMDbClient client = new TMDbClient(_apisConfig.TMDbAPIKey);
-
             switch (downloadInfo.Type)
             {
                 case INFO_TYPE.TV:
                     {
-                        TvShow show = await client.GetTvShowAsync(int.Parse(downloadInfo.Id), TvShowMethods.Keywords);
+                        TvShow show = await _tmdbClient.GetTvShowAsync(int.Parse(downloadInfo.Id), TvShowMethods.Keywords);
                         TvInfoModel info = new TvInfoModel();
+                        TvGroupCollection? episodeGroup = null;
 
                         info.ShowName = show.Name;
                         info.ShowOverview = show.Overview.Substring(0, show.Overview.Length > 4000 ? 4000 : show.Overview.Length);
@@ -150,25 +142,51 @@ public class InfoStore : IInfoStore
 
                         List<TvEpisodeInfoModel> episodes = new List<TvEpisodeInfoModel>();
 
-                        Stopwatch requestTimer = Stopwatch.StartNew();
-
                         List<Task<TvSeason>> tasks = new List<Task<TvSeason>>();
 
                         Dictionary<int, SearchTvSeason> dict = new Dictionary<int, SearchTvSeason>();
 
-                        for(int i = 0; i < show.Seasons.Count; ++i)
+                        for (int i = 0; i < show.Seasons.Count; ++i)
                         {
-                            if((i+1) % 35 == 0)
+                            if ((i + 1) % 35 == 0)
                             {
-                                Thread.Sleep(500);
+                                await Task.Delay(500);
                             }
 
                             dict.Add(show.Seasons[i].SeasonNumber, show.Seasons[i]);
 
-                            tasks.Add(client.GetTvSeasonAsync(show.Id, show.Seasons[i].SeasonNumber));
+                            tasks.Add(_tmdbClient.GetTvSeasonAsync(show.Id, show.Seasons[i].SeasonNumber));
                         }
 
                         await Task.WhenAll(tasks);
+
+                        Dictionary<int, GroupTvEpisode> episodeDict = new Dictionary<int, GroupTvEpisode>();
+
+                        if (!string.IsNullOrEmpty(downloadInfo.GroupId))
+                        {
+                            episodeGroup = await _tmdbClient.GetTvEpisodeGroupsAsync(downloadInfo.GroupId);
+
+                            episodeGroup.Groups.ForEach(m =>
+                            {
+                                for (int i = 0; i < m.Episodes.Count; ++i)
+                                {
+                                    int? episodeId = m.Episodes[i].Id;
+                                    if (episodeId != null)
+                                    {
+                                        if (!episodeDict.ContainsKey(episodeId.Value))
+                                        {
+                                            episodeDict.Add(episodeId.Value, new GroupTvEpisode
+                                            {
+                                                SeasonName = m.Name,
+                                                SeasonNumber = int.Parse(m.Name.Replace("Season ", "")),
+                                                EpisodeNumber = i + 1,
+                                                Id = episodeId.Value
+                                            });
+                                        }
+                                    }
+                                }
+                            });
+                        }
 
                         foreach (Task<TvSeason> task in tasks)
                         {
@@ -176,19 +194,45 @@ public class InfoStore : IInfoStore
 
                             if (seasonData != null)
                             {
-                                episodes.AddRange(seasonData.Episodes.Select(m => new TvEpisodeInfoModel
+                                foreach (TvSeasonEpisode m in seasonData.Episodes)
                                 {
-                                    ApiType = (int)INFO_API.TMDB_API,
-                                    ApiId = m.Id.ToString(),
-                                    SeasonName = dict[m.SeasonNumber].Name,
-                                    EpisodeName = m.Name,
-                                    SeasonNumber = m.SeasonNumber,
-                                    EpisodeNumber = m.EpisodeNumber,
-                                    EpisodeOverview = m.Overview.Substring(0, m.Overview.Length > 4000 ? 4000 : m.Overview.Length),
-                                    Runtime = m.Runtime,
-                                    AirDate = m.AirDate,
-                                    ImageUrl = m.StillPath,
-                                }));
+                                    int seasonNumber = m.SeasonNumber;
+                                    int episodeNumber = (int)m.EpisodeNumber;
+                                    string seasonName = dict[m.SeasonNumber].Name;
+
+                                    GroupTvEpisode? groupTvEpisode;
+
+                                    if (episodeDict.TryGetValue(m.Id, out groupTvEpisode))
+                                    {
+                                        seasonName = groupTvEpisode.SeasonName;
+                                        seasonNumber = groupTvEpisode.SeasonNumber;
+                                        episodeNumber = groupTvEpisode.EpisodeNumber;
+                                    }
+                                    else
+                                    {
+                                        if (!string.IsNullOrEmpty(downloadInfo.GroupId))
+                                        {
+                                            seasonNumber = -1 * seasonNumber;
+                                            episodeNumber = -1 * episodeNumber;
+                                        }
+                                    }
+
+                                    TvEpisodeInfoModel episode = new TvEpisodeInfoModel
+                                    {
+                                        ApiType = (int)INFO_API.TMDB_API,
+                                        ApiId = m.Id.ToString(),
+                                        SeasonName = seasonName,
+                                        EpisodeName = m.Name,
+                                        SeasonNumber = seasonNumber,
+                                        EpisodeNumber = episodeNumber,
+                                        EpisodeOverview = m.Overview.Substring(0, m.Overview.Length > 4000 ? 4000 : m.Overview.Length),
+                                        Runtime = m.Runtime,
+                                        AirDate = m.AirDate,
+                                        ImageUrl = m.StillPath,
+                                    };
+
+                                    episodes.Add(episode);
+                                }
                             }
                         }
 
@@ -204,7 +248,7 @@ public class InfoStore : IInfoStore
 
                 case INFO_TYPE.MOVIE:
                     {
-                        Movie movie = await client.GetMovieAsync(int.Parse(downloadInfo.Id), MovieMethods.Keywords);
+                        Movie movie = await _tmdbClient.GetMovieAsync(int.Parse(downloadInfo.Id), MovieMethods.Keywords);
                         MovieInfoModel info = new MovieInfoModel
                         {
                             MovieName = movie.Title,
@@ -247,7 +291,9 @@ public class InfoStore : IInfoStore
             PosterUrl = !string.IsNullOrEmpty(m.POSTER_URL) ? $"{_apisConfig.TMDbURL}{TMDBApiPaths.Image}{m.POSTER_URL}" : "",
             BackdropUrl = !string.IsNullOrEmpty(m.BACKDROP_URL) ? $"{_apisConfig.TMDbURL}{TMDBApiPaths.Image}{m.BACKDROP_URL}" : "",
             InfoUrl = _apisConfig.GetTvInfoUrl(m.API_TYPE, m.API_ID),
-            Status = m.STATUS
+            Status = m.STATUS,
+            GroupId = m.GROUP_ID
+
         });
 
         if (predicate != null)
@@ -331,9 +377,9 @@ public class InfoStore : IInfoStore
 
         List<SL_TV_EPISODE_INFO> episodes = _context.SL_TV_EPISODE_INFO.Where(m => m.TV_INFO_ID == id).ToList();
 
-        IEnumerable<TvEpisodeInfoModel> newEpisodes = model.Episodes.Where(m => !episodes.Any(n => n.API_ID == m.ApiId && n.API_TYPE == m.ApiType));
+        List<TvEpisodeInfoModel> newEpisodes = model.Episodes.Where(m => !episodes.Any(n => n.API_ID == m.ApiId && n.API_TYPE == m.ApiType)).ToList();
 
-        if (newEpisodes.Any())
+        if (newEpisodes.Count != 0)
         {
             _context.SL_TV_EPISODE_INFO.AddRange(newEpisodes.Select(m => new SL_TV_EPISODE_INFO
             {
@@ -391,7 +437,7 @@ public class InfoStore : IInfoStore
             episodeEntity.IMAGE_URL = episode.ImageUrl;
         }
 
-        List<Tuple<SL_TV_EPISODE_INFO, TvEpisodeInfoModel>> removedEpisodes = (from e in episodes 
+        List<Tuple<SL_TV_EPISODE_INFO, TvEpisodeInfoModel>> removedEpisodes = (from e in episodes
                                                                                join m in model.Episodes on new { ApiId = e.API_ID, ApiType = e.API_TYPE } equals new { m.ApiId, m.ApiType } into ms
                                                                                from m in ms.DefaultIfEmpty()
                                                                                where m == null
@@ -405,11 +451,12 @@ public class InfoStore : IInfoStore
         entity.LAST_DATA_REFRESH = DateTime.Now;
         entity.LAST_UPDATED = DateTime.Now;
         _context.SaveChanges();
+        _context.ChangeTracker.Clear();
 
         return new UpdateTvInfoModel
         {
             TvInfoId = id,
-            UpdatedEpisodeCount = newEpisodes.Count() + updatedEpisodes.Count
+            UpdatedEpisodeCount = newEpisodes.Count + updatedEpisodes.Count
         };
     }
 
@@ -556,7 +603,8 @@ public class InfoStore : IInfoStore
                     {
                         API = (INFO_API)model.ApiType,
                         Type = INFO_TYPE.TV,
-                        Id = model.ApiId
+                        Id = model.ApiId,
+                        GroupId = model.GroupId
                     };
 
                     break;
@@ -565,7 +613,7 @@ public class InfoStore : IInfoStore
             case INFO_TYPE.MOVIE:
                 {
                     MovieInfoModel model = GetMovieInfos(m => m.MovieInfoId == infoId).First();
-                    
+
                     apiDownloadModel = new InfoApiDownloadModel
                     {
                         API = (INFO_API)model.ApiType,
@@ -600,7 +648,7 @@ public class InfoStore : IInfoStore
         DateTime today = DateTime.Today;
         SL_TV_INFO[] tvInfos = _context.SL_TV_INFO.Where(m => m.STATUS == "Returning Series" && m.LAST_DATA_REFRESH < today).ToArray();
 
-        foreach(SL_TV_INFO tvInfo in tvInfos)
+        foreach (SL_TV_INFO tvInfo in tvInfos)
         {
             await DownloadFromTMDb(new InfoApiDownloadModel
             {

@@ -12,17 +12,40 @@ using OAProjects.Data.OAIdentity.Context;
 namespace OAProjects.Data.OAIdentity.Migrations
 {
     [DbContext(typeof(OAIdentityDbContext))]
-    [Migration("20240329021831_0.001")]
+    [Migration("20260225182901_0.001")]
     partial class _0001
     {
+        /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.22")
-                .HasAnnotation("Relational:MaxIdentifierLength", 128);
+                .HasAnnotation("ProductVersion", "8.0.8")
+                .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
-            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
+            MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
+
+            modelBuilder.Entity("OAProjects.Data.OAIdentity.Entities.OA_ID_XREF", b =>
+                {
+                    b.Property<int>("ID_XREF_ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("ID_XREF_ID"));
+
+                    b.Property<int>("NEW_ID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("OLD_ID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TABLE_ID")
+                        .HasColumnType("int");
+
+                    b.HasKey("ID_XREF_ID");
+
+                    b.ToTable("OA_ID_XREF");
+                });
 
             modelBuilder.Entity("OAProjects.Data.OAIdentity.Entities.OA_USER", b =>
                 {
@@ -30,26 +53,26 @@ namespace OAProjects.Data.OAIdentity.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("USER_ID"), 1L, 1);
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("USER_ID"));
 
                     b.Property<DateTime>("DATE_ADDED")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetime(6)");
 
                     b.Property<string>("EMAIL")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("longtext");
 
                     b.Property<string>("FIRST_NAME")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("longtext");
 
                     b.Property<string>("LAST_NAME")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("longtext");
 
                     b.Property<string>("USER_NAME")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("longtext");
 
                     b.HasKey("USER_ID");
 
@@ -62,14 +85,23 @@ namespace OAProjects.Data.OAIdentity.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("USER_TOKEN_ID"), 1L, 1);
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("USER_TOKEN_ID"));
 
-                    b.Property<DateTime>("EXPIRATION_TIME")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTime>("EXPIRY_DATE_UTC")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("EXPIRY_TIME")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ISSUED_AT")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("ISSUED_AT_DATE_UTC")
+                        .HasColumnType("datetime(6)");
 
                     b.Property<string>("TOKEN")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("longtext");
 
                     b.Property<int>("USER_ID")
                         .HasColumnType("int");

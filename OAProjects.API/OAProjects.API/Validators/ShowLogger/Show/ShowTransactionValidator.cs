@@ -12,6 +12,6 @@ public class ShowTransactionValidator : AbstractValidator<ShowTransactionModel>
         RuleFor(m => m.CostAmt).GreaterThanOrEqualTo(0).WithMessage(m => $"{m.Item} cannot have a negative amount.");
         RuleFor(m => m.Quantity).GreaterThanOrEqualTo(1).WithMessage(m => $"{m.Item} cannot have a quantity less than 0.");
         RuleFor(m => m.TransactionTypeId).GreaterThanOrEqualTo((int)CodeValueIds.ALIST_TICKET).WithMessage(m => $"{m.Item} transaction type not valid.");
-        RuleFor(m => m.TransactionTypeId).LessThanOrEqualTo((int)CodeValueIds.TAX).WithMessage(m => $"{m.Item} transaction type not valid.");
+        RuleFor(m => m.TransactionTypeId).LessThanOrEqualTo((int)CodeValueIds.POPCORN_PASS).WithMessage(m => $"{m.Item} transaction type not valid.");
     }
 }

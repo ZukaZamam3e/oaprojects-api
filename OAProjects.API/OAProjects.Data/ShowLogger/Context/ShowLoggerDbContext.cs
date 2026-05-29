@@ -82,7 +82,8 @@ public class ShowLoggerDbContext : DbContext
             new SL_CODE_VALUE { CODE_TABLE_ID = (int)CodeTableIds.TRANSACTION_TYPE_ID, CODE_VALUE_ID = (int)CodeValueIds.ALIST, DECODE_TXT = "AMC A-list" },
             new SL_CODE_VALUE { CODE_TABLE_ID = (int)CodeTableIds.TRANSACTION_TYPE_ID, CODE_VALUE_ID = (int)CodeValueIds.BENEFITS, DECODE_TXT = "Benefits" },
             new SL_CODE_VALUE { CODE_TABLE_ID = (int)CodeTableIds.TRANSACTION_TYPE_ID, CODE_VALUE_ID = (int)CodeValueIds.REWARDS, DECODE_TXT = "Rewards" },
-            new SL_CODE_VALUE { CODE_TABLE_ID = (int)CodeTableIds.TRANSACTION_TYPE_ID, CODE_VALUE_ID = (int)CodeValueIds.TAX, DECODE_TXT = "Tax" }
+            new SL_CODE_VALUE { CODE_TABLE_ID = (int)CodeTableIds.TRANSACTION_TYPE_ID, CODE_VALUE_ID = (int)CodeValueIds.TAX, DECODE_TXT = "Tax" },
+            new SL_CODE_VALUE { CODE_TABLE_ID = (int)CodeTableIds.TRANSACTION_TYPE_ID, CODE_VALUE_ID = (int)CodeValueIds.POPCORN_PASS, DECODE_TXT = "Popcorn Pass" }
         );
 
         modelBuilder.Entity<SL_SHOW>(entity =>

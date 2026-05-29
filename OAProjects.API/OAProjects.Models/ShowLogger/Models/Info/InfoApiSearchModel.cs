@@ -48,4 +48,6 @@ public class InfoApiDownloadModel
     public INFO_TYPE Type { get; set; }
 
     public string Id { get; set; }
+
+    public string? GroupId { get; set; }
 }

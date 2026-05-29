@@ -38,6 +38,6 @@ public class App
 
         _logger.LogInformation($"OAProjects.Batch has completed.");
 
-        return 1;
+        return 0;
     }
 }

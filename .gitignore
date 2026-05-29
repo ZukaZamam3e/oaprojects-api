@@ -408,3 +408,4 @@ OAProjects.API/OAProjects.Batch/appsettings.Local.json
 /batch-publish
 /batch-publish
 /ft_server_data
+/OldMigrations

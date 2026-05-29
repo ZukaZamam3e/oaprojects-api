@@ -26,5 +26,7 @@ public class SL_TV_INFO
 
     public string? KEYWORDS { get; set; }
 
+    public string? GROUP_ID { get; set; }
+
     public ICollection<SL_TV_EPISODE_INFO> EPISODE_INFOS { get; set; }
 }

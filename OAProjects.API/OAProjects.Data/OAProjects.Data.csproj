@@ -27,6 +27,7 @@
 
   <ItemGroup>
     <Folder Include="FinanceTracker\Migrations\" />
+    <Folder Include="OAIdentity\Migrations\" />
   </ItemGroup>
 
 </Project>

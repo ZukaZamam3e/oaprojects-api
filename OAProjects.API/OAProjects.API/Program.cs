@@ -3,13 +3,17 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.Identity.Web;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Net.Http.Headers;
+using OAProjects.API.Middleware;
 using OAProjects.API.Requirements;
 using OAProjects.API.Setup;
 using OAProjects.API.SignalR;
 using OAProjects.Models.ShowLogger.Models.Config;
 using Scalar.AspNetCore;
+using Serilog;
 using System.Diagnostics;
+using System.IO;
 using System.Security.Claims;
+using TMDbLib.Client;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,6 +21,13 @@ if (Debugger.IsAttached)
 {
     builder.Configuration.AddJsonFile("appsettings.local.json", optional: true, reloadOnChange: true);
 }
+
+// Configure Serilog with LogBaseDirectory
+var logBaseDirectory = builder.Configuration.GetValue<string>("LogBaseDirectory");
+
+builder.Host.UseSerilog((context, configuration) =>
+    configuration.ReadFrom.Configuration(context.Configuration)
+    .WriteTo.File(Path.Join(logBaseDirectory, "log-.txt"), rollingInterval: RollingInterval.Day));
 
 var config = builder.Configuration;
 
@@ -27,13 +38,15 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// Add global exception handler
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
+
 builder.Services.AddOAIdentityDb(builder.Configuration);
 builder.Services.AddShowLoggerDb(builder.Configuration);
 builder.Services.AddFinanceTrackerDb(builder.Configuration);
 
-ApisConfig apisConfig = new ApisConfig();
-builder.Configuration.GetSection("Apis").Bind(apisConfig);
-builder.Services.AddSingleton(apisConfig);
+
 
 Auth0Config auth0APIConfig = new Auth0Config();
 config.GetSection("Auth0").Bind(auth0APIConfig);
@@ -54,12 +67,10 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     };
 });
 
-builder.Services.AddAuthorization(options =>
-{
-    options.AddPolicy("User.ReadWrite", policy => policy.Requirements.Add(new HasScopeRequirement("User.ReadWrite", domain)));
-    options.AddPolicy("Batch.ReadWrite", policy => policy.Requirements.Add(new HasScopeRequirement("Batch.ReadWrite", domain)));
-    options.AddPolicy("Info.ReadWrite", policy => policy.Requirements.Add(new HasScopeRequirement("Info.ReadWrite", domain)));
-});
+builder.Services.AddAuthorizationBuilder()
+    .AddPolicy("User.ReadWrite", policy => policy.Requirements.Add(new HasScopeRequirement("User.ReadWrite", domain)))
+    .AddPolicy("Batch.ReadWrite", policy => policy.Requirements.Add(new HasScopeRequirement("Batch.ReadWrite", domain)))
+    .AddPolicy("Info.ReadWrite", policy => policy.Requirements.Add(new HasScopeRequirement("Info.ReadWrite", domain)));
 
 builder.Services.AddSingleton<IAuthorizationHandler, HasScopeHandler>();
 
@@ -89,6 +100,11 @@ builder.Services.AddSignalR(options =>
 
 var app = builder.Build();
 
+// Add Serilog request logging
+app.UseSerilogRequestLogging();
+
+// Add global exception handler
+app.UseExceptionHandler();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -123,4 +139,16 @@ app.Urls.Add(listeningPort);
 
 app.MapHub<ShowQuizHub>("/showQuizHub");
 
-app.Run();
+try
+{
+    Log.Information("Starting OAProjects API");
+    app.Run();
+}
+catch (Exception ex)
+{
+    Log.Fatal(ex, "Application terminated unexpectedly");
+}
+finally
+{
+    Log.CloseAndFlush();
+}

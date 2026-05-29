@@ -44,6 +44,16 @@ public class CalendarModel(int userId, int accountId, DateTime startDate, IEnume
 
         if (Days.Count > 0)
         {
+            DateTime maxEndDate = Days.Max(m => m.Date);
+
+            if (maxEndDate < startDate)
+            {
+                startDate = maxEndDate;
+            }
+        }
+
+        if (Days.Count > 0)
+        {
             Days = Days.Where(m => m.Date < startDate).ToList();
             currentTotal = Days.LastOrDefault()?.Total ?? 0;
         }
@@ -166,6 +176,7 @@ public class CalendarModel(int userId, int accountId, DateTime startDate, IEnume
                     model.TransactionName = transaction.Name;
                     model.TransactionId = transaction.TransactionId;
                     model.FrequencyTypeIdZ = transaction.FrequencyTypeIdZ;
+                    model.Url = transaction.TransactionUrl;
 
                     decimal amount = GetAmount(monthDay.Date, transaction, Offsets);
                     if (transaction.FrequencyTypeId != HARDSET)
@@ -210,7 +221,7 @@ public class CalendarModel(int userId, int accountId, DateTime startDate, IEnume
         {
             if (!string.IsNullOrEmpty(category))
             {
-                string[] split = category.ToLower().Split(',');
+                string[] split = category.Split(',');
                 allCategories.AddRange(split);
             }
         }
@@ -308,11 +319,11 @@ public class CalendarModel(int userId, int accountId, DateTime startDate, IEnume
             MONTHLY => checkDate.Day == startDate.Day
                 || (checkDate.Day == DateTime.DaysInMonth(checkDate.Year, checkDate.Month)
                     && startDate.Day > checkDate.Day),
-            QUARTERLY => checkDate.Day == startDate.Day && (checkDate.Month - startDate.Month % 3 == 0),
+            QUARTERLY => checkDate.Day == startDate.Day && ((checkDate.Month - startDate.Month) % 3 == 0),
             YEARLY => checkDate.Day == startDate.Day && checkDate.Month == startDate.Month,
             EVERY_N_DAYS => (checkDate - startDate).Days % interval == 0,
             EVERY_N_WEEKS => (checkDate - startDate).Days % (7 * interval) == 0,
-            EVERY_N_MONTHS => checkDate.Month - startDate.Month % interval == 0,
+            EVERY_N_MONTHS => ((checkDate.Month - startDate.Month) % interval == 0) && checkDate.Day == startDate.Day,
             _ => false
         };
     }
