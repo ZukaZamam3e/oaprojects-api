@@ -6,6 +6,7 @@ using Microsoft.Net.Http.Headers;
 using OAProjects.API.Middleware;
 using OAProjects.API.Requirements;
 using OAProjects.API.Setup;
+using OAProjects.API.SignalR;
 using OAProjects.Models.ShowLogger.Models.Config;
 using Scalar.AspNetCore;
 using Serilog;
@@ -80,7 +81,8 @@ builder.Services.AddCors(options =>
         {
             builder.WithOrigins("https://show-logger.oaprojects.net", "https://finance-tracker.oaprojects.net", "https://oaprojects.net", "http://localhost:5173")
                 .AllowAnyMethod()
-                .AllowAnyHeader();
+                .AllowAnyHeader()
+                .AllowCredentials();
         });
 });
 
@@ -90,6 +92,11 @@ builder.Services.AddHttpClient("Auth0", httpClient =>
 });
 
 builder.Services.AddMemoryCache();
+
+builder.Services.AddSignalR(options =>
+{
+    options.MaximumReceiveMessageSize = 64 * 1024; // 64 KB (or larger if needed)
+});
 
 var app = builder.Build();
 
@@ -129,6 +136,8 @@ app.MapControllers();
 string listeningPort = builder.Configuration.GetValue<string>("ListeningPort");
 
 app.Urls.Add(listeningPort);
+
+app.MapHub<ShowQuizHub>("/showQuizHub");
 
 try
 {

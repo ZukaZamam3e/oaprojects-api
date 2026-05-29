@@ -71,13 +71,13 @@ using IHost host = builder.Build();
 
 return await RunApp(host.Services, args);
 
-
 static async Task<int> RunApp(IServiceProvider hostProvider, string[] arguments)
 {
+    int result = 0;
+
     using IServiceScope serviceScope = hostProvider.CreateScope();
     IServiceProvider provider = serviceScope.ServiceProvider;
     App app = provider.GetRequiredService<App>();
-
 
     return await app.Run(arguments);
 }
