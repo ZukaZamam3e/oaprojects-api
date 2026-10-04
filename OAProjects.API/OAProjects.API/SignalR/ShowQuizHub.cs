@@ -10,6 +10,11 @@ public class ShowQuizHub : Hub
         await Clients.Others.SendAsync("ReceiveClientUpdate", user, message);
     }
 
+    public async Task OnNewConnecion(string user)
+    {
+        await Clients.Others.SendAsync("NewClient", user);
+    }
+
     //public async Task UpdateClient(string user, CategoryQuestionModel selectedQuestion, List<CategoryModel> categories, int turnOrder, int selectedPlayerId, List<PlayerModel> players)
     //{
     //    await Clients.All.SendAsync("ReceiveMessage", user, "testing");
