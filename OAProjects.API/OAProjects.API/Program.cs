@@ -74,12 +74,14 @@ builder.Services.AddAuthorizationBuilder()
 
 builder.Services.AddSingleton<IAuthorizationHandler, HasScopeHandler>();
 
+string[] origins = builder.Configuration.GetValue<string>("Origins")?.Split(',') ?? Array.Empty<string>();
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(name: MyAllowSpecificOrigins,
         builder =>
         {
-            builder.WithOrigins("https://show-logger.oaprojects.net", "https://finance-tracker.oaprojects.net", "https://oaprojects.net", "http://localhost:5173")
+            builder.WithOrigins(origins)
                 .AllowAnyMethod()
                 .AllowAnyHeader()
                 .AllowCredentials();
